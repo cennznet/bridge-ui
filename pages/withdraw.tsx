@@ -1,13 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { Button, TextField } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, Button, TextField } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import { initWeb3 } from "../utils/web3";
 import TxModal from "../components/TxModal";
 
+const useStyles = makeStyles({
+  root: {
+    margin: "0 auto",
+    borderRadius: 20,
+    width: "30%",
+    height: "auto",
+    display: "block",
+    border: "3px outset #cfcfcf",
+  },
+  input: {
+    display: "flex",
+    width: "70%",
+    margin: "20px auto",
+    borderRadius: 10,
+  },
+});
+
 const Withdraw: React.FC<{}> = () => {
+  const classes = useStyles();
   const [amount, setAmount] = useState("");
-  const [CENNZnetAddress, setCENNZnetAddress] = useState("");
   const [modal, setModal] = useState({
     state: "",
     text: "",
@@ -15,12 +32,25 @@ const Withdraw: React.FC<{}> = () => {
   });
 
   const [contracts, setContracts] = useState({
-    bridge: {},
-    peg: {},
-    token: {},
+    bridge: {
+      activeValidatorSetId: () => {},
+      verificationFee: () => {},
+    },
+    peg: {
+      withdraw: (
+        tokenAddress: string,
+        amount: any,
+        recipient: string,
+        proof: {},
+        gas: {}
+      ) => {},
+    },
+    token: {
+      address: "",
+    },
   });
 
-  const [account, setAccount] = useState();
+  const [account, setAccount] = useState("");
 
   useEffect(() => {
     initWeb3().then((res) => {
@@ -41,7 +71,7 @@ const Withdraw: React.FC<{}> = () => {
 
     let verificationFee = await contracts.bridge.verificationFee();
 
-    let tx = await contracts.peg.withdraw(
+    let tx: any = await contracts.peg.withdraw(
       contracts.token.address,
       amount,
       account,
@@ -72,40 +102,13 @@ const Withdraw: React.FC<{}> = () => {
       {modal.state === "withdraw" && (
         <TxModal modalText={modal.text} etherscanHash={modal.hash} />
       )}
-      <Box
-        component="form"
-        sx={{
-          margin: "20px auto",
-          backgroundColor: "primary.light",
-          borderRadius: 5,
-          width: "30%",
-          height: "auto",
-          display: "block",
-        }}
-      >
+      <Box component="form" className={classes.root}>
         <TextField
           id="amount"
           label="Amount"
           variant="filled"
-          sx={{
-            display: "flex",
-            width: "70%",
-            margin: "20px auto",
-            borderRadius: 10,
-          }}
+          className={classes.input}
           onChange={(e) => setAmount(e.target.value)}
-        />
-        <TextField
-          id="cennznet-address"
-          label="CENNZnet Address"
-          variant="filled"
-          sx={{
-            display: "flex",
-            width: "70%",
-            margin: "20px auto",
-            borderRadius: 10,
-          }}
-          onChange={(e) => setCENNZnetAddress(e.target.value)}
         />
         <Button
           sx={{ margin: "15px auto", display: "flex" }}

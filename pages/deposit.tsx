@@ -2,15 +2,29 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { initWeb3 } from "../utils/web3";
 import { decodeAddress } from "@polkadot/keyring";
-import { Box, Button, Modal, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import TxModal from "../components/TxModal";
+import { makeStyles } from "@mui/styles";
 
-// interface Transaction {
-//   wait: () => {};
-//   hash: string;
-// }
+const useStyles = makeStyles({
+  root: {
+    margin: "0 auto",
+    borderRadius: 20,
+    width: "30%",
+    height: "auto",
+    display: "block",
+    border: "3px outset #cfcfcf",
+  },
+  input: {
+    display: "flex",
+    width: "70%",
+    margin: "20px auto",
+    borderRadius: 10,
+  },
+});
 
 const Deposit: React.FC<{}> = () => {
+  const classes = useStyles();
   const [amount, setAmount] = useState("");
   const [CENNZnetAddress, setCENNZnetAddress] = useState("");
   const [contracts, setContracts] = useState({
@@ -27,9 +41,6 @@ const Deposit: React.FC<{}> = () => {
       approve: (pegAddress: string, amount: any) => {},
     },
   });
-  const [account, setAccount] = useState();
-  const [open, setOpen] = useState(false);
-  const [depositHash, setDepositHash] = useState("");
   const [modal, setModal] = useState({
     state: "",
     text: "",
@@ -40,7 +51,6 @@ const Deposit: React.FC<{}> = () => {
     initWeb3().then((res) => {
       const { peg, token, accounts }: any = res;
       setContracts({ peg, token });
-      setAccount(accounts[0]);
     });
   }, []);
 
@@ -75,39 +85,19 @@ const Deposit: React.FC<{}> = () => {
       {modal.state === "deposit" && (
         <TxModal modalText={modal.text} etherscanHash={modal.hash} />
       )}
-      <Box
-        component="form"
-        sx={{
-          margin: "0 auto",
-          backgroundColor: "primary.light",
-          borderRadius: 5,
-          width: "30%",
-          height: "auto",
-          display: "block",
-        }}
-      >
+      <Box component="form" className={classes.root}>
         <TextField
           id="amount"
           label="Amount"
           variant="filled"
-          sx={{
-            display: "flex",
-            width: "70%",
-            margin: "20px auto",
-            borderRadius: 10,
-          }}
+          className={classes.input}
           onChange={(e) => setAmount(e.target.value)}
         />
         <TextField
           id="cennznet-address"
           label="CENNZnet Address"
           variant="filled"
-          sx={{
-            display: "flex",
-            width: "70%",
-            margin: "20px auto",
-            borderRadius: 10,
-          }}
+          className={classes.input}
           onChange={(e) => setCENNZnetAddress(e.target.value)}
         />
         <Button
