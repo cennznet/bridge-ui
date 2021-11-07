@@ -4,24 +4,7 @@ import { initWeb3 } from "../utils/web3";
 import { decodeAddress } from "@polkadot/keyring";
 import { Box, Button, TextField } from "@mui/material";
 import TxModal from "../components/TxModal";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles({
-  root: {
-    margin: "0 auto",
-    borderRadius: 20,
-    width: "30%",
-    height: "auto",
-    display: "block",
-    border: "3px outset #cfcfcf",
-  },
-  input: {
-    display: "flex",
-    width: "70%",
-    margin: "20px auto",
-    borderRadius: 10,
-  },
-});
+import useStyles from "../utils/styles";
 
 const Deposit: React.FC<{}> = () => {
   const classes = useStyles();
@@ -85,7 +68,7 @@ const Deposit: React.FC<{}> = () => {
       {modal.state === "deposit" && (
         <TxModal modalText={modal.text} etherscanHash={modal.hash} />
       )}
-      <Box component="form" className={classes.root}>
+      <Box component="form" className={classes.box}>
         <TextField
           id="amount"
           label="Amount"

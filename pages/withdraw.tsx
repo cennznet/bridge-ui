@@ -1,26 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { Box, Button, TextField } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import { initWeb3 } from "../utils/web3";
 import TxModal from "../components/TxModal";
-
-const useStyles = makeStyles({
-  root: {
-    margin: "0 auto",
-    borderRadius: 20,
-    width: "30%",
-    height: "auto",
-    display: "block",
-    border: "3px outset #cfcfcf",
-  },
-  input: {
-    display: "flex",
-    width: "70%",
-    margin: "20px auto",
-    borderRadius: 10,
-  },
-});
+import useStyles from "../utils/styles";
 
 const Withdraw: React.FC<{}> = () => {
   const classes = useStyles();
@@ -102,7 +85,7 @@ const Withdraw: React.FC<{}> = () => {
       {modal.state === "withdraw" && (
         <TxModal modalText={modal.text} etherscanHash={modal.hash} />
       )}
-      <Box component="form" className={classes.root}>
+      <Box component="form" className={classes.box}>
         <TextField
           id="amount"
           label="Amount"

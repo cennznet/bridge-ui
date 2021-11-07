@@ -7,21 +7,7 @@ import {
   Modal,
   Typography,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles({
-  root: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    border: "3px outset #cfcfcf",
-    padding: 4,
-    textAlign: "center",
-    borderRadius: 10,
-  },
-});
+import useStyles from "../utils/styles";
 
 const TxModal: React.FC<{ modalText: string; etherscanHash: string }> = ({
   modalText,
@@ -38,7 +24,7 @@ const TxModal: React.FC<{ modalText: string; etherscanHash: string }> = ({
       aria-labelledby="modal-locking-tokens"
     >
       <Box
-        className={classes.root}
+        className={classes.modal}
         sx={{ boxShadow: 24, bgcolor: "background.paper" }}
       >
         <Typography

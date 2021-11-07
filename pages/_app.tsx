@@ -4,20 +4,11 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import Switch from "../components/Switch";
 import { initWeb3 } from "../utils/web3";
-import { makeStyles } from "@mui/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../components/theme";
 import { AppBar, Typography } from "@mui/material";
-
-const useStyles = makeStyles({
-  heading: {
-    padding: "10px 0 10px",
-    cursor: "pointer",
-    textAlign: "center",
-    color: "secondary.dark",
-  },
-});
+import useStyles from "../utils/styles";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const classes = useStyles();
