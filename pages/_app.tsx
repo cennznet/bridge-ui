@@ -1,14 +1,27 @@
 import React, { useEffect, useState } from "react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import Switch from "../components/Switch";
 import { initWeb3 } from "../utils/web3";
+import { makeStyles } from "@mui/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../components/theme";
 import { AppBar, Typography } from "@mui/material";
 
+const useStyles = makeStyles({
+  heading: {
+    padding: "10px 0 10px",
+    cursor: "pointer",
+    textAlign: "center",
+    color: "secondary.dark",
+  },
+});
+
 function MyApp({ Component, pageProps }: AppProps) {
+  const classes = useStyles();
+  const router = useRouter();
   const [contracts, setContracts] = useState({
     peg: {},
     token: {},
@@ -44,13 +57,14 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
 
-        <AppBar position="static">
+        <AppBar position="static" sx={{ marginBottom: "-5px" }}>
           <Typography
             variant="h4"
             component="div"
-            sx={{ margin: "0 auto", padding: "10px 0 10px" }}
+            className={classes.heading}
+            onClick={() => router.push("/")}
           >
-            Ethereum - CENNZnet Bridge
+            ETH - CENNZ Bridge
           </Typography>
         </AppBar>
 

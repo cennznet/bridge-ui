@@ -17,15 +17,19 @@ const Switch: React.FC<{}> = () => {
         marginTop: "20px",
       }}
     >
-      <ButtonGroup size="large" aria-label="outlined primary button group">
+      <ButtonGroup
+        size="large"
+        aria-label="outlined primary button group"
+        sx={{ paddingBottom: "10px" }}
+      >
         <Button
-          sx={{ display: "flex" }}
+          sx={{ display: "flex", color: "secondary.dark" }}
           onClick={() => router.push("/deposit")}
         >
           Deposit
         </Button>
         <Button
-          sx={{ display: "flex" }}
+          sx={{ display: "flex", color: "secondary.dark" }}
           onClick={() => router.push("/withdraw")}
         >
           Withdraw
