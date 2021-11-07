@@ -50,7 +50,6 @@ const Deposit: React.FC<{}> = () => {
       ethers.utils.parseEther(amount)
     );
     setModal({
-      ...modal,
       state: "approve",
       text: "Approving your deposit...",
       hash: tx.hash,
@@ -62,7 +61,6 @@ const Deposit: React.FC<{}> = () => {
       decodeAddress(CENNZnetAddress)
     );
     setModal({
-      ...modal,
       state: "deposit",
       text: "Pegging your tokens...",
       hash: tx.hash,
