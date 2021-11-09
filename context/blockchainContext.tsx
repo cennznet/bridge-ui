@@ -11,8 +11,8 @@ import TestToken from "../artifacts/TestToken.json";
 import TestToken2 from "../artifacts/TestToken2.json";
 import { ethers } from "ethers";
 
-const BridgeAddress = "0xF20edcD48f80AEEA115B291A040d5029343e5Eb6";
-const ERC20PegAddress = "0x8E3E3f855d0A287DeF9b75a5a8463a61b720Bc26";
+const BridgeAddress = "0x25b53B1bDc5F03e982c383865889A4B3c6cB98AA";
+const ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
 const TestTokenAddress = "0x536F78E33E42641fAE8085361F43Af98FC37E847";
 const TestToken2Address = "0x74Cf9C5d185de38285a914A711BEE072029E05A6";
 
@@ -67,21 +67,6 @@ export function BlockchainProvider({ children }: Props) {
     Account: "",
   });
 
-  // useEffect(() => {
-  //   initEthers().then((ethers) => {
-  //     const { bridge, peg, testToken, testToken2, accounts }: any = ethers;
-  // setValue({
-  //   Contracts: {
-  //     bridge,
-  //     peg,
-  //     testToken,
-  //     testToken2,
-  //   },
-  //   Account: accounts[0],
-  // });
-  //   });
-  // }, []);
-
   async function init(ethereum: {
     request: (arg0: { method: string }) => any;
   }) {
@@ -92,13 +77,13 @@ export function BlockchainProvider({ children }: Props) {
 
         const bridge: ethers.Contract = new ethers.Contract(
           BridgeAddress,
-          CENNZnetBridge.abi,
+          CENNZnetBridge,
           signer
         );
 
         const peg: ethers.Contract = new ethers.Contract(
           ERC20PegAddress,
-          ERC20Peg.abi,
+          ERC20Peg,
           signer
         );
 
