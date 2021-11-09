@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { initWeb3 } from "../utils/web3";
+import { initEthers } from "../utils/ethers";
+// import { depositCENNZside } from "../utils/cennznet";
 import { decodeAddress } from "@polkadot/keyring";
-import { Box, Button, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import TxModal from "../components/TxModal";
 import { makeStyles } from "@mui/styles";
 
@@ -23,24 +32,31 @@ const useStyles = makeStyles({
   },
 });
 
+interface Token {
+  address: "";
+  approve: (pegAddress: string, amount: any) => {};
+}
+
+interface Peg {
+  address: "";
+  deposit: (
+    tokenAddress: string,
+    amount: any,
+    CENNZnetAddress: Uint8Array
+  ) => {};
+}
+
 const Deposit: React.FC<{}> = () => {
   const classes = useStyles();
+  const [token, setToken] = useState(0);
   const [amount, setAmount] = useState("");
   const [CENNZnetAddress, setCENNZnetAddress] = useState("");
   const [contracts, setContracts] = useState({
-    peg: {
-      address: "",
-      deposit: (
-        tokenAddress: string,
-        amount: any,
-        CENNZnetAddress: Uint8Array
-      ) => {},
-    },
-    token: {
-      address: "",
-      approve: (pegAddress: string, amount: any) => {},
-    },
+    peg: {} as Peg,
+    testToken: {} as Token,
+    testToken2: {} as Token,
   });
+  const [modalOpen, setModalOpen] = useState(false);
   const [modal, setModal] = useState({
     state: "",
     text: "",
@@ -48,44 +64,98 @@ const Deposit: React.FC<{}> = () => {
   });
 
   useEffect(() => {
-    initWeb3().then((res) => {
-      const { peg, token, accounts }: any = res;
-      setContracts({ peg, token });
+    initEthers().then((web3) => {
+      const { peg, testToken, testToken2 }: any = web3;
+      setContracts({ peg, testToken, testToken2 });
     });
   }, []);
 
+  const selectToken = () => {
+    let selectedToken: any;
+    switch (token) {
+      case 1:
+        selectedToken = contracts.testToken;
+        break;
+      case 2:
+        selectedToken = contracts.testToken2;
+        break;
+      default:
+        selectedToken = null;
+        break;
+    }
+
+    if (!selectedToken) {
+      setModalOpen(true);
+      setModal({
+        state: "error",
+        hash: "",
+        text: "Please select a token",
+      });
+    } else {
+      return selectedToken;
+    }
+  };
+
   const deposit = async () => {
-    var tx: any = await contracts.token.approve(
-      contracts.peg.address,
-      ethers.utils.parseEther(amount)
-    );
-    setModal({
-      state: "approve",
-      text: "Approving your deposit...",
-      hash: tx.hash,
-    });
-    await tx.wait();
-    tx = await contracts.peg.deposit(
-      contracts.token.address,
-      ethers.utils.parseEther(amount),
-      decodeAddress(CENNZnetAddress)
-    );
-    setModal({
-      state: "deposit",
-      text: "Pegging your tokens...",
-      hash: tx.hash,
-    });
+    setModalOpen(false);
+    const selectedToken: Token = selectToken();
+
+    if (selectedToken) {
+      var tx: any = await selectedToken.approve(
+        contracts.peg.address,
+        ethers.utils.parseEther(amount)
+      );
+      setModalOpen(true);
+      setModal({
+        state: "approve",
+        text: "Approving your deposit...",
+        hash: tx.hash,
+      });
+      await tx.wait();
+      tx = await contracts.peg.deposit(
+        selectedToken.address,
+        ethers.utils.parseUnits(amount),
+        decodeAddress(CENNZnetAddress)
+      );
+      setModal({
+        state: "deposit",
+        text: "Pegging your tokens...",
+        hash: tx.hash,
+      });
+      await tx.wait();
+      console.log("addy", CENNZnetAddress, "amount", amount);
+      setModal({
+        hash: "",
+        state: "relayer",
+        text: "Our relayer is now depositing your tokens on CENNZnet",
+      });
+      // depositCENNZside(tx.hash, CENNZnetAddress, amount);
+      console.log(token, amount, CENNZnetAddress);
+    }
   };
 
   return (
     <>
-      {modal.state === "approve" && (
-        <TxModal modalText={modal.text} etherscanHash={modal.hash} />
-      )}
-      {modal.state === "deposit" && (
-        <TxModal modalText={modal.text} etherscanHash={modal.hash} />
+      {modalOpen && (
+        <TxModal
+          modalState={modal.state}
+          modalText={modal.text}
+          etherscanHash={modal.hash}
+          setModalOpen={setModalOpen}
+        />
       )}
       <Box component="form" className={classes.root}>
+        <FormControl className={classes.input} required>
+          <InputLabel>Token</InputLabel>
+          <Select
+            value={token}
+            label="Token"
+            onChange={(e) => setToken(e.target.value as number)}
+          >
+            <MenuItem value={1}>TestToken</MenuItem>
+            <MenuItem value={2}>TestToken2</MenuItem>
+          </Select>
+        </FormControl>
         <TextField
           id="amount"
           label="Amount"
