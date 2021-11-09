@@ -1,103 +1,164 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { ethers } from "ethers";
-import { initWeb3 } from "../utils/web3";
+// import { depositCENNZside } from "../utils/cennznet";
 import { decodeAddress } from "@polkadot/keyring";
-import { Box, Button, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import TxModal from "../components/TxModal";
-import { makeStyles } from "@mui/styles";
+import { defineModal } from "../utils/modal";
+import { useBlockchain } from "../context/blockchainContext";
+interface Token {
+  address: "";
+  approve: (pegAddress: string, amount: any) => {};
+}
 
-const useStyles = makeStyles({
-  root: {
-    margin: "0 auto",
-    borderRadius: 20,
-    width: "30%",
-    height: "auto",
-    display: "block",
-    border: "3px outset #cfcfcf",
-  },
-  input: {
-    display: "flex",
-    width: "70%",
-    margin: "20px auto",
-    borderRadius: 10,
-  },
-});
+interface Peg {
+  address: "";
+  deposit: (
+    tokenAddress: string,
+    amount: any,
+    CENNZnetAddress: Uint8Array
+  ) => {};
+}
 
 const Deposit: React.FC<{}> = () => {
-  const classes = useStyles();
+  const [token, setToken] = useState(0);
   const [amount, setAmount] = useState("");
   const [CENNZnetAddress, setCENNZnetAddress] = useState("");
   const [contracts, setContracts] = useState({
-    peg: {
-      address: "",
-      deposit: (
-        tokenAddress: string,
-        amount: any,
-        CENNZnetAddress: Uint8Array
-      ) => {},
-    },
-    token: {
-      address: "",
-      approve: (pegAddress: string, amount: any) => {},
-    },
+    peg: {} as Peg,
+    testToken: {} as Token,
+    testToken2: {} as Token,
   });
+  const [modalOpen, setModalOpen] = useState(false);
   const [modal, setModal] = useState({
     state: "",
     text: "",
     hash: "",
   });
+  const { Contracts }: any = useBlockchain();
 
   useEffect(() => {
-    initWeb3().then((res) => {
-      const { peg, token, accounts }: any = res;
-      setContracts({ peg, token });
-    });
-  }, []);
+    setContracts(Contracts);
+  }, [Contracts]);
+
+  const selectToken = () => {
+    let selectedToken: any;
+    switch (token) {
+      case 1:
+        selectedToken = contracts.testToken;
+        break;
+      case 2:
+        selectedToken = contracts.testToken2;
+        break;
+      default:
+        selectedToken = null;
+        break;
+    }
+
+    if (!selectedToken) {
+      setModal(defineModal("error", "noTokenSelected", setModalOpen));
+    } else {
+      return selectedToken;
+    }
+  };
 
   const deposit = async () => {
-    var tx: any = await contracts.token.approve(
-      contracts.peg.address,
-      ethers.utils.parseEther(amount)
-    );
-    setModal({
-      state: "approve",
-      text: "Approving your deposit...",
-      hash: tx.hash,
-    });
-    await tx.wait();
-    tx = await contracts.peg.deposit(
-      contracts.token.address,
-      ethers.utils.parseEther(amount),
-      decodeAddress(CENNZnetAddress)
-    );
-    setModal({
-      state: "deposit",
-      text: "Pegging your tokens...",
-      hash: tx.hash,
-    });
+    setModalOpen(false);
+    const selectedToken: Token = selectToken();
+
+    if (selectedToken) {
+      var tx: any = await selectedToken.approve(
+        contracts.peg.address,
+        ethers.utils.parseEther(amount)
+      );
+      setModal(defineModal("approve", tx.hash, setModalOpen));
+      await tx.wait();
+      tx = await contracts.peg.deposit(
+        selectedToken.address,
+        ethers.utils.parseUnits(amount),
+        decodeAddress(CENNZnetAddress)
+      );
+      setModal(defineModal("deposit", tx.hash, setModalOpen));
+      await tx.wait();
+      console.log("addy", CENNZnetAddress, "amount", amount);
+      setModal(defineModal("relayer", "", setModalOpen));
+      // depositCENNZside(tx.hash, CENNZnetAddress, amount);
+      console.log(token, amount, CENNZnetAddress);
+    }
   };
 
   return (
     <>
-      {modal.state === "approve" && (
-        <TxModal modalText={modal.text} etherscanHash={modal.hash} />
+      {modalOpen && (
+        <TxModal
+          modalState={modal.state}
+          modalText={modal.text}
+          etherscanHash={modal.hash}
+          setModalOpen={setModalOpen}
+        />
       )}
-      {modal.state === "deposit" && (
-        <TxModal modalText={modal.text} etherscanHash={modal.hash} />
-      )}
-      <Box component="form" className={classes.root}>
+      <Box
+        component="form"
+        sx={{
+          margin: "0 auto",
+          borderRadius: 10,
+          width: "30%",
+          height: "auto",
+          display: "block",
+          border: "3px outset #cfcfcf",
+        }}
+      >
+        <FormControl
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
+          required
+        >
+          <InputLabel>Token</InputLabel>
+          <Select
+            value={token}
+            label="Token"
+            onChange={(e) => setToken(e.target.value as number)}
+          >
+            <MenuItem value={1}>TestToken</MenuItem>
+            <MenuItem value={2}>TestToken2</MenuItem>
+          </Select>
+        </FormControl>
         <TextField
           id="amount"
           label="Amount"
           variant="filled"
-          className={classes.input}
+          required
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
           onChange={(e) => setAmount(e.target.value)}
         />
         <TextField
           id="cennznet-address"
           label="CENNZnet Address"
           variant="filled"
-          className={classes.input}
+          required
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
           onChange={(e) => setCENNZnetAddress(e.target.value)}
         />
         <Button

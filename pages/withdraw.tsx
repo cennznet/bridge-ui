@@ -1,86 +1,136 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { Box, Button, TextField } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import { initWeb3 } from "../utils/web3";
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import TxModal from "../components/TxModal";
+import { useBlockchain } from "../context/blockchainContext";
+import { defineModal } from "../utils/modal";
+import { withdrawCENNZside } from "../utils/cennznet";
 
-const useStyles = makeStyles({
-  root: {
-    margin: "0 auto",
-    borderRadius: 20,
-    width: "30%",
-    height: "auto",
-    display: "block",
-    border: "3px outset #cfcfcf",
-  },
-  input: {
-    display: "flex",
-    width: "70%",
-    margin: "20px auto",
-    borderRadius: 10,
-  },
-});
+interface Token {
+  address: "";
+  approve: (pegAddress: string, amount: any) => {};
+  balanceOf: (ethAddress: string) => {};
+}
+
+interface Peg {
+  address: "";
+  withdraw: (
+    tokenAddress: string,
+    amount: any,
+    recipient: any,
+    proof: any,
+    options: {
+      value: any;
+      gasLimit: number;
+    }
+  ) => {};
+}
+
+interface Bridge {
+  verificationFee: () => any;
+}
 
 const Withdraw: React.FC<{}> = () => {
-  const classes = useStyles();
+  const [token, setToken] = useState(0);
   const [amount, setAmount] = useState("");
+  const [contracts, setContracts] = useState({
+    bridge: {} as Bridge,
+    testToken: {} as Token,
+    testToken2: {} as Token,
+    peg: {} as Peg,
+  });
+  const [account, setAccount] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
   const [modal, setModal] = useState({
     state: "",
     text: "",
     hash: "",
   });
-
-  const [contracts, setContracts] = useState({
-    bridge: {
-      activeValidatorSetId: () => {},
-      verificationFee: () => {},
-    },
-    peg: {
-      withdraw: (
-        tokenAddress: string,
-        amount: any,
-        recipient: string,
-        proof: {},
-        gas: {}
-      ) => {},
-    },
-    token: {
-      address: "",
-    },
-  });
-
-  const [account, setAccount] = useState("");
+  const { Contracts, Account }: any = useBlockchain();
 
   useEffect(() => {
-    initWeb3().then((res) => {
-      const { bridge, peg, token, accounts }: any = res;
-      setContracts({ bridge, peg, token });
-      setAccount(accounts[0]);
-    });
-    console.log(contracts);
-  }, []);
+    setContracts(Contracts);
+    setAccount(Account);
+  }, [Contracts, Account]);
+
+  const selectToken = () => {
+    let selectedToken: any;
+    switch (token) {
+      case 1:
+        selectedToken = contracts.testToken;
+        break;
+      case 2:
+        selectedToken = contracts.testToken2;
+        break;
+      default:
+        selectedToken = null;
+        break;
+    }
+
+    if (!selectedToken) {
+      setModal(defineModal("error", "noTokenSelected", setModalOpen));
+    } else {
+      return selectedToken;
+    }
+  };
 
   async function withdraw() {
-    let signature = ethers.utils.hexlify(
-      "0x12ff73ebe5afa9f631a7134f5973015544fef30416ce046a7958d8818da1cc175227e6183e9751f1b0dd98a768ac7d3ab40cb5a7ff30c669895077bab687003d01"
-    );
-    let sig = ethers.utils.splitSignature(signature);
+    setModalOpen(false);
+    const selectedToken: Token = selectToken();
 
-    let activeValidatorSetId = await contracts.bridge.activeValidatorSetId();
+    if (selectedToken) {
+      setModal(defineModal("withdrawCENNZside", "", setModalOpen));
+      let withdrawAmount = ethers.utils.parseUnits(amount).toString();
+
+      const eventProof = await withdrawCENNZside(withdrawAmount, account, {
+        token: selectedToken,
+        bridge: contracts.bridge,
+      });
+      await withdrawEthSide(withdrawAmount, eventProof, account, selectedToken);
+      console.log("eventProof", eventProof);
+    }
+  }
+
+  async function withdrawEthSide(
+    withdrawAmount: any,
+    eventProof: any,
+    ethAddress: string,
+    token: any
+  ) {
+    setModalOpen(false);
 
     let verificationFee = await contracts.bridge.verificationFee();
+    // Make  withdraw for beneficiary1
+    const signatures = eventProof.signatures;
+    let v: any = [],
+      r: any = [],
+      s: any = []; // signature params
+    signatures.forEach((signature: any) => {
+      const hexifySignature = ethers.utils.hexlify(signature);
+      const sig = ethers.utils.splitSignature(hexifySignature);
+      v.push(sig.v);
+      r.push(sig.r);
+      s.push(sig.s);
+    });
 
     let tx: any = await contracts.peg.withdraw(
-      contracts.token.address,
-      amount,
-      account,
+      token.address,
+      withdrawAmount,
+      ethAddress,
       {
-        eventId: 1,
-        validatorSetId: activeValidatorSetId,
-        v: [sig.v],
-        r: [sig.r],
-        s: [sig.s],
+        eventId: eventProof.eventId,
+        validatorSetId: eventProof.validatorSetId,
+        v,
+        r,
+        s,
       },
       {
         gasLimit: 500000,
@@ -88,26 +138,62 @@ const Withdraw: React.FC<{}> = () => {
       }
     );
 
-    setModal({
-      state: "withdraw",
-      text: "Withdrawing your tokens...",
-      hash: tx.hash,
-    });
-
-    console.log(await tx.wait());
+    setModal(defineModal("withdrawETHside", tx.hash, setModalOpen));
+    await tx.wait();
+    setModal(defineModal("finished", "", setModalOpen));
   }
 
   return (
     <>
-      {modal.state === "withdraw" && (
-        <TxModal modalText={modal.text} etherscanHash={modal.hash} />
+      {modalOpen && (
+        <TxModal
+          modalState={modal.state}
+          modalText={modal.text}
+          etherscanHash={modal.hash}
+          setModalOpen={setModalOpen}
+        />
       )}
-      <Box component="form" className={classes.root}>
+      <Box
+        component="form"
+        sx={{
+          margin: "0 auto",
+          borderRadius: 10,
+          width: "30%",
+          height: "auto",
+          display: "block",
+          border: "3px outset #cfcfcf",
+        }}
+      >
+        <FormControl
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
+          required
+        >
+          <InputLabel>Token</InputLabel>
+          <Select
+            value={token}
+            label="Token"
+            onChange={(e) => setToken(e.target.value as number)}
+          >
+            <MenuItem value={1}>TestToken</MenuItem>
+            <MenuItem value={2}>TestToken2</MenuItem>
+          </Select>
+        </FormControl>
         <TextField
           id="amount"
           label="Amount"
           variant="filled"
-          className={classes.input}
+          required
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
           onChange={(e) => setAmount(e.target.value)}
         />
         <Button
