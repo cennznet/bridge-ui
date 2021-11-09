@@ -9,9 +9,9 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { initEthers } from "../utils/ethers";
 import TxModal from "../components/TxModal";
-import { withdrawCENNZside } from "../utils/cennznet";
+// import { withdrawCENNZside } from "../utils/cennznet";
+import { useBlockchain } from "../context/blockchainContext";
 
 interface Token {
   address: "";
@@ -53,14 +53,12 @@ const Withdraw: React.FC<{}> = () => {
     text: "",
     hash: "",
   });
+  const { Contracts, Account }: any = useBlockchain();
 
   useEffect(() => {
-    initEthers().then((ethers) => {
-      const { bridge, peg, testToken, testToken2, accounts }: any = ethers;
-      setContracts({ bridge, peg, testToken, testToken2 });
-      setAccount(accounts[0]);
-    });
-  }, []);
+    setContracts(Contracts);
+    setAccount(Account);
+  }, [Contracts, Account]);
 
   const selectToken = () => {
     let selectedToken: any;
@@ -89,69 +87,69 @@ const Withdraw: React.FC<{}> = () => {
   };
 
   async function withdraw() {
-    const eventProof = await withdrawCENNZside(amount, account);
+    // const eventProof = await withdrawCENNZside(amount, account);
     setModal({
       state: "withdrawCENNZ",
       text: "Withdrawing your tokens from CENNZnet side...",
       hash: "",
     });
-    await withdrawEthSide(amount, eventProof, account);
+    // await withdrawEthSide(amount, eventProof, account);
   }
 
-  async function withdrawEthSide(
-    amount: any,
-    eventProof: any,
-    ethAddress: string
-  ) {
-    setModalOpen(false);
-    const selectedToken: Token = selectToken();
+  // async function withdrawEthSide(
+  //   amount: any,
+  //   eventProof: any,
+  //   ethAddress: string
+  // ) {
+  //   setModalOpen(false);
+  //   const selectedToken: Token = selectToken();
 
-    let verificationFee = await contracts.bridge.verificationFee();
-    // Make  withdraw for beneficiary1
-    let withdrawAmount = amount;
-    const signatures = eventProof.signatures;
-    let v: any = [],
-      r: any = [],
-      s: any = []; // signature params
-    signatures.forEach((signature: any) => {
-      const hexifySignature = ethers.utils.hexlify(signature);
-      const sig = ethers.utils.splitSignature(hexifySignature);
-      v.push(sig.v);
-      r.push(sig.r);
-      s.push(sig.s);
-    });
+  //   let verificationFee = await contracts.bridge.verificationFee();
+  //   // Make  withdraw for beneficiary1
+  //   let withdrawAmount = amount;
+  //   const signatures = eventProof.signatures;
+  //   let v: any = [],
+  //     r: any = [],
+  //     s: any = []; // signature params
+  //   signatures.forEach((signature: any) => {
+  //     const hexifySignature = ethers.utils.hexlify(signature);
+  //     const sig = ethers.utils.splitSignature(hexifySignature);
+  //     v.push(sig.v);
+  //     r.push(sig.r);
+  //     s.push(sig.s);
+  //   });
 
-    let tx: any = await contracts.peg.withdraw(
-      selectedToken.address,
-      withdrawAmount,
-      ethAddress,
-      {
-        eventId: eventProof.eventId,
-        validatorSetId: eventProof.validatorSetId,
-        v,
-        r,
-        s,
-      },
-      {
-        gasLimit: 500000,
-        value: verificationFee,
-      }
-    );
+  //   let tx: any = await contracts.peg.withdraw(
+  //     selectedToken.address,
+  //     withdrawAmount,
+  //     ethAddress,
+  //     {
+  //       eventId: eventProof.eventId,
+  //       validatorSetId: eventProof.validatorSetId,
+  //       v,
+  //       r,
+  //       s,
+  //     },
+  //     {
+  //       gasLimit: 500000,
+  //       value: verificationFee,
+  //     }
+  //   );
 
-    setModal({
-      state: "withdrawETH",
-      text: "Withdrawing your tokens from ETH side...",
-      hash: tx.hash,
-    });
-    await tx.wait();
+  //   setModal({
+  //     state: "withdrawETH",
+  //     text: "Withdrawing your tokens from ETH side...",
+  //     hash: tx.hash,
+  //   });
+  //   await tx.wait();
 
-    // Check beneficiary balance after first withdrawal
-    let balanceAfter: any = await selectedToken.balanceOf(ethAddress);
-    console.log(
-      "Beneficiary ERC20 token balance after withdrawal:",
-      balanceAfter.toString()
-    );
-  }
+  //   // Check beneficiary balance after first withdrawal
+  //   let balanceAfter: any = await selectedToken.balanceOf(ethAddress);
+  //   console.log(
+  //     "Beneficiary ERC20 token balance after withdrawal:",
+  //     balanceAfter.toString()
+  //   );
+  // }
 
   return (
     <>

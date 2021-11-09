@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { ethers } from "ethers";
-import { initEthers } from "../utils/ethers";
 // import { depositCENNZside } from "../utils/cennznet";
 import { decodeAddress } from "@polkadot/keyring";
 import {
@@ -14,6 +13,7 @@ import {
 } from "@mui/material";
 import TxModal from "../components/TxModal";
 import { defineModal } from "../utils/modal";
+import { useBlockchain } from "../context/blockchainContext";
 interface Token {
   address: "";
   approve: (pegAddress: string, amount: any) => {};
@@ -43,13 +43,11 @@ const Deposit: React.FC<{}> = () => {
     text: "",
     hash: "",
   });
+  const { Contracts }: any = useBlockchain();
 
   useEffect(() => {
-    initEthers().then((ethers) => {
-      const { peg, testToken, testToken2 }: any = ethers;
-      setContracts({ peg, testToken, testToken2 });
-    });
-  }, []);
+    setContracts(Contracts);
+  }, [Contracts]);
 
   const selectToken = () => {
     let selectedToken: any;
