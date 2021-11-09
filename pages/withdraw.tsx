@@ -10,8 +10,9 @@ import {
   TextField,
 } from "@mui/material";
 import TxModal from "../components/TxModal";
-// import { withdrawCENNZside } from "../utils/cennznet";
 import { useBlockchain } from "../context/blockchainContext";
+import { defineModal } from "../utils/modal";
+import { withdrawCENNZside } from "../utils/cennznet";
 
 interface Token {
   address: "";
@@ -75,81 +76,72 @@ const Withdraw: React.FC<{}> = () => {
     }
 
     if (!selectedToken) {
-      setModalOpen(true);
-      setModal({
-        state: "error",
-        hash: "",
-        text: "Please select a token",
-      });
+      setModal(defineModal("error", "noTokenSelected", setModalOpen));
     } else {
       return selectedToken;
     }
   };
 
   async function withdraw() {
-    // const eventProof = await withdrawCENNZside(amount, account);
-    setModal({
-      state: "withdrawCENNZ",
-      text: "Withdrawing your tokens from CENNZnet side...",
-      hash: "",
-    });
-    // await withdrawEthSide(amount, eventProof, account);
+    setModalOpen(false);
+    const selectedToken: Token = selectToken();
+
+    if (selectedToken) {
+      setModal(defineModal("withdrawCENNZside", "", setModalOpen));
+      let withdrawAmount = ethers.utils.parseUnits(amount).toString();
+
+      const eventProof = await withdrawCENNZside(withdrawAmount, account, {
+        token: selectedToken,
+        bridge: contracts.bridge,
+      });
+      await withdrawEthSide(withdrawAmount, eventProof, account, selectedToken);
+      console.log("eventProof", eventProof);
+    }
   }
 
-  // async function withdrawEthSide(
-  //   amount: any,
-  //   eventProof: any,
-  //   ethAddress: string
-  // ) {
-  //   setModalOpen(false);
-  //   const selectedToken: Token = selectToken();
+  async function withdrawEthSide(
+    withdrawAmount: any,
+    eventProof: any,
+    ethAddress: string,
+    token: any
+  ) {
+    setModalOpen(false);
 
-  //   let verificationFee = await contracts.bridge.verificationFee();
-  //   // Make  withdraw for beneficiary1
-  //   let withdrawAmount = amount;
-  //   const signatures = eventProof.signatures;
-  //   let v: any = [],
-  //     r: any = [],
-  //     s: any = []; // signature params
-  //   signatures.forEach((signature: any) => {
-  //     const hexifySignature = ethers.utils.hexlify(signature);
-  //     const sig = ethers.utils.splitSignature(hexifySignature);
-  //     v.push(sig.v);
-  //     r.push(sig.r);
-  //     s.push(sig.s);
-  //   });
+    let verificationFee = await contracts.bridge.verificationFee();
+    // Make  withdraw for beneficiary1
+    const signatures = eventProof.signatures;
+    let v: any = [],
+      r: any = [],
+      s: any = []; // signature params
+    signatures.forEach((signature: any) => {
+      const hexifySignature = ethers.utils.hexlify(signature);
+      const sig = ethers.utils.splitSignature(hexifySignature);
+      v.push(sig.v);
+      r.push(sig.r);
+      s.push(sig.s);
+    });
 
-  //   let tx: any = await contracts.peg.withdraw(
-  //     selectedToken.address,
-  //     withdrawAmount,
-  //     ethAddress,
-  //     {
-  //       eventId: eventProof.eventId,
-  //       validatorSetId: eventProof.validatorSetId,
-  //       v,
-  //       r,
-  //       s,
-  //     },
-  //     {
-  //       gasLimit: 500000,
-  //       value: verificationFee,
-  //     }
-  //   );
+    let tx: any = await contracts.peg.withdraw(
+      token.address,
+      withdrawAmount,
+      ethAddress,
+      {
+        eventId: eventProof.eventId,
+        validatorSetId: eventProof.validatorSetId,
+        v,
+        r,
+        s,
+      },
+      {
+        gasLimit: 500000,
+        value: verificationFee,
+      }
+    );
 
-  //   setModal({
-  //     state: "withdrawETH",
-  //     text: "Withdrawing your tokens from ETH side...",
-  //     hash: tx.hash,
-  //   });
-  //   await tx.wait();
-
-  //   // Check beneficiary balance after first withdrawal
-  //   let balanceAfter: any = await selectedToken.balanceOf(ethAddress);
-  //   console.log(
-  //     "Beneficiary ERC20 token balance after withdrawal:",
-  //     balanceAfter.toString()
-  //   );
-  // }
+    setModal(defineModal("withdrawETHside", tx.hash, setModalOpen));
+    await tx.wait();
+    setModal(defineModal("finished", "", setModalOpen));
+  }
 
   return (
     <>
