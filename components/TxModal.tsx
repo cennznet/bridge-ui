@@ -25,11 +25,7 @@ const TxModal: React.FC<Props> = ({
   const handleClose = () => setOpen(false);
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="modal-locking-tokens"
-    >
+    <Modal open={open} onClose={handleClose}>
       <Box
         sx={{
           position: "absolute",
@@ -59,7 +55,7 @@ const TxModal: React.FC<Props> = ({
           </Box>
         )}
         <Divider sx={{ margin: "15px 0 15px 0" }} />
-        {etherscanHash !== "" && (
+        {etherscanHash !== "" && etherscanHash !== "noTokenSelected" && (
           <Link
             href={`https://ropsten.etherscan.io/tx/${etherscanHash}`}
             target="_blank"
@@ -76,7 +72,13 @@ const TxModal: React.FC<Props> = ({
           </Link>
         )}
         {(modalState === "relayer" || modalState === "error") && (
-          <Button onClick={() => setModalOpen(false)}>Close</Button>
+          <Button
+            variant="contained"
+            sx={{ color: "secondary.dark" }}
+            onClick={() => setModalOpen(false)}
+          >
+            Close
+          </Button>
         )}
       </Box>
     </Modal>

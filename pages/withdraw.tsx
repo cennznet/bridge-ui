@@ -1,50 +1,92 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { Box, Button, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import { initEthers } from "../utils/ethers";
 import TxModal from "../components/TxModal";
-
 import { withdrawCENNZside } from "../utils/cennznet";
 
+interface Token {
+  address: "";
+  approve: (pegAddress: string, amount: any) => {};
+  balanceOf: (ethAddress: string) => {};
+}
+
+interface Peg {
+  address: "";
+  withdraw: (
+    tokenAddress: string,
+    amount: any,
+    recipient: any,
+    proof: any,
+    options: {
+      value: any;
+      gasLimit: number;
+    }
+  ) => {};
+}
+
+interface Bridge {
+  verificationFee: () => any;
+}
+
 const Withdraw: React.FC<{}> = () => {
+  const [token, setToken] = useState(0);
   const [amount, setAmount] = useState("");
+  const [contracts, setContracts] = useState({
+    bridge: {} as Bridge,
+    testToken: {} as Token,
+    testToken2: {} as Token,
+    peg: {} as Peg,
+  });
+  const [account, setAccount] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
   const [modal, setModal] = useState({
     state: "",
     text: "",
     hash: "",
   });
 
-  const [contracts, setContracts] = useState({
-    bridge: {
-      activeValidatorSetId: () => {},
-      verificationFee: () => {},
-    },
-    peg: {
-      withdraw: (
-        tokenAddress: string,
-        amount: any,
-        recipient: string,
-        proof: {},
-        gas: {}
-      ) => {},
-    },
-    token: {
-      address: "",
-      balanceOf: (address: string) => {},
-    },
-  });
-
-  const [account, setAccount] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-
   useEffect(() => {
-    initEthers().then((res) => {
-      const { bridge, peg, token, accounts }: any = res;
-      setContracts({ bridge, peg, token });
+    initEthers().then((ethers) => {
+      const { bridge, peg, testToken, testToken2, accounts }: any = ethers;
+      setContracts({ bridge, peg, testToken, testToken2 });
       setAccount(accounts[0]);
     });
-    console.log(contracts);
   }, []);
+
+  const selectToken = () => {
+    let selectedToken: any;
+    switch (token) {
+      case 1:
+        selectedToken = contracts.testToken;
+        break;
+      case 2:
+        selectedToken = contracts.testToken2;
+        break;
+      default:
+        selectedToken = null;
+        break;
+    }
+
+    if (!selectedToken) {
+      setModalOpen(true);
+      setModal({
+        state: "error",
+        hash: "",
+        text: "Please select a token",
+      });
+    } else {
+      return selectedToken;
+    }
+  };
 
   async function withdraw() {
     const eventProof = await withdrawCENNZside(amount, account);
@@ -61,6 +103,9 @@ const Withdraw: React.FC<{}> = () => {
     eventProof: any,
     ethAddress: string
   ) {
+    setModalOpen(false);
+    const selectedToken: Token = selectToken();
+
     let verificationFee = await contracts.bridge.verificationFee();
     // Make  withdraw for beneficiary1
     let withdrawAmount = amount;
@@ -77,7 +122,7 @@ const Withdraw: React.FC<{}> = () => {
     });
 
     let tx: any = await contracts.peg.withdraw(
-      contracts.token.address,
+      selectedToken.address,
       withdrawAmount,
       ethAddress,
       {
@@ -101,7 +146,7 @@ const Withdraw: React.FC<{}> = () => {
     await tx.wait();
 
     // Check beneficiary balance after first withdrawal
-    let balanceAfter: any = await contracts.token.balanceOf(ethAddress);
+    let balanceAfter: any = await selectedToken.balanceOf(ethAddress);
     console.log(
       "Beneficiary ERC20 token balance after withdrawal:",
       balanceAfter.toString()
@@ -129,10 +174,30 @@ const Withdraw: React.FC<{}> = () => {
           border: "3px outset #cfcfcf",
         }}
       >
+        <FormControl
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
+          required
+        >
+          <InputLabel>Token</InputLabel>
+          <Select
+            value={token}
+            label="Token"
+            onChange={(e) => setToken(e.target.value as number)}
+          >
+            <MenuItem value={1}>TestToken</MenuItem>
+            <MenuItem value={2}>TestToken2</MenuItem>
+          </Select>
+        </FormControl>
         <TextField
           id="amount"
           label="Amount"
           variant="filled"
+          required
           sx={{
             display: "flex",
             width: "70%",

@@ -13,6 +13,7 @@ import {
   TextField,
 } from "@mui/material";
 import TxModal from "../components/TxModal";
+import { defineModal } from "../utils/modal";
 interface Token {
   address: "";
   approve: (pegAddress: string, amount: any) => {};
@@ -44,8 +45,8 @@ const Deposit: React.FC<{}> = () => {
   });
 
   useEffect(() => {
-    initEthers().then((web3) => {
-      const { peg, testToken, testToken2 }: any = web3;
+    initEthers().then((ethers) => {
+      const { peg, testToken, testToken2 }: any = ethers;
       setContracts({ peg, testToken, testToken2 });
     });
   }, []);
@@ -65,12 +66,7 @@ const Deposit: React.FC<{}> = () => {
     }
 
     if (!selectedToken) {
-      setModalOpen(true);
-      setModal({
-        state: "error",
-        hash: "",
-        text: "Please select a token",
-      });
+      setModal(defineModal("error", "noTokenSelected", setModalOpen));
     } else {
       return selectedToken;
     }
@@ -85,30 +81,17 @@ const Deposit: React.FC<{}> = () => {
         contracts.peg.address,
         ethers.utils.parseEther(amount)
       );
-      setModalOpen(true);
-      setModal({
-        state: "approve",
-        text: "Approving your deposit...",
-        hash: tx.hash,
-      });
+      setModal(defineModal("approve", tx.hash, setModalOpen));
       await tx.wait();
       tx = await contracts.peg.deposit(
         selectedToken.address,
         ethers.utils.parseUnits(amount),
         decodeAddress(CENNZnetAddress)
       );
-      setModal({
-        state: "deposit",
-        text: "Pegging your tokens...",
-        hash: tx.hash,
-      });
+      setModal(defineModal("deposit", tx.hash, setModalOpen));
       await tx.wait();
       console.log("addy", CENNZnetAddress, "amount", amount);
-      setModal({
-        hash: "",
-        state: "relayer",
-        text: "Our relayer is now depositing your tokens on CENNZnet",
-      });
+      setModal(defineModal("relayer", "", setModalOpen));
       // depositCENNZside(tx.hash, CENNZnetAddress, amount);
       console.log(token, amount, CENNZnetAddress);
     }
@@ -158,6 +141,7 @@ const Deposit: React.FC<{}> = () => {
           id="amount"
           label="Amount"
           variant="filled"
+          required
           sx={{
             display: "flex",
             width: "70%",
@@ -170,6 +154,7 @@ const Deposit: React.FC<{}> = () => {
           id="cennznet-address"
           label="CENNZnet Address"
           variant="filled"
+          required
           sx={{
             display: "flex",
             width: "70%",
