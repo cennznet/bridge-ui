@@ -49,11 +49,13 @@ const TxModal: React.FC<Props> = ({
         >
           {modalText}
         </Typography>
-        {modalState !== "relayer" && modalState !== "error" && (
-          <Box sx={{ margin: "10px auto" }}>
-            <CircularProgress />
-          </Box>
-        )}
+        {modalState !== "relayer" &&
+          modalState !== "error" &&
+          modalState !== "finished" && (
+            <Box sx={{ margin: "10px auto" }}>
+              <CircularProgress />
+            </Box>
+          )}
         <Divider sx={{ margin: "15px 0 15px 0" }} />
         {etherscanHash !== "" && etherscanHash !== "noTokenSelected" && (
           <Link
@@ -71,7 +73,9 @@ const TxModal: React.FC<Props> = ({
             </Typography>
           </Link>
         )}
-        {(modalState === "relayer" || modalState === "error") && (
+        {(modalState === "relayer" ||
+          modalState === "error" ||
+          modalState === "finished") && (
           <Button
             variant="contained"
             sx={{ color: "secondary.dark" }}
