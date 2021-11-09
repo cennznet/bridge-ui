@@ -4,23 +4,12 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import Switch from "../components/Switch";
 import { initEthers } from "../utils/ethers";
-import { makeStyles } from "@mui/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../components/theme";
 import { AppBar, Typography } from "@mui/material";
 
-const useStyles = makeStyles({
-  heading: {
-    padding: "10px 0 10px",
-    cursor: "pointer",
-    textAlign: "center",
-    color: "secondary.dark",
-  },
-});
-
 function MyApp({ Component, pageProps }: AppProps) {
-  const classes = useStyles();
   const router = useRouter();
   const [contracts, setContracts] = useState({
     peg: {},
@@ -61,7 +50,12 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Typography
             variant="h4"
             component="div"
-            className={classes.heading}
+            sx={{
+              padding: "10px 0 10px",
+              cursor: "pointer",
+              textAlign: "center",
+              color: "secondary.dark",
+            }}
             onClick={() => router.push("/")}
           >
             CENNZnet {"<>"} ETH Bridge

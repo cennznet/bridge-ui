@@ -8,8 +8,6 @@ import {
   Modal,
   Typography,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-
 interface Props {
   modalState: string;
   modalText: string;
@@ -17,27 +15,12 @@ interface Props {
   setModalOpen: (open: boolean) => void;
 }
 
-const useStyles = makeStyles({
-  root: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    border: "3px outset #cfcfcf",
-    padding: 4,
-    textAlign: "center",
-    borderRadius: 10,
-  },
-});
-
 const TxModal: React.FC<Props> = ({
   modalText,
   etherscanHash,
   modalState,
   setModalOpen,
 }) => {
-  const classes = useStyles();
   const [open, setOpen] = useState(true);
   const handleClose = () => setOpen(false);
 
@@ -48,8 +31,19 @@ const TxModal: React.FC<Props> = ({
       aria-labelledby="modal-locking-tokens"
     >
       <Box
-        className={classes.root}
-        sx={{ boxShadow: 24, bgcolor: "background.paper" }}
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          border: "3px outset #cfcfcf",
+          padding: 4,
+          textAlign: "center",
+          borderRadius: 10,
+          boxShadow: 24,
+          bgcolor: "background.paper",
+        }}
       >
         <Typography
           id="modal-modal-title"

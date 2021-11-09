@@ -13,25 +13,6 @@ import {
   TextField,
 } from "@mui/material";
 import TxModal from "../components/TxModal";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles({
-  root: {
-    margin: "0 auto",
-    borderRadius: 20,
-    width: "30%",
-    height: "auto",
-    display: "block",
-    border: "3px outset #cfcfcf",
-  },
-  input: {
-    display: "flex",
-    width: "70%",
-    margin: "20px auto",
-    borderRadius: 10,
-  },
-});
-
 interface Token {
   address: "";
   approve: (pegAddress: string, amount: any) => {};
@@ -47,7 +28,6 @@ interface Peg {
 }
 
 const Deposit: React.FC<{}> = () => {
-  const classes = useStyles();
   const [token, setToken] = useState(0);
   const [amount, setAmount] = useState("");
   const [CENNZnetAddress, setCENNZnetAddress] = useState("");
@@ -144,8 +124,26 @@ const Deposit: React.FC<{}> = () => {
           setModalOpen={setModalOpen}
         />
       )}
-      <Box component="form" className={classes.root}>
-        <FormControl className={classes.input} required>
+      <Box
+        component="form"
+        sx={{
+          margin: "0 auto",
+          borderRadius: 10,
+          width: "30%",
+          height: "auto",
+          display: "block",
+          border: "3px outset #cfcfcf",
+        }}
+      >
+        <FormControl
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
+          required
+        >
           <InputLabel>Token</InputLabel>
           <Select
             value={token}
@@ -160,14 +158,24 @@ const Deposit: React.FC<{}> = () => {
           id="amount"
           label="Amount"
           variant="filled"
-          className={classes.input}
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
           onChange={(e) => setAmount(e.target.value)}
         />
         <TextField
           id="cennznet-address"
           label="CENNZnet Address"
           variant="filled"
-          className={classes.input}
+          sx={{
+            display: "flex",
+            width: "70%",
+            margin: "20px auto",
+            borderRadius: 10,
+          }}
           onChange={(e) => setCENNZnetAddress(e.target.value)}
         />
         <Button
