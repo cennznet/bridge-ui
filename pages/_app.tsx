@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Switch from "../components/Switch";
-import { initWeb3 } from "../utils/web3";
+import { initEthers } from "../utils/ethers";
 import { makeStyles } from "@mui/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
@@ -29,7 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [account, setAccount] = useState("");
 
   async function init() {
-    const { peg, token, accounts }: any = await initWeb3();
+    const { peg, token, accounts }: any = await initEthers();
     setContracts({ peg, token });
     setAccount(accounts[0]);
     console.log("contracts", contracts);
@@ -64,7 +64,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             className={classes.heading}
             onClick={() => router.push("/")}
           >
-            ETH - CENNZ Bridge
+            CENNZnet {"<>"} ETH Bridge
           </Typography>
         </AppBar>
 
