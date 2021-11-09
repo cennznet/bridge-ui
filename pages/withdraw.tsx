@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { Box, Button, TextField } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { initWeb3 } from "../utils/web3";
+import { initEthers } from "../utils/ethers";
 import TxModal from "../components/TxModal";
+
+import { withdrawCENNZside } from "../utils/cennznet";
 
 const useStyles = makeStyles({
   root: {
@@ -47,13 +49,15 @@ const Withdraw: React.FC<{}> = () => {
     },
     token: {
       address: "",
+      balanceOf: (address: string) => {},
     },
   });
 
   const [account, setAccount] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    initWeb3().then((res) => {
+    initEthers().then((res) => {
       const { bridge, peg, token, accounts }: any = res;
       setContracts({ bridge, peg, token });
       setAccount(accounts[0]);
@@ -62,25 +66,45 @@ const Withdraw: React.FC<{}> = () => {
   }, []);
 
   async function withdraw() {
-    let signature = ethers.utils.hexlify(
-      "0x12ff73ebe5afa9f631a7134f5973015544fef30416ce046a7958d8818da1cc175227e6183e9751f1b0dd98a768ac7d3ab40cb5a7ff30c669895077bab687003d01"
-    );
-    let sig = ethers.utils.splitSignature(signature);
+    const eventProof = await withdrawCENNZside(amount, account);
+    setModal({
+      state: "withdrawCENNZ",
+      text: "Withdrawing your tokens from CENNZnet side...",
+      hash: "",
+    });
+    await withdrawEthSide(amount, eventProof, account);
+  }
 
-    let activeValidatorSetId = await contracts.bridge.activeValidatorSetId();
-
+  async function withdrawEthSide(
+    amount: any,
+    eventProof: any,
+    ethAddress: string
+  ) {
     let verificationFee = await contracts.bridge.verificationFee();
+    // Make  withdraw for beneficiary1
+    let withdrawAmount = amount;
+    const signatures = eventProof.signatures;
+    let v: any = [],
+      r: any = [],
+      s: any = []; // signature params
+    signatures.forEach((signature: any) => {
+      const hexifySignature = ethers.utils.hexlify(signature);
+      const sig = ethers.utils.splitSignature(hexifySignature);
+      v.push(sig.v);
+      r.push(sig.r);
+      s.push(sig.s);
+    });
 
     let tx: any = await contracts.peg.withdraw(
       contracts.token.address,
-      amount,
-      account,
+      withdrawAmount,
+      ethAddress,
       {
-        eventId: 1,
-        validatorSetId: activeValidatorSetId,
-        v: [sig.v],
-        r: [sig.r],
-        s: [sig.s],
+        eventId: eventProof.eventId,
+        validatorSetId: eventProof.validatorSetId,
+        v,
+        r,
+        s,
       },
       {
         gasLimit: 500000,
@@ -89,18 +113,29 @@ const Withdraw: React.FC<{}> = () => {
     );
 
     setModal({
-      state: "withdraw",
-      text: "Withdrawing your tokens...",
+      state: "withdrawETH",
+      text: "Withdrawing your tokens from ETH side...",
       hash: tx.hash,
     });
+    await tx.wait();
 
-    console.log(await tx.wait());
+    // Check beneficiary balance after first withdrawal
+    let balanceAfter: any = await contracts.token.balanceOf(ethAddress);
+    console.log(
+      "Beneficiary ERC20 token balance after withdrawal:",
+      balanceAfter.toString()
+    );
   }
 
   return (
     <>
-      {modal.state === "withdraw" && (
-        <TxModal modalText={modal.text} etherscanHash={modal.hash} />
+      {modalOpen && (
+        <TxModal
+          modalState={modal.state}
+          modalText={modal.text}
+          etherscanHash={modal.hash}
+          setModalOpen={setModalOpen}
+        />
       )}
       <Box component="form" className={classes.root}>
         <TextField
