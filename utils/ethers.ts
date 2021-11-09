@@ -1,16 +1,18 @@
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
 import TestToken from "../artifacts/TestToken.json";
+import TestToken2 from "../artifacts/TestToken2.json";
 import { ethers } from "ethers";
 
-const BridgeAddress = "0x534e73B3dA8459d4f1519820DE67E5aBcf3F622F";
-const ERC20PegAddress = "0x1b54B0b559a1eDd89CBE77e0939f8D89E32A4904";
-const TokenAddress = "0xeDd17d870b7b02B2f2D59B17644eDF03ad72c41e";
+const BridgeAddress = "0xF20edcD48f80AEEA115B291A040d5029343e5Eb6";
+const ERC20PegAddress = "0x8E3E3f855d0A287DeF9b75a5a8463a61b720Bc26";
+const TestTokenAddress = "0x536F78E33E42641fAE8085361F43Af98FC37E847";
+const TestToken2Address = "0x74Cf9C5d185de38285a914A711BEE072029E05A6";
 
-function initWeb3() {
+function initEthers() {
   return new Promise(async (resolve, reject) => {
     try {
-      const { ethereum }: any = window;
+      const { ethereum } = window as any;
 
       let chainId = await ethereum.request({ method: "eth_chainId" });
       console.log("Connected to chain " + chainId);
@@ -35,9 +37,15 @@ function initWeb3() {
         signer
       );
 
-      const token: ethers.Contract = new ethers.Contract(
-        TokenAddress,
+      const testToken: ethers.Contract = new ethers.Contract(
+        TestTokenAddress,
         TestToken.abi,
+        signer
+      );
+
+      const testToken2: ethers.Contract = new ethers.Contract(
+        TestToken2Address,
+        TestToken2.abi,
         signer
       );
 
@@ -45,11 +53,11 @@ function initWeb3() {
         method: "eth_requestAccounts",
       });
 
-      resolve({ bridge, peg, token, accounts });
+      resolve({ bridge, peg, testToken, testToken2, accounts });
     } catch (err) {
       reject(err);
     }
   });
 }
 
-export { initWeb3 };
+export { initEthers };
