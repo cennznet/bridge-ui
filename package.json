@@ -8,6 +8,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@cennznet/api": "^1.5.0-alpha.4",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@mui/material": "^5.0.6",
