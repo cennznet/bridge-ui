@@ -65,6 +65,7 @@ export function BlockchainProvider({ children }: Props) {
       testToken2: {} as Token,
     },
     Account: "",
+    Signer: ethers.providers.JsonRpcSigner,
   });
 
   async function init(ethereum: {
@@ -103,7 +104,7 @@ export function BlockchainProvider({ children }: Props) {
           method: "eth_requestAccounts",
         });
 
-        resolve({ bridge, peg, testToken, testToken2, accounts });
+        resolve({ bridge, peg, testToken, testToken2, accounts, signer });
       } catch (err) {
         reject(err);
       }
@@ -113,7 +114,7 @@ export function BlockchainProvider({ children }: Props) {
   useEffect(() => {
     const { ethereum } = window as any;
     init(ethereum).then((eth) => {
-      const { bridge, peg, testToken, testToken2, accounts }: any = eth;
+      const { bridge, peg, testToken, testToken2, accounts, signer }: any = eth;
       setValue({
         Contracts: {
           bridge,
@@ -122,6 +123,7 @@ export function BlockchainProvider({ children }: Props) {
           testToken2,
         },
         Account: accounts[0],
+        Signer: signer,
       });
     });
   }, []);

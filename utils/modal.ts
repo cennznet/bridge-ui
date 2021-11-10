@@ -1,6 +1,5 @@
 function defineModal(state: string, hash: string, setModalOpen: Function) {
   setModalOpen(true);
-  console.log("relayer state", state);
   const modal = {
     state: state,
     text: "",

@@ -1,97 +1,52 @@
 import React, { useEffect, useState, useContext } from "react";
 import { ethers } from "ethers";
-// import { depositCENNZside } from "../utils/cennznet";
 import { decodeAddress } from "@polkadot/keyring";
-import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import TxModal from "../components/TxModal";
+import TokenPicker from "../components/TokenPicker";
 import { defineModal } from "../utils/modal";
 import { useBlockchain } from "../context/blockchainContext";
-interface Token {
-  address: "";
-  approve: (pegAddress: string, amount: any) => {};
-}
-
-interface Peg {
-  address: "";
-  deposit: (
-    tokenAddress: string,
-    amount: any,
-    CENNZnetAddress: Uint8Array
-  ) => {};
-}
+import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
 
 const Deposit: React.FC<{}> = () => {
-  const [token, setToken] = useState(0);
+  const [customToken, setCustomToken] = useState(false);
+  const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
   const [CENNZnetAddress, setCENNZnetAddress] = useState("");
-  const [contracts, setContracts] = useState({
-    peg: {} as Peg,
-    testToken: {} as Token,
-    testToken2: {} as Token,
-  });
   const [modalOpen, setModalOpen] = useState(false);
   const [modal, setModal] = useState({
     state: "",
     text: "",
     hash: "",
   });
-  const { Contracts }: any = useBlockchain();
-
-  useEffect(() => {
-    setContracts(Contracts);
-  }, [Contracts]);
-
-  const selectToken = () => {
-    let selectedToken: any;
-    switch (token) {
-      case 1:
-        selectedToken = contracts.testToken;
-        break;
-      case 2:
-        selectedToken = contracts.testToken2;
-        break;
-      default:
-        selectedToken = null;
-        break;
-    }
-
-    if (!selectedToken) {
-      setModal(defineModal("error", "noTokenSelected", setModalOpen));
-    } else {
-      return selectedToken;
-    }
-  };
+  const { Contracts, Signer }: any = useBlockchain();
 
   const deposit = async () => {
     setModalOpen(false);
-    const selectedToken: Token = selectToken();
 
-    if (selectedToken) {
-      var tx: any = await selectedToken.approve(
-        contracts.peg.address,
+    if (token) {
+      const tokenContract = new ethers.Contract(
+        token,
+        GenericERC20TokenAbi,
+        Signer
+      );
+
+      let tx: any = await tokenContract.approve(
+        Contracts.peg.address,
         ethers.utils.parseEther(amount)
       );
       setModal(defineModal("approve", tx.hash, setModalOpen));
       await tx.wait();
-      tx = await contracts.peg.deposit(
-        selectedToken.address,
+      tx = await Contracts.peg.deposit(
+        token,
         ethers.utils.parseUnits(amount),
         decodeAddress(CENNZnetAddress)
       );
       setModal(defineModal("deposit", tx.hash, setModalOpen));
       await tx.wait();
-      console.log("addy", CENNZnetAddress, "amount", amount);
       setModal(defineModal("relayer", "", setModalOpen));
-      // depositCENNZside(tx.hash, CENNZnetAddress, amount);
-      console.log(token, amount, CENNZnetAddress);
+    } else {
+      setModal(defineModal("error", "noTokenSelected", setModalOpen));
     }
   };
 
@@ -116,25 +71,22 @@ const Deposit: React.FC<{}> = () => {
           border: "3px outset #cfcfcf",
         }}
       >
-        <FormControl
-          sx={{
-            display: "flex",
-            width: "70%",
-            margin: "20px auto",
-            borderRadius: 10,
-          }}
-          required
-        >
-          <InputLabel>Token</InputLabel>
-          <Select
-            value={token}
-            label="Token"
-            onChange={(e) => setToken(e.target.value as number)}
-          >
-            <MenuItem value={1}>TestToken</MenuItem>
-            <MenuItem value={2}>TestToken2</MenuItem>
-          </Select>
-        </FormControl>
+        {!customToken && <TokenPicker setToken={setToken} />}
+        {customToken && (
+          <TextField
+            id="amount"
+            label="Token Address"
+            variant="filled"
+            required
+            sx={{
+              display: "flex",
+              width: "70%",
+              margin: "20px auto",
+              borderRadius: 10,
+            }}
+            onChange={(e) => setToken(e.target.value)}
+          />
+        )}
         <TextField
           id="amount"
           label="Amount"
@@ -169,6 +121,21 @@ const Deposit: React.FC<{}> = () => {
           Deposit
         </Button>
       </Box>
+      {!customToken && (
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => setCustomToken(true)}
+          sx={{
+            margin: "15px auto",
+            width: "25%",
+            display: "flex",
+            color: "secondary.dark",
+          }}
+        >
+          use token address instead
+        </Button>
+      )}
     </>
   );
 };

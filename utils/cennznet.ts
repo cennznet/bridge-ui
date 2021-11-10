@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { Api } from "@cennznet/api";
 import { Keyring } from "@polkadot/keyring";
 
@@ -17,14 +16,13 @@ async function setupApi() {
 async function withdrawCENNZside(
   amount: any,
   ethAddress: string,
-  contracts: any
+  tokenAddress: string,
+  bridge: any
 ) {
   const { api, account }: any = await setupApi();
 
   let eventProofId: any;
-  const tokenExist = await api.query.erc20Peg.erc20ToAssetId(
-    contracts.token.address
-  );
+  const tokenExist = await api.query.erc20Peg.erc20ToAssetId(tokenAddress);
   const tokenId = tokenExist.isSome
     ? tokenExist.unwrap()
     : await api.query.genericAsset.nextAssetId();

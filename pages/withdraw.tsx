@@ -1,53 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import TxModal from "../components/TxModal";
 import { useBlockchain } from "../context/blockchainContext";
 import { defineModal } from "../utils/modal";
 import { withdrawCENNZside } from "../utils/cennznet";
-
-interface Token {
-  address: "";
-  approve: (pegAddress: string, amount: any) => {};
-  balanceOf: (ethAddress: string) => {};
-}
-
-interface Peg {
-  address: "";
-  withdraw: (
-    tokenAddress: string,
-    amount: any,
-    recipient: any,
-    proof: any,
-    options: {
-      value: any;
-      gasLimit: number;
-    }
-  ) => {};
-}
-
-interface Bridge {
-  verificationFee: () => any;
-}
+import TokenPicker from "../components/TokenPicker";
 
 const Withdraw: React.FC<{}> = () => {
-  const [token, setToken] = useState(0);
+  const [customToken, setCustomToken] = useState(false);
+  const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
-  const [contracts, setContracts] = useState({
-    bridge: {} as Bridge,
-    testToken: {} as Token,
-    testToken2: {} as Token,
-    peg: {} as Peg,
-  });
-  const [account, setAccount] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modal, setModal] = useState({
     state: "",
@@ -56,46 +19,22 @@ const Withdraw: React.FC<{}> = () => {
   });
   const { Contracts, Account }: any = useBlockchain();
 
-  useEffect(() => {
-    setContracts(Contracts);
-    setAccount(Account);
-  }, [Contracts, Account]);
-
-  const selectToken = () => {
-    let selectedToken: any;
-    switch (token) {
-      case 1:
-        selectedToken = contracts.testToken;
-        break;
-      case 2:
-        selectedToken = contracts.testToken2;
-        break;
-      default:
-        selectedToken = null;
-        break;
-    }
-
-    if (!selectedToken) {
-      setModal(defineModal("error", "noTokenSelected", setModalOpen));
-    } else {
-      return selectedToken;
-    }
-  };
-
   async function withdraw() {
     setModalOpen(false);
-    const selectedToken: Token = selectToken();
-
-    if (selectedToken) {
+    if (token !== "") {
       setModal(defineModal("withdrawCENNZside", "", setModalOpen));
       let withdrawAmount = ethers.utils.parseUnits(amount).toString();
 
-      const eventProof = await withdrawCENNZside(withdrawAmount, account, {
-        token: selectedToken,
-        bridge: contracts.bridge,
-      });
-      await withdrawEthSide(withdrawAmount, eventProof, account, selectedToken);
+      const eventProof = await withdrawCENNZside(
+        withdrawAmount,
+        Account,
+        token,
+        Contracts.bridge
+      );
+      await withdrawEthSide(withdrawAmount, eventProof, Account, token);
       console.log("eventProof", eventProof);
+    } else {
+      setModal(defineModal("error", "noTokenSelected", setModalOpen));
     }
   }
 
@@ -103,11 +42,11 @@ const Withdraw: React.FC<{}> = () => {
     withdrawAmount: any,
     eventProof: any,
     ethAddress: string,
-    token: any
+    tokenAddress: string
   ) {
     setModalOpen(false);
 
-    let verificationFee = await contracts.bridge.verificationFee();
+    let verificationFee = await Contracts.bridge.verificationFee();
     // Make  withdraw for beneficiary1
     const signatures = eventProof.signatures;
     let v: any = [],
@@ -121,8 +60,8 @@ const Withdraw: React.FC<{}> = () => {
       s.push(sig.s);
     });
 
-    let tx: any = await contracts.peg.withdraw(
-      token.address,
+    let tx: any = await Contracts.peg.withdraw(
+      tokenAddress,
       withdrawAmount,
       ethAddress,
       {
@@ -164,25 +103,23 @@ const Withdraw: React.FC<{}> = () => {
           border: "3px outset #cfcfcf",
         }}
       >
-        <FormControl
-          sx={{
-            display: "flex",
-            width: "70%",
-            margin: "20px auto",
-            borderRadius: 10,
-          }}
-          required
-        >
-          <InputLabel>Token</InputLabel>
-          <Select
-            value={token}
-            label="Token"
-            onChange={(e) => setToken(e.target.value as number)}
-          >
-            <MenuItem value={1}>TestToken</MenuItem>
-            <MenuItem value={2}>TestToken2</MenuItem>
-          </Select>
-        </FormControl>
+        {!customToken && <TokenPicker setToken={setToken} />}
+        {customToken && (
+          <TextField
+            id="amount"
+            label="Token Address"
+            variant="filled"
+            required
+            sx={{
+              display: "flex",
+              width: "70%",
+              margin: "20px auto",
+              borderRadius: 10,
+            }}
+            onChange={(e) => setToken(e.target.value)}
+          />
+        )}
+
         <TextField
           id="amount"
           label="Amount"
@@ -204,6 +141,21 @@ const Withdraw: React.FC<{}> = () => {
           Withdraw
         </Button>
       </Box>
+      {!customToken && (
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => setCustomToken(true)}
+          sx={{
+            margin: "15px auto",
+            width: "25%",
+            display: "flex",
+            color: "secondary.dark",
+          }}
+        >
+          use token address instead
+        </Button>
+      )}
     </>
   );
 };
