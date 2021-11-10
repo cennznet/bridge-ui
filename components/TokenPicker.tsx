@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField } from "@mui/material";
-import ERC20Tokens from "../utils/erc20tokens.json";
+import ERC20Tokens from "../artifacts/erc20tokens.json";
 
 const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
   const [tokens, setTokens] = useState([]);
