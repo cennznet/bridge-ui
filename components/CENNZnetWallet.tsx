@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-
-import ConnectWalletModal from "./wallet/ConnectWalletModal";
-import ConnectedWalletModal from "./wallet/ConnectedWalletModal";
-import { useWeb3 } from "../context/Web3Context";
 import { Button, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { useWeb3 } from "../context/Web3Context";
 import { defineWeb3Modal } from "../utils/modal";
 import Web3Modal from "./Web3Modal";
 
