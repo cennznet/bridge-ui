@@ -4,7 +4,7 @@ import { useWeb3 } from "../context/Web3Context";
 import { defineWeb3Modal } from "../utils/modal";
 import Web3Modal from "./Web3Modal";
 
-const ConnectWallet: React.FC<{}> = () => {
+const CENNZnetWallet: React.FC<{}> = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const { selectedAccount, connectWallet } = useWeb3();
   const [modal, setModal] = useState({
@@ -71,4 +71,4 @@ const ConnectWallet: React.FC<{}> = () => {
   );
 };
 
-export default ConnectWallet;
+export default CENNZnetWallet;
