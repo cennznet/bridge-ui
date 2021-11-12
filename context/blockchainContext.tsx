@@ -68,9 +68,7 @@ export function BlockchainProvider({ children }: Props) {
     Signer: ethers.providers.JsonRpcSigner,
   });
 
-  async function init(ethereum: {
-    request: (arg0: { method: string }) => any;
-  }) {
+  async function init(ethereum) {
     return new Promise(async (resolve, reject) => {
       try {
         const provider = new ethers.providers.Web3Provider(ethereum);
