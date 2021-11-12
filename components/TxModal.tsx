@@ -42,7 +42,6 @@ const TxModal: React.FC<Props> = ({
         }}
       >
         <Typography
-          id="modal-modal-title"
           variant="h6"
           component="h4"
           sx={{ color: "secondary.dark" }}
@@ -64,7 +63,6 @@ const TxModal: React.FC<Props> = ({
             rel="noopener noreferrer"
           >
             <Typography
-              id="modal-modal-title"
               variant="h6"
               component="h6"
               sx={{ color: "secondary.dark" }}
