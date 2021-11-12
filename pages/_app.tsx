@@ -7,28 +7,29 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../components/theme";
 import { AppBar, Typography } from "@mui/material";
-import { BlockchainProvider } from "../context/blockchainContext";
+import { BlockchainProvider } from "../context/BlockchainContext";
+import dynamic from "next/dynamic";
+
+const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
-  async function init() {
-    const { ethereum } = window as any;
-
-    let chainId = await ethereum.request({ method: "eth_chainId" });
-    console.log("Connected to chain " + chainId);
-
-    const ropstenChainId = "0x3";
-    if (chainId !== ropstenChainId) {
-      alert("Please switch to the Ropsten Test Network!");
-    }
-    await ethereum.request({
-      method: "eth_requestAccounts",
-    });
-  }
-
   useEffect(() => {
-    init();
+    (async () => {
+      const { ethereum } = window as any;
+
+      let chainId = await ethereum.request({ method: "eth_chainId" });
+      console.log("Connected to chain " + chainId);
+
+      const ropstenChainId = "0x3";
+      if (chainId !== ropstenChainId) {
+        alert("Please switch to the Ropsten Test Network!");
+      }
+      await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+    })();
   }, []);
 
   return (
@@ -46,28 +47,30 @@ function MyApp({ Component, pageProps }: AppProps) {
         />
       </Head>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
+
+        <AppBar position="static" sx={{ marginBottom: "-5px" }}>
+          <Typography
+            variant="h3"
+            component="div"
+            sx={{
+              padding: "10px 0 10px",
+              cursor: "pointer",
+              textAlign: "center",
+              color: "secondary.dark",
+            }}
+            onClick={() => router.push("/")}
+          >
+            CENNZnet {"<>"} ETH Bridge
+          </Typography>
+        </AppBar>
+
+        <Switch />
+
         <BlockchainProvider>
-          <CssBaseline />
-
-          <AppBar position="static" sx={{ marginBottom: "-5px" }}>
-            <Typography
-              variant="h4"
-              component="div"
-              sx={{
-                padding: "10px 0 10px",
-                cursor: "pointer",
-                textAlign: "center",
-                color: "secondary.dark",
-              }}
-              onClick={() => router.push("/")}
-            >
-              CENNZnet {"<>"} ETH Bridge
-            </Typography>
-          </AppBar>
-
-          <Switch />
-
-          <Component {...pageProps} />
+          <Web3>
+            <Component {...pageProps} />
+          </Web3>
         </BlockchainProvider>
       </ThemeProvider>
     </>
