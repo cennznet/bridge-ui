@@ -7,11 +7,14 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../components/theme";
 import { AppBar, Typography } from "@mui/material";
-import BlockchainProvider from "../context/BlockchainContext";
 import dynamic from "next/dynamic";
 const { NEXT_PUBLIC_NETWORK_CHAIN_ID } = process.env;
 
 const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
+const BlockchainProvider = dynamic(
+  () => import("../context/BlockchainContext"),
+  { ssr: false }
+);
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
