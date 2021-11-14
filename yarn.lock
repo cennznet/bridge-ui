@@ -127,6 +127,17 @@
     "@polkadot/util-crypto" "^4.2.1"
     memoizee "^0.4.14"
 
+"@cennznet/types@^1.5.0-alpha.5":
+  version "1.5.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/@cennznet/types/-/types-1.5.0-alpha.5.tgz#506d6d58ceabae30d814932643d63c9ced535e11"
+  integrity sha512-vHyrSQSmkLtgL9ltrLg8C3DdkYZkSny4MszwV+Q8Z6x9V+9Vp+ZSO1dYkFNSU+oCfjlw0DFmo+JBNYDQOXU0Sw==
+  dependencies:
+    "@polkadot/keyring" "5.9.2"
+    "@polkadot/types" "3.7.1"
+    "@polkadot/util" "^4.2.1"
+    "@polkadot/util-crypto" "^4.2.1"
+    memoizee "^0.4.14"
+
 "@cennznet/util@^1.5.0-alpha.4":
   version "1.5.0-alpha.4"
   resolved "https://registry.yarnpkg.com/@cennznet/util/-/util-1.5.0-alpha.4.tgz#40028788d40e635de2ae8ca736daadcb8e036c39"
