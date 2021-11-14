@@ -152,8 +152,7 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   useEffect(() => {
     let apiInstance: ApiPromise;
     try {
-      apiInstance = new ApiPromise({ network: "rata" });
-      // apiInstance = new ApiPromise({ provider: endpoint });
+      apiInstance = new ApiPromise({ provider: endpoint });
     } catch (err) {
       console.error(`cennznet connection failed: ${err}`);
     }
@@ -164,8 +163,7 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     }
 
     apiInstance.isReady.then(() => setAPI(apiInstance));
-  }, []);
-  // }, [endpoint]);
+  }, [endpoint]);
 
   // Get balances for extension account when api or web3Account has changed
   useEffect(() => {

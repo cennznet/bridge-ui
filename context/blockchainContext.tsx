@@ -5,16 +5,12 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { ethers } from "ethers";
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
-import TestToken from "../artifacts/TestToken.json";
-import TestToken2 from "../artifacts/TestToken2.json";
-import { ethers } from "ethers";
 
 const BridgeAddress = "0x25b53B1bDc5F03e982c383865889A4B3c6cB98AA";
 const ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
-const TestTokenAddress = "0x536F78E33E42641fAE8085361F43Af98FC37E847";
-const TestToken2Address = "0x74Cf9C5d185de38285a914A711BEE072029E05A6";
 
 type blockchainContextType = {
   Contracts: object;
@@ -38,11 +34,6 @@ type Props = {
   children: ReactNode;
 };
 
-interface Token {
-  address: "";
-  approve: (pegAddress: string, amount: any) => {};
-}
-
 interface Peg {
   address: "";
   deposit: (
@@ -63,8 +54,6 @@ export const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     Contracts: {
       bridge: {} as Bridge,
       peg: {} as Peg,
-      testToken: {} as Token,
-      testToken2: {} as Token,
     },
     Account: "",
     Signer: ethers.providers.JsonRpcSigner,
@@ -88,23 +77,11 @@ export const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
           signer
         );
 
-        const testToken: ethers.Contract = new ethers.Contract(
-          TestTokenAddress,
-          TestToken.abi,
-          signer
-        );
-
-        const testToken2: ethers.Contract = new ethers.Contract(
-          TestToken2Address,
-          TestToken2.abi,
-          signer
-        );
-
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
         });
 
-        resolve({ bridge, peg, testToken, testToken2, accounts, signer });
+        resolve({ bridge, peg, accounts, signer });
       } catch (err) {
         reject(err);
       }
@@ -114,13 +91,11 @@ export const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
   useEffect(() => {
     const { ethereum } = window as any;
     init(ethereum).then((eth) => {
-      const { bridge, peg, testToken, testToken2, accounts, signer }: any = eth;
+      const { bridge, peg, accounts, signer }: any = eth;
       setValue({
         Contracts: {
           bridge,
           peg,
-          testToken,
-          testToken2,
         },
         Account: accounts[0],
         Signer: signer,
