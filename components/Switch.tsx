@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import React from "react";
 import { Box, Button, ButtonGroup } from "@mui/material";
+import { useRouter } from "next/router";
 
 const Switch: React.FC<{}> = () => {
   const router = useRouter();

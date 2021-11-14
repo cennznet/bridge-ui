@@ -6,7 +6,7 @@ import CENNZnetWallet from "../components/CENNZnetWallet";
 
 const Home: React.FC<{}> = () => {
   const { Account } = useBlockchain();
-  const { connectWallet, accounts, selectedAccount } = useWeb3();
+  const { connectWallet, accounts } = useWeb3();
 
   async function connectCENNZwallet() {
     await connectWallet();
@@ -48,21 +48,6 @@ const Home: React.FC<{}> = () => {
             Account.substr(Account.length - 4, 4)
           )}
         </Typography>
-        {!accounts && (
-          <Button
-            size="small"
-            variant="outlined"
-            sx={{
-              margin: "15px auto",
-              width: "70%",
-              display: "flex",
-              color: "secondary.dark",
-            }}
-            onClick={connectCENNZwallet}
-          >
-            Connect CENNZnet
-          </Button>
-        )}
         <CENNZnetWallet />
       </Box>
     </>

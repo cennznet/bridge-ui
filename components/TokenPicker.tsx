@@ -8,7 +8,7 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
   const [selectedToken, setSelectedToken] = useState("");
 
   useEffect(() => {
-    let tokes: any = ["ETH"];
+    let tokes: string[] = ["ETH"];
     ERC20Tokens.tokens.map((token) => {
       if (String(token.chainId) === NEXT_PUBLIC_TOKEN_CHAIN_ID) {
         tokes.push(token.symbol);

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
+import Web3Modal from "./Web3Modal";
 import { useWeb3 } from "../context/Web3Context";
 import { defineWeb3Modal } from "../utils/modal";
-import Web3Modal from "./Web3Modal";
 
 const CENNZnetWallet: React.FC<{}> = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);

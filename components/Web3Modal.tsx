@@ -67,7 +67,7 @@ const Web3Modal: React.FC<Props> = ({
           location={"wallet"}
         />
       )}
-      {changeAccount === true ? (
+      {changeAccount ? (
         <CENNZnetAccountPicker
           setCENNZnetAccountSelected={setCENNZnetAccountSelected}
           location={"wallet"}

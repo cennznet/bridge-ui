@@ -115,7 +115,6 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   };
 
   const connectWallet = async () => {
-    console.log("connect wallet clicked");
     try {
       const extensions = await web3Enable("Bridge");
 

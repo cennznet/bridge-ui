@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { ethers } from "ethers";
 import { Box, Button, TextField } from "@mui/material";
 import TxModal from "../components/TxModal";
-import { useBlockchain } from "../context/BlockchainContext";
-import { defineTxModal } from "../utils/modal";
 import TokenPicker from "../components/TokenPicker";
+import { defineTxModal } from "../utils/modal";
+import { useBlockchain } from "../context/BlockchainContext";
 import { useWeb3 } from "../context/Web3Context";
 
 const Withdraw: React.FC<{}> = () => {
@@ -32,7 +32,6 @@ const Withdraw: React.FC<{}> = () => {
         token
       );
       await withdrawEthSide(withdrawAmount, eventProof, Account, token);
-      console.log("eventProof", eventProof);
     } else {
       setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
     }
@@ -105,7 +104,6 @@ const Withdraw: React.FC<{}> = () => {
     setModalOpen(false);
 
     let verificationFee = await Contracts.bridge.verificationFee();
-    // Make  withdraw for beneficiary1
     const signatures = eventProof.signatures;
     let v: any = [],
       r: any = [],
