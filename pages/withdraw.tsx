@@ -44,7 +44,12 @@ const Withdraw: React.FC<{}> = () => {
     tokenAddress: string
   ) {
     let eventProofId: any;
-    const tokenExist = await api.query.erc20Peg.erc20ToAssetId(tokenAddress);
+    const tokenExist =
+      tokenAddress === "eth"
+        ? await api.query.erc20Peg.erc20ToAssetId(
+            "0x0000000000000000000000000000000000000000"
+          )
+        : await api.query.erc20Peg.erc20ToAssetId(tokenAddress);
     const tokenId = tokenExist.isSome
       ? tokenExist.unwrap()
       : await api.query.genericAsset.nextAssetId();

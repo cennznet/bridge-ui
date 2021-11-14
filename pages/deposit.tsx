@@ -37,7 +37,19 @@ const Deposit: React.FC<{}> = () => {
   const deposit = async () => {
     setModalOpen(false);
 
-    if (token) {
+    if (token === "eth") {
+      let tx: any = await Contracts.peg.deposit(
+        "0x0000000000000000000000000000000000000000",
+        ethers.utils.parseUnits(amount),
+        decodeAddress(CENNZnetAccount.address),
+        {
+          value: ethers.utils.parseUnits(amount),
+        }
+      );
+      setModal(defineTxModal("deposit", tx.hash, setModalOpen));
+      await tx.wait();
+      setModal(defineTxModal("relayer", "", setModalOpen));
+    } else if (token && token !== "eth") {
       const tokenContract = new ethers.Contract(
         token,
         GenericERC20TokenAbi,
