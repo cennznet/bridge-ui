@@ -11,6 +11,7 @@ const Web3Context = React.createContext({
   signer: null,
   accounts: null,
   api: null,
+  decodeAddress: (address: string) => {},
 });
 
 export function useWeb3() {

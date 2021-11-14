@@ -9,6 +9,7 @@ import { InjectedExtension } from "@polkadot/extension-inject/types";
 import { defaults as addressDefaults } from "@polkadot/util-crypto/address/defaults";
 import { Api as ApiPromise } from "@cennznet/api";
 import { hexToString } from "@polkadot/util";
+import { decodeAddress } from "@polkadot/keyring";
 import store from "store";
 import axios from "axios";
 import Web3Context from "../context/Web3Context";
@@ -242,6 +243,7 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         accounts,
         selectedAccount,
         api,
+        decodeAddress,
       }}
     >
       {modalOpen && (

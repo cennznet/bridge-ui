@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
+import { useWeb3 } from "../context/Web3Context";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import TxModal from "../components/TxModal";
 import TokenPicker from "../components/TokenPicker";
@@ -8,10 +9,9 @@ import { useBlockchain } from "../context/BlockchainContext";
 import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
 import CENNZnetAccountPicker from "../components/CENNZnetAccountPicker";
 import store from "store";
-import { useKeyring } from "../context/KeyringContext";
 
 const Deposit: React.FC<{}> = () => {
-  const { decodeAddress } = useKeyring();
+  const { decodeAddress } = useWeb3();
   const [customToken, setCustomToken] = useState(false);
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");

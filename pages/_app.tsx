@@ -12,7 +12,6 @@ import dynamic from "next/dynamic";
 const { NEXT_PUBLIC_NETWORK_CHAIN_ID } = process.env;
 
 const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
-const Keyring = dynamic(() => import("../components/Keyring"), { ssr: false });
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -73,9 +72,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
         <BlockchainProvider>
           <Web3>
-            <Keyring>
-              <Component {...pageProps} />
-            </Keyring>
+            <Component {...pageProps} />
           </Web3>
         </BlockchainProvider>
       </ThemeProvider>
