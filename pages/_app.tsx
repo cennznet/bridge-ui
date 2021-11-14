@@ -7,7 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../components/theme";
 import { AppBar, Typography } from "@mui/material";
-import { BlockchainProvider } from "../context/BlockchainContext";
+import BlockchainProvider from "../context/BlockchainContext";
 import dynamic from "next/dynamic";
 const { NEXT_PUBLIC_NETWORK_CHAIN_ID } = process.env;
 

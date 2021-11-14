@@ -47,7 +47,7 @@ interface Bridge {
   verificationFee: () => any;
 }
 
-export const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
+const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }: Props) => {
   const [value, setValue] = useState({
@@ -111,3 +111,5 @@ export const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     </>
   );
 };
+
+export default BlockchainProvider;
