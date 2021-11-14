@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { decodeAddress } from "@polkadot/keyring";
 import { Box, Button, TextField, Typography } from "@mui/material";
