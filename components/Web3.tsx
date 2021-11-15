@@ -79,13 +79,33 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     await api.isReady;
     const assets = await api.rpc.genericAsset.registeredAssets();
     const tokenMap = {};
-    assets.forEach((asset) => {
+
+    for (const asset of assets) {
       const [tokenId, { symbol, decimalPlaces }] = asset;
-      tokenMap[tokenId] = {
-        symbol: hexToString(symbol.toJSON()),
-        decimalPlaces: decimalPlaces.toNumber(),
-      };
-    });
+      if (hexToString(symbol.toJSON()) !== "")
+        tokenMap[tokenId] = {
+          symbol: hexToString(symbol.toJSON()),
+          decimalPlaces: decimalPlaces.toNumber(),
+        };
+      else {
+        let tokenAddress = await api.query.erc20Peg.assetIdToErc20(tokenId);
+        tokenAddress = tokenAddress.toJSON();
+        try {
+          if (tokenAddress) {
+            const tokenSymbolOption = await api.query.erc20Peg.erc20Meta(
+              tokenAddress
+            );
+            tokenMap[tokenId] = {
+              symbol: hexToString(tokenSymbolOption.toJSON()[0]),
+              decimalPlaces: decimalPlaces.toNumber(),
+              address: tokenAddress,
+            };
+          }
+        } catch (err) {
+          console.log(err.message);
+        }
+      }
+    }
     const balanceSubscriptionArg = Object.keys(tokenMap).map(
       (tokenId, index) => {
         tokenMap[tokenId].index = index;
@@ -98,13 +118,17 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         const userBalances = {};
         Object.keys(tokenMap).forEach((tokenId) => {
           const token = tokenMap[tokenId];
-          userBalances[token.symbol] = {
-            balance: balances[token.index] / Math.pow(10, token.decimalPlaces),
-            tokenId,
-            decimalPlaces: token.decimalPlaces,
-          };
+          const tokenBalance =
+            balances[token.index] / Math.pow(10, token.decimalPlaces);
+          if (tokenBalance > 0 && token.symbol !== "")
+            userBalances[token.symbol] = {
+              balance: tokenBalance,
+              tokenId,
+              decimalPlaces: token.decimalPlaces,
+              address: token.address,
+              symbol: token.symbol,
+            };
         });
-
         setBalances(userBalances);
       }
     );

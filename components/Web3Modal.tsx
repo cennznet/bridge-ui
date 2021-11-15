@@ -52,13 +52,12 @@ const Web3Modal: React.FC<Props> = ({
           <Typography sx={{ color: "secondary.dark" }}>
             Selected Account: {selectedAccount.name}
           </Typography>
-          {balances && (
-            <Typography sx={{ color: "secondary.dark" }}>
-              CENNZ Balance: {balances.CENNZ.balance}
-              <br />
-              CPAY Balance: {balances.CPAY.balance}
-            </Typography>
-          )}
+          {balances &&
+            Object.values(balances).map((token: any) => (
+              <Typography sx={{ color: "secondary.dark" }}>
+                {token.symbol} Balance: {token.balance}
+              </Typography>
+            ))}
           <br />
         </>
       ) : (
