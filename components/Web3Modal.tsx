@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Divider, Link, Modal, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  Link,
+  Modal,
+  Typography,
+} from "@mui/material";
 import { useWeb3 } from "../context/Web3Context";
 import CENNZnetAccountPicker from "./CENNZnetAccountPicker";
 
@@ -52,12 +60,17 @@ const Web3Modal: React.FC<Props> = ({
           <Typography sx={{ color: "secondary.dark" }}>
             Selected Account: {selectedAccount.name}
           </Typography>
-          {balances &&
+          {balances ? (
             Object.values(balances).map((token: any, i) => (
               <Typography sx={{ color: "secondary.dark" }} key={i}>
                 {token.symbol} Balance: {token.balance}
               </Typography>
-            ))}
+            ))
+          ) : (
+            <Box sx={{ margin: "10px auto" }}>
+              <CircularProgress />
+            </Box>
+          )}
           <br />
         </>
       ) : (
