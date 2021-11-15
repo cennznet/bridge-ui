@@ -9,7 +9,8 @@ import theme from "../components/theme";
 import BlockchainProvider from "../context/BlockchainContext";
 import { AppBar, Typography } from "@mui/material";
 import dynamic from "next/dynamic";
-const { NEXT_PUBLIC_NETWORK_CHAIN_ID } = process.env;
+const { NEXT_PUBLIC_ETHEREUM_NETWORK } = process.env;
+import store from "store";
 
 const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
 
@@ -23,15 +24,18 @@ function MyApp({ Component, pageProps }: AppProps) {
       let chainId = await ethereum.request({ method: "eth_chainId" });
       console.log("Connected to chain " + chainId);
 
-      if (chainId !== NEXT_PUBLIC_NETWORK_CHAIN_ID) {
-        NEXT_PUBLIC_NETWORK_CHAIN_ID === "0x3"
-          ? alert("Please switch to the Ropsten Test Network!")
-          : alert("Please connect to Ethereum Mainnet!");
-      }
+      const ethChainId = store.get("eth-chain-id");
 
-      await ethereum.request({
-        method: "eth_requestAccounts",
-      });
+      if (chainId !== ethChainId)
+        NEXT_PUBLIC_ETHEREUM_NETWORK === "Ethereum"
+          ? alert("Please connect to Ethereum Mainnet!")
+          : alert(
+              `Please connect to ${NEXT_PUBLIC_ETHEREUM_NETWORK} Test Network!`
+            );
+      else
+        await ethereum.request({
+          method: "eth_requestAccounts",
+        });
     })();
   }, []);
 

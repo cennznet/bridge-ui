@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
-const { NEXT_PUBLIC_TOKEN_CHAIN_ID } = process.env;
+import store from "store";
 
 const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
   const [tokens, setTokens] = useState([]);
@@ -9,8 +9,10 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
 
   useEffect(() => {
     let tokes: string[] = ["ETH"];
+    const chainId = store.get("token-chain-id");
+
     ERC20Tokens.tokens.map((token) => {
-      if (String(token.chainId) === NEXT_PUBLIC_TOKEN_CHAIN_ID) {
+      if (token.chainId === chainId) {
         tokes.push(token.symbol);
       }
     });
@@ -18,10 +20,11 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
   }, []);
 
   useEffect(() => {
+    const chainId = store.get("token-chain-id");
+
     ERC20Tokens.tokens.map((token) => {
       if (
-        (token.symbol === selectedToken &&
-          String(token.chainId) === NEXT_PUBLIC_TOKEN_CHAIN_ID) ||
+        (token.symbol === selectedToken && token.chainId === chainId) ||
         selectedToken === "ETH"
       ) {
         selectedToken === "ETH" ? setToken("eth") : setToken(token.address);

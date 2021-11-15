@@ -8,9 +8,32 @@ import React, {
 import { ethers } from "ethers";
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
+const { NEXT_PUBLIC_CENNZ_NETWORK } = process.env;
+import store from "store";
 
-const BridgeAddress = "0x25b53B1bDc5F03e982c383865889A4B3c6cB98AA";
-const ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
+let BridgeAddress: string, ERC20PegAddress: string;
+
+switch (NEXT_PUBLIC_CENNZ_NETWORK) {
+  case "Azalea":
+    store.set("eth-chain-id", "0x1");
+    store.set("token-chain-id", 1);
+    break;
+  case "Nikau":
+    BridgeAddress = "0x9AFe4E42d8ab681d402e8548Ee860635BaA952C5";
+    ERC20PegAddress = "0x5Ff2f9582FcA1e11d47e4e623BEf4594EB12b30d";
+    store.set("eth-chain-id", "0x2a");
+    store.set("token-chain-id", 42);
+    break;
+  case "Rata":
+    BridgeAddress = "0x25b53B1bDc5F03e982c383865889A4B3c6cB98AA";
+    ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
+    store.set("eth-chain-id", "0x3");
+    store.set("token-chain-id", 3);
+    break;
+  default:
+    alert("No CENNZnet network detected");
+    break;
+}
 
 type blockchainContextType = {
   Contracts: object;
