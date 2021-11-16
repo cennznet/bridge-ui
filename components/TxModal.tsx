@@ -49,6 +49,7 @@ const TxModal: React.FC<Props> = ({
           {modalText}
         </Typography>
         {modalState !== "relayer" &&
+          modalState !== "bridgePaused" &&
           modalState !== "error" &&
           modalState !== "finished" && (
             <Box sx={{ margin: "10px auto" }}>
@@ -72,6 +73,7 @@ const TxModal: React.FC<Props> = ({
           </Link>
         )}
         {(modalState === "relayer" ||
+          modalState === "bridgePaused" ||
           modalState === "error" ||
           modalState === "finished") && (
           <Button
