@@ -196,10 +196,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       return;
     }
 
-    apiInstance.isReady.then(() => {
-      console.log("setApi", apiInstance);
-      setAPI(apiInstance);
-    });
+    apiInstance.isReady.then(() => setAPI(apiInstance));
   };
 
   // Create api instance
