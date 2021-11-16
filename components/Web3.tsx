@@ -17,6 +17,7 @@ import Web3Modal from "./Web3Modal";
 import { defineWeb3Modal } from "../utils/modal";
 const endpoint = process.env.NEXT_PUBLIC_CENNZ_API_ENDPOINT;
 const EXTENSION = "cennznet-extension";
+import ERC20Tokens from "../artifacts/erc20tokens.json";
 
 async function extractMeta(api) {
   const systemChain = await api.rpc.system.chain();
@@ -60,7 +61,7 @@ async function extractMeta(api) {
   return null;
 }
 
-const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [hasWeb3injected, setHasWeb3Injected] = useState(false);
   const [wallet, setWallet] = useState<InjectedExtension>();
   const [balances, setBalances] = useState(null);
@@ -82,24 +83,34 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
 
     for (const asset of assets) {
       const [tokenId, { symbol, decimalPlaces }] = asset;
+      // Generic assets
       if (hexToString(symbol.toJSON()) !== "")
         tokenMap[tokenId] = {
           symbol: hexToString(symbol.toJSON()),
           decimalPlaces: decimalPlaces.toNumber(),
         };
       else {
+        // ERC20 Tokens
         let tokenAddress = await api.query.erc20Peg.assetIdToErc20(tokenId);
         tokenAddress = tokenAddress.toJSON();
         try {
-          if (tokenAddress) {
-            const tokenSymbolOption = await api.query.erc20Peg.erc20Meta(
-              tokenAddress
-            );
-            tokenMap[tokenId] = {
-              symbol: hexToString(tokenSymbolOption.toJSON()[0]),
-              decimalPlaces: decimalPlaces.toNumber(),
-              address: tokenAddress,
-            };
+          // Only fetch data for tokens on selected network
+          for (const ERC20Token of ERC20Tokens.tokens) {
+            const tokenChainId = store.get("token-chain-id");
+            if (
+              (ERC20Token.chainId === tokenChainId &&
+                ERC20Token.address === tokenAddress) ||
+              tokenAddress === "0x0000000000000000000000000000000000000000"
+            ) {
+              const tokenSymbolOption = await api.query.erc20Peg.erc20Meta(
+                tokenAddress
+              );
+              tokenMap[tokenId] = {
+                symbol: hexToString(tokenSymbolOption.toJSON()[0]),
+                decimalPlaces: decimalPlaces.toNumber(),
+                address: tokenAddress,
+              };
+            }
           }
         } catch (err) {
           console.log(err.message);
@@ -267,6 +278,7 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         selectedAccount,
         api,
         decodeAddress,
+        setBalances,
       }}
     >
       {modalOpen && (
@@ -282,4 +294,4 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   );
 };
 
-export default ConnectCENNZ;
+export default Web3;
