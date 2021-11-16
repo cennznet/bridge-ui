@@ -63,21 +63,29 @@ const NetworkModal: React.FC<{
       >
         {selectedNetwork ? (
           <Typography sx={{ color: "secondary.dark" }}>
-            Please switch network in MetaMask!
+            Networks switched!
           </Typography>
         ) : (
-          <Autocomplete
-            disablePortal
-            options={networks}
-            onSelect={(e: any) => setSelectedNetwork(e.target.value)}
-            sx={{
-              display: "flex",
-              width: "70%",
-              margin: "20px auto",
-              borderRadius: 10,
-            }}
-            renderInput={(params) => <TextField {...params} label="Networks" />}
-          />
+          <>
+            <Typography sx={{ color: "secondary.dark" }}>
+              Please switch network in MetaMask and refresh page before
+              switching here
+            </Typography>
+            <Autocomplete
+              disablePortal
+              options={networks}
+              onSelect={(e: any) => setSelectedNetwork(e.target.value)}
+              sx={{
+                display: "flex",
+                width: "70%",
+                margin: "20px auto",
+                borderRadius: 10,
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Networks" />
+              )}
+            />
+          </>
         )}
         <Divider sx={{ margin: "15px 0 15px 0" }} />
         <Button
