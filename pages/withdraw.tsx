@@ -22,18 +22,24 @@ const Withdraw: React.FC<{}> = () => {
 
   async function withdraw() {
     setModalOpen(false);
-    if (token !== "") {
-      setModal(defineTxModal("withdrawCENNZside", "", setModalOpen));
-      let withdrawAmount = ethers.utils.parseUnits(amount).toString();
+    const bridgePaused = await api.query.ethBridge.bridgePaused();
 
-      const eventProof = await withdrawCENNZside(
-        withdrawAmount,
-        Account,
-        token
-      );
-      await withdrawEthSide(withdrawAmount, eventProof, Account, token);
+    if (!bridgePaused.isTrue) {
+      if (token !== "") {
+        setModal(defineTxModal("withdrawCENNZside", "", setModalOpen));
+        let withdrawAmount = ethers.utils.parseUnits(amount).toString();
+
+        const eventProof = await withdrawCENNZside(
+          withdrawAmount,
+          Account,
+          token
+        );
+        await withdrawEthSide(withdrawAmount, eventProof, Account, token);
+      } else {
+        setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
+      }
     } else {
-      setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
+      setModal(defineTxModal("bridgePaused", "", setModalOpen));
     }
   }
 
