@@ -20,7 +20,7 @@ const Home: React.FC<{}> = () => {
         setCurrentNetwork("Ropsten/Rata");
         break;
       case "Kovan":
-        setCurrentNetwork("Koven/Nikau");
+        setCurrentNetwork("Kovan/Nikau");
         break;
       default:
         break;
