@@ -24,15 +24,19 @@ const Web3Modal: React.FC<Props> = ({
   modalSubText,
   setModalOpen,
 }) => {
-  const { selectedAccount, balances } = useWeb3();
+  const { selectedAccount, balances, setBalances } = useWeb3();
   const [open, setOpen] = useState(true);
   const handleClose = () => setOpen(false);
-  const [changeAccount, setChangeAccount] = useState(false);
   const [CENNZnetAccountSelected, setCENNZnetAccountSelected] = useState(false);
 
   useEffect(() => {
     if (selectedAccount) setCENNZnetAccountSelected(true);
   }, [selectedAccount]);
+
+  const handleChange = () => {
+    setCENNZnetAccountSelected(false);
+    setBalances(null);
+  };
 
   const NoExtension = (
     <>
@@ -68,6 +72,9 @@ const Web3Modal: React.FC<Props> = ({
             ))
           ) : (
             <Box sx={{ margin: "10px auto" }}>
+              <Typography sx={{ color: "primary.dark", fontSize: "14" }}>
+                Fetching Balances...
+              </Typography>
               <CircularProgress />
             </Box>
           )}
@@ -79,20 +86,13 @@ const Web3Modal: React.FC<Props> = ({
           location={"wallet"}
         />
       )}
-      {changeAccount ? (
-        <CENNZnetAccountPicker
-          setCENNZnetAccountSelected={setCENNZnetAccountSelected}
-          location={"wallet"}
-        />
-      ) : (
-        <Button
-          onClick={() => setChangeAccount(true)}
-          variant="contained"
-          sx={{ color: "secondary.dark" }}
-        >
-          change account
-        </Button>
-      )}
+      <Button
+        onClick={handleChange}
+        variant="contained"
+        sx={{ color: "secondary.dark" }}
+      >
+        change account
+      </Button>
     </>
   );
 
