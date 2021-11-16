@@ -27,6 +27,7 @@ const Deposit: React.FC<{}> = () => {
     hash: "",
   });
   const { Contracts, Signer }: any = useBlockchain();
+  const { api } = useWeb3();
 
   useEffect(() => {
     if (CENNZnetAccountSelected) {
@@ -35,45 +36,57 @@ const Deposit: React.FC<{}> = () => {
     }
   }, [CENNZnetAccountSelected]);
 
+  const depositEth = async () => {
+    let tx: any = await Contracts.peg.deposit(
+      "0x0000000000000000000000000000000000000000",
+      ethers.utils.parseUnits(amount),
+      decodeAddress(CENNZnetAccount.address),
+      {
+        value: ethers.utils.parseUnits(amount),
+      }
+    );
+
+    setModal(defineTxModal("deposit", tx.hash, setModalOpen));
+    await tx.wait();
+    setModal(defineTxModal("relayer", "", setModalOpen));
+  };
+
+  const depositERC20 = async () => {
+    const tokenContract = new ethers.Contract(
+      token,
+      GenericERC20TokenAbi,
+      Signer
+    );
+
+    let tx: any = await tokenContract.approve(
+      Contracts.peg.address,
+      ethers.utils.parseEther(amount)
+    );
+    setModal(defineTxModal("approve", tx.hash, setModalOpen));
+    await tx.wait();
+    tx = await Contracts.peg.deposit(
+      token,
+      ethers.utils.parseUnits(amount),
+      decodeAddress(CENNZnetAccount.address)
+    );
+    setModal(defineTxModal("deposit", tx.hash, setModalOpen));
+    await tx.wait();
+    setModal(defineTxModal("relayer", "", setModalOpen));
+  };
+
   const deposit = async () => {
     setModalOpen(false);
-
-    if (token === "eth") {
-      let tx: any = await Contracts.peg.deposit(
-        "0x0000000000000000000000000000000000000000",
-        ethers.utils.parseUnits(amount),
-        decodeAddress(CENNZnetAccount.address),
-        {
-          value: ethers.utils.parseUnits(amount),
-        }
-      );
-
-      setModal(defineTxModal("deposit", tx.hash, setModalOpen));
-      await tx.wait();
-      setModal(defineTxModal("relayer", "", setModalOpen));
-    } else if (token && token !== "eth") {
-      const tokenContract = new ethers.Contract(
-        token,
-        GenericERC20TokenAbi,
-        Signer
-      );
-
-      let tx: any = await tokenContract.approve(
-        Contracts.peg.address,
-        ethers.utils.parseEther(amount)
-      );
-      setModal(defineTxModal("approve", tx.hash, setModalOpen));
-      await tx.wait();
-      tx = await Contracts.peg.deposit(
-        token,
-        ethers.utils.parseUnits(amount),
-        decodeAddress(CENNZnetAccount.address)
-      );
-      setModal(defineTxModal("deposit", tx.hash, setModalOpen));
-      await tx.wait();
-      setModal(defineTxModal("relayer", "", setModalOpen));
+    const bridgePaused = await api.query.ethBridge.bridgePaused();
+    if (!bridgePaused.isTrue) {
+      if (token === "eth") {
+        depositEth();
+      } else if (token && token !== "eth") {
+        depositERC20();
+      } else {
+        setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
+      }
     } else {
-      setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
+      setModal(defineTxModal("bridgePaused", "", setModalOpen));
     }
   };
 

@@ -24,6 +24,9 @@ function defineTxModal(state: string, hash: string, setModalOpen: Function) {
     case "finished":
       modal.text = "Done! You may now close this window";
       break;
+    case "bridgePaused":
+      modal.text = "Token bridge is currently paused. Please try again later!";
+      break;
     case "error":
       if (hash === "noTokenSelected") modal.text = "Please select a token";
       else modal.text = "Whoops! Please try again";
