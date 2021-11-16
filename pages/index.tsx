@@ -101,7 +101,7 @@ const Home: React.FC<{}> = () => {
             color: "secondary.dark",
           }}
         >
-          Metamask:{" "}
+          MetaMask:{" "}
           {Account.substr(0, 6).concat(
             "...",
             Account.substr(Account.length - 4, 4)
