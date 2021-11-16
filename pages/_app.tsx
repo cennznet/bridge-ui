@@ -9,7 +9,6 @@ import theme from "../components/theme";
 import BlockchainProvider from "../context/BlockchainContext";
 import { AppBar, Typography } from "@mui/material";
 import dynamic from "next/dynamic";
-const { NEXT_PUBLIC_ETHEREUM_NETWORK } = process.env;
 import store from "store";
 
 const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
@@ -25,13 +24,12 @@ function MyApp({ Component, pageProps }: AppProps) {
       console.log("Connected to chain " + chainId);
 
       const ethChainId = store.get("eth-chain-id");
+      const ethNetwork = store.get("ethereum-network");
 
       if (chainId !== ethChainId)
-        NEXT_PUBLIC_ETHEREUM_NETWORK === "Ethereum"
+        ethNetwork === "Ethereum"
           ? alert("Please connect to Ethereum Mainnet!")
-          : alert(
-              `Please connect to ${NEXT_PUBLIC_ETHEREUM_NETWORK} Test Network!`
-            );
+          : alert(`Please connect to ${ethNetwork} Test Network!`);
       else
         await ethereum.request({
           method: "eth_requestAccounts",
