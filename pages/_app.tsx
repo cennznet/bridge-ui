@@ -72,11 +72,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
         <Switch />
 
-        <BlockchainProvider>
-          <Web3>
+        <Web3>
+          <BlockchainProvider>
             <Component {...pageProps} />
-          </Web3>
-        </BlockchainProvider>
+          </BlockchainProvider>
+        </Web3>
       </ThemeProvider>
     </>
   );
