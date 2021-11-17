@@ -27,19 +27,33 @@ const NetworkModal: React.FC<{
   useEffect(() => {
     const { ethereum }: any = window;
     if (selectedNetwork) {
-      switch (selectedNetwork) {
-        case "Mainnet/Mainnet":
-          updateNetwork(ethereum, "Mainnet");
-          break;
-        case "Ropsten/Rata":
-          updateNetwork(ethereum, "Ropsten");
-          break;
-        case "Kovan/Nikau":
-          updateNetwork(ethereum, "Kovan");
-          break;
-        default:
-          break;
-      }
+      (async () => {
+        switch (selectedNetwork) {
+          case "Mainnet/Mainnet":
+            await ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: "0x1" }],
+            });
+            updateNetwork(ethereum, "Mainnet");
+            break;
+          case "Ropsten/Rata":
+            await ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: "0x3" }],
+            });
+            updateNetwork(ethereum, "Ropsten");
+            break;
+          case "Kovan/Nikau":
+            await ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: "0x2a" }],
+            });
+            updateNetwork(ethereum, "Kovan");
+            break;
+          default:
+            break;
+        }
+      })();
       setCurrentNetwork(selectedNetwork);
     }
   }, [selectedNetwork, setCurrentNetwork, updateNetwork]);
@@ -63,14 +77,10 @@ const NetworkModal: React.FC<{
       >
         {selectedNetwork ? (
           <Typography sx={{ color: "secondary.dark" }}>
-            Networks switched!
+            Please refresh page once MetaMask switch has been accepted.
           </Typography>
         ) : (
           <>
-            <Typography sx={{ color: "secondary.dark" }}>
-              Please switch network in MetaMask and refresh page before
-              switching here
-            </Typography>
             <Autocomplete
               disablePortal
               options={networks}
