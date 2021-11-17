@@ -27,7 +27,7 @@ const Deposit: React.FC<{}> = () => {
     hash: "",
   });
   const { Contracts, Signer }: any = useBlockchain();
-  const { api } = useWeb3();
+  const { api }: any = useWeb3();
 
   useEffect(() => {
     if (CENNZnetAccountSelected) {

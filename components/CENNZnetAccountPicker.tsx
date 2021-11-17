@@ -7,22 +7,21 @@ const CENNZnetAccountPicker: React.FC<{
   setCENNZnetAccountSelected: Function;
   location: string;
 }> = ({ setCENNZnetAccountSelected, location }) => {
-  const { accounts, updateSelectedAccount } = useWeb3();
-  const [accountNames, setAccountNames] = useState([]);
+  const { accounts, updateSelectedAccount }: any = useWeb3();
+  const [accountNames, setAccountNames] = useState<string[]>([]);
 
   useEffect(() => {
-    let names = [];
+    let names: string[] = [];
     accounts.map((account: { name: string; address: string }) => {
       names.push(account.name);
     });
     setAccountNames(names);
-  }, []);
+  }, [accounts]);
 
-  function updateAccount(accountName) {
+  const updateAccount = (accountName: string) => {
     accounts.forEach((account: { name: string; address: string }) => {
       if (account.name === accountName) {
         switch (location) {
-          case "index":
           case "wallet":
             updateSelectedAccount(account);
             break;
@@ -36,7 +35,7 @@ const CENNZnetAccountPicker: React.FC<{
         setCENNZnetAccountSelected(true);
       }
     });
-  }
+  };
 
   return (
     <Autocomplete

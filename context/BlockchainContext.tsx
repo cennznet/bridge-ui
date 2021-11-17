@@ -33,7 +33,7 @@ export function useBlockchain() {
 }
 
 type Props = {
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 interface Peg {
@@ -62,7 +62,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     Signer: ethers.providers.JsonRpcSigner,
   });
 
-  async function init(ethereum, ethereumNetwork) {
+  const init = async (ethereum: any, ethereumNetwork: string) => {
     return new Promise(async (resolve, reject) => {
       try {
         const provider = new ethers.providers.Web3Provider(ethereum);
@@ -120,7 +120,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         reject(err);
       }
     });
-  }
+  };
 
   useEffect(() => {
     const { ethereum } = window as any;

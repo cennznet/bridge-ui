@@ -42,7 +42,7 @@ const NetworkModal: React.FC<{
       }
       setCurrentNetwork(selectedNetwork);
     }
-  }, [selectedNetwork]);
+  }, [selectedNetwork, setCurrentNetwork, updateNetwork]);
 
   return (
     <Modal open={open} onClose={handleClose}>

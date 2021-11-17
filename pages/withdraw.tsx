@@ -18,9 +18,9 @@ const Withdraw: React.FC<{}> = () => {
     hash: "",
   });
   const { Contracts, Account }: any = useBlockchain();
-  const { signer, selectedAccount, api } = useWeb3();
+  const { signer, selectedAccount, api }: any = useWeb3();
 
-  async function withdraw() {
+  const withdraw = async () => {
     setModalOpen(false);
     const bridgePaused = await api.query.ethBridge.bridgePaused();
 
@@ -41,13 +41,13 @@ const Withdraw: React.FC<{}> = () => {
     } else {
       setModal(defineTxModal("bridgePaused", "", setModalOpen));
     }
-  }
+  };
 
-  async function withdrawCENNZside(
+  const withdrawCENNZside = async (
     amount: any,
     ethAddress: string,
     tokenAddress: string
-  ) {
+  ) => {
     let eventProofId: any;
     const tokenExist =
       tokenAddress === "eth"
@@ -99,14 +99,14 @@ const Withdraw: React.FC<{}> = () => {
     });
 
     return eventProof;
-  }
+  };
 
-  async function withdrawEthSide(
+  const withdrawEthSide = async (
     withdrawAmount: any,
     eventProof: any,
     ethAddress: string,
     tokenAddress: string
-  ) {
+  ) => {
     setModalOpen(false);
 
     let verificationFee = await Contracts.bridge.verificationFee();
@@ -142,7 +142,7 @@ const Withdraw: React.FC<{}> = () => {
     setModal(defineTxModal("withdrawETHside", tx.hash, setModalOpen));
     await tx.wait();
     setModal(defineTxModal("finished", "", setModalOpen));
-  }
+  };
 
   return (
     <>

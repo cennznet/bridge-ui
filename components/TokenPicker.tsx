@@ -30,7 +30,7 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
         selectedToken === "ETH" ? setToken("eth") : setToken(token.address);
       }
     });
-  }, [selectedToken]);
+  }, [selectedToken, setToken]);
 
   return (
     <Autocomplete
