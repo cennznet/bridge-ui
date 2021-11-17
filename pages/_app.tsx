@@ -24,10 +24,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           content="Ethereum Bridge powered by CENNZnet"
         />
         <link rel="icon" href="/favicon.svg" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-        />
       </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />

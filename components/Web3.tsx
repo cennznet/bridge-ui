@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   web3Enable,
   web3AccountsSubscribe,
@@ -76,74 +76,77 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     subText: "",
   });
 
-  const getAccountAssets = async (address: string) => {
-    await api.isReady;
-    const assets = await api.rpc.genericAsset.registeredAssets();
-    const tokenMap = {};
+  const getAccountAssets = useCallback(
+    async (address: string) => {
+      await api.isReady;
+      const assets = await api.rpc.genericAsset.registeredAssets();
+      const tokenMap = {};
 
-    for (const asset of assets) {
-      const [tokenId, { symbol, decimalPlaces }] = asset;
-      // Generic assets
-      if (hexToString(symbol.toJSON()) !== "")
-        tokenMap[tokenId] = {
-          symbol: hexToString(symbol.toJSON()),
-          decimalPlaces: decimalPlaces.toNumber(),
-        };
-      else {
-        // ERC20 Tokens
-        let tokenAddress = await api.query.erc20Peg.assetIdToErc20(tokenId);
-        tokenAddress = tokenAddress.toJSON();
-        try {
-          // Only fetch data for tokens on selected network
-          for (const ERC20Token of ERC20Tokens.tokens) {
-            const tokenChainId = store.get("token-chain-id");
-            if (
-              (ERC20Token.chainId === tokenChainId &&
-                ERC20Token.address === tokenAddress) ||
-              tokenAddress === "0x0000000000000000000000000000000000000000"
-            ) {
-              const tokenSymbolOption = await api.query.erc20Peg.erc20Meta(
-                tokenAddress
-              );
-              tokenMap[tokenId] = {
-                symbol: hexToString(tokenSymbolOption.toJSON()[0]),
-                decimalPlaces: decimalPlaces.toNumber(),
-                address: tokenAddress,
-              };
+      for (const asset of assets) {
+        const [tokenId, { symbol, decimalPlaces }] = asset;
+        // Generic assets
+        if (hexToString(symbol.toJSON()) !== "")
+          tokenMap[tokenId] = {
+            symbol: hexToString(symbol.toJSON()),
+            decimalPlaces: decimalPlaces.toNumber(),
+          };
+        else {
+          // ERC20 Tokens
+          let tokenAddress = await api.query.erc20Peg.assetIdToErc20(tokenId);
+          tokenAddress = tokenAddress.toJSON();
+          try {
+            // Only fetch data for tokens on selected network
+            for (const ERC20Token of ERC20Tokens.tokens) {
+              const tokenChainId = store.get("token-chain-id");
+              if (
+                (ERC20Token.chainId === tokenChainId &&
+                  ERC20Token.address === tokenAddress) ||
+                tokenAddress === "0x0000000000000000000000000000000000000000"
+              ) {
+                const tokenSymbolOption = await api.query.erc20Peg.erc20Meta(
+                  tokenAddress
+                );
+                tokenMap[tokenId] = {
+                  symbol: hexToString(tokenSymbolOption.toJSON()[0]),
+                  decimalPlaces: decimalPlaces.toNumber(),
+                  address: tokenAddress,
+                };
+              }
             }
+          } catch (err) {
+            console.log(err.message);
           }
-        } catch (err) {
-          console.log(err.message);
         }
       }
-    }
-    const balanceSubscriptionArg = Object.keys(tokenMap).map(
-      (tokenId, index) => {
-        tokenMap[tokenId].index = index;
-        return [tokenId, address];
-      }
-    );
-    await api.query.genericAsset.freeBalance.multi(
-      balanceSubscriptionArg,
-      (balances) => {
-        const userBalances = {};
-        Object.keys(tokenMap).forEach((tokenId) => {
-          const token = tokenMap[tokenId];
-          const tokenBalance =
-            balances[token.index] / Math.pow(10, token.decimalPlaces);
-          if (tokenBalance > 0 && token.symbol !== "")
-            userBalances[token.symbol] = {
-              balance: tokenBalance,
-              tokenId,
-              decimalPlaces: token.decimalPlaces,
-              address: token.address,
-              symbol: token.symbol,
-            };
-        });
-        setBalances(userBalances);
-      }
-    );
-  };
+      const balanceSubscriptionArg = Object.keys(tokenMap).map(
+        (tokenId, index) => {
+          tokenMap[tokenId].index = index;
+          return [tokenId, address];
+        }
+      );
+      await api.query.genericAsset.freeBalance.multi(
+        balanceSubscriptionArg,
+        (balances) => {
+          const userBalances = {};
+          Object.keys(tokenMap).forEach((tokenId) => {
+            const token = tokenMap[tokenId];
+            const tokenBalance =
+              balances[token.index] / Math.pow(10, token.decimalPlaces);
+            if (tokenBalance > 0 && token.symbol !== "")
+              userBalances[token.symbol] = {
+                balance: tokenBalance,
+                tokenId,
+                decimalPlaces: token.decimalPlaces,
+                address: token.address,
+                symbol: token.symbol,
+              };
+          });
+          setBalances(userBalances);
+        }
+      );
+    },
+    [api]
+  );
 
   const updateSelectedAccount = async (account) => {
     setSelectedAccount(account);
@@ -221,7 +224,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     if (api && selectedAccount) {
       getAccountAssets(selectedAccount.address);
     }
-  }, [api, selectedAccount]);
+  }, [api, selectedAccount, getAccountAssets]);
 
   // Set account/signer when wallet has changed
   useEffect(() => {
@@ -279,7 +282,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         setSelectedAccount(accounts[0]);
       }
     })();
-  }, [accounts]);
+  }, [accounts, selectedAccount, signer]);
 
   return (
     <Web3Context.Provider
