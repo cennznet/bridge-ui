@@ -8,41 +8,20 @@ import React, {
 import { ethers } from "ethers";
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
-const { NEXT_PUBLIC_CENNZ_NETWORK } = process.env;
+const { NEXT_PUBLIC_ETHEREUM_NETWORK } = process.env;
 import store from "store";
-
-let BridgeAddress: string, ERC20PegAddress: string;
-
-switch (NEXT_PUBLIC_CENNZ_NETWORK) {
-  case "Azalea":
-    store.set("eth-chain-id", "0x1");
-    store.set("token-chain-id", 1);
-    break;
-  case "Nikau":
-    BridgeAddress = "0x9AFe4E42d8ab681d402e8548Ee860635BaA952C5";
-    ERC20PegAddress = "0x5Ff2f9582FcA1e11d47e4e623BEf4594EB12b30d";
-    store.set("eth-chain-id", "0x2a");
-    store.set("token-chain-id", 42);
-    break;
-  case "Rata":
-    BridgeAddress = "0x25b53B1bDc5F03e982c383865889A4B3c6cB98AA";
-    ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
-    store.set("eth-chain-id", "0x3");
-    store.set("token-chain-id", 3);
-    break;
-  default:
-    alert("No CENNZnet network detected");
-    break;
-}
+import { useWeb3 } from "./Web3Context";
 
 type blockchainContextType = {
   Contracts: object;
   Account: string;
+  updateNetwork: Function;
 };
 
 const blockchainContextDefaultValues: blockchainContextType = {
   Contracts: {},
   Account: "",
+  updateNetwork: (ethereum: any, ethereumNetwork: string) => {},
 };
 
 const BlockchainContext = createContext<blockchainContextType>(
@@ -54,7 +33,7 @@ export function useBlockchain() {
 }
 
 type Props = {
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 interface Peg {
@@ -73,6 +52,7 @@ interface Bridge {
 const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }: Props) => {
+  const { updateApi } = useWeb3();
   const [value, setValue] = useState({
     Contracts: {
       bridge: {} as Bridge,
@@ -82,11 +62,42 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     Signer: ethers.providers.JsonRpcSigner,
   });
 
-  async function init(ethereum) {
+  const init = async (ethereum: any, ethereumNetwork: string) => {
     return new Promise(async (resolve, reject) => {
       try {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
+        store.set("ethereum-network", ethereumNetwork);
+        let BridgeAddress: string, ERC20PegAddress: string;
+
+        switch (ethereumNetwork) {
+          case "Mainnet":
+            BridgeAddress = "";
+            ERC20PegAddress = "";
+            store.set("eth-chain-id", "0x1");
+            store.set("token-chain-id", 1);
+            store.set("CENNZnet-network", "Azalea");
+            updateApi("wss://cennznet.unfrastructure.io/public/ws");
+            break;
+          case "Kovan":
+            BridgeAddress = "0x9AFe4E42d8ab681d402e8548Ee860635BaA952C5";
+            ERC20PegAddress = "0x5Ff2f9582FcA1e11d47e4e623BEf4594EB12b30d";
+            store.set("eth-chain-id", "0x2a");
+            store.set("token-chain-id", 42);
+            store.set("CENNZnet-network", "Nikau");
+            updateApi("wss://nikau.centrality.me/public/ws");
+            break;
+          case "Ropsten":
+            BridgeAddress = "0x25b53B1bDc5F03e982c383865889A4B3c6cB98AA";
+            ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
+            store.set("eth-chain-id", "0x3");
+            store.set("token-chain-id", 3);
+            store.set("CENNZnet-network", "Rata");
+            updateApi("wss://kong2.centrality.me/public/rata/ws");
+            break;
+          default:
+            break;
+        }
 
         const bridge: ethers.Contract = new ethers.Contract(
           BridgeAddress,
@@ -109,11 +120,14 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         reject(err);
       }
     });
-  }
+  };
 
   useEffect(() => {
     const { ethereum } = window as any;
-    init(ethereum).then((eth) => {
+    const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
+      ? window.localStorage.getItem("ethereum-chain")
+      : NEXT_PUBLIC_ETHEREUM_NETWORK;
+    init(ethereum, ethereumNetwork).then((eth) => {
       const { bridge, peg, accounts, signer }: any = eth;
       setValue({
         Contracts: {
@@ -128,7 +142,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
   return (
     <>
-      <BlockchainContext.Provider value={value}>
+      <BlockchainContext.Provider value={{ ...value, updateNetwork: init }}>
         {children}
       </BlockchainContext.Provider>
     </>

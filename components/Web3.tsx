@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   web3Enable,
   web3AccountsSubscribe,
@@ -13,10 +13,9 @@ import { decodeAddress } from "@polkadot/keyring";
 import store from "store";
 import axios from "axios";
 import Web3Context from "../context/Web3Context";
-import Web3Modal from "./Web3Modal";
-import { defineWeb3Modal } from "../utils/modal";
 const endpoint = process.env.NEXT_PUBLIC_CENNZ_API_ENDPOINT;
 const EXTENSION = "cennznet-extension";
+import ERC20Tokens from "../artifacts/erc20tokens.json";
 
 async function extractMeta(api) {
   const systemChain = await api.rpc.system.chain();
@@ -60,7 +59,7 @@ async function extractMeta(api) {
   return null;
 }
 
-const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [hasWeb3injected, setHasWeb3Injected] = useState(false);
   const [wallet, setWallet] = useState<InjectedExtension>();
   const [balances, setBalances] = useState(null);
@@ -68,71 +67,78 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [api, setAPI] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modal, setModal] = useState({
-    state: "",
-    text: "",
-    subText: "",
-  });
 
-  const getAccountAssets = async (address: string) => {
-    await api.isReady;
-    const assets = await api.rpc.genericAsset.registeredAssets();
-    const tokenMap = {};
+  const getAccountAssets = useCallback(
+    async (address: string) => {
+      await api.isReady;
+      const assets = await api.rpc.genericAsset.registeredAssets();
+      const tokenMap = {};
 
-    for (const asset of assets) {
-      const [tokenId, { symbol, decimalPlaces }] = asset;
-      if (hexToString(symbol.toJSON()) !== "")
-        tokenMap[tokenId] = {
-          symbol: hexToString(symbol.toJSON()),
-          decimalPlaces: decimalPlaces.toNumber(),
-        };
-      else {
-        let tokenAddress = await api.query.erc20Peg.assetIdToErc20(tokenId);
-        tokenAddress = tokenAddress.toJSON();
-        try {
-          if (tokenAddress) {
-            const tokenSymbolOption = await api.query.erc20Peg.erc20Meta(
-              tokenAddress
-            );
-            tokenMap[tokenId] = {
-              symbol: hexToString(tokenSymbolOption.toJSON()[0]),
-              decimalPlaces: decimalPlaces.toNumber(),
-              address: tokenAddress,
-            };
+      for (const asset of assets) {
+        const [tokenId, { symbol, decimalPlaces }] = asset;
+        // Generic assets
+        if (hexToString(symbol.toJSON()) !== "")
+          tokenMap[tokenId] = {
+            symbol: hexToString(symbol.toJSON()),
+            decimalPlaces: decimalPlaces.toNumber(),
+          };
+        else {
+          // ERC20 Tokens
+          let tokenAddress = await api.query.erc20Peg.assetIdToErc20(tokenId);
+          tokenAddress = tokenAddress.toJSON();
+          try {
+            // Only fetch data for tokens on selected network
+            for (const ERC20Token of ERC20Tokens.tokens) {
+              const tokenChainId = store.get("token-chain-id");
+              if (
+                (ERC20Token.chainId === tokenChainId &&
+                  ERC20Token.address === tokenAddress) ||
+                tokenAddress === "0x0000000000000000000000000000000000000000"
+              ) {
+                const tokenSymbolOption = await api.query.erc20Peg.erc20Meta(
+                  tokenAddress
+                );
+                tokenMap[tokenId] = {
+                  symbol: hexToString(tokenSymbolOption.toJSON()[0]),
+                  decimalPlaces: decimalPlaces.toNumber(),
+                  address: tokenAddress,
+                };
+              }
+            }
+          } catch (err) {
+            console.log(err.message);
           }
-        } catch (err) {
-          console.log(err.message);
         }
       }
-    }
-    const balanceSubscriptionArg = Object.keys(tokenMap).map(
-      (tokenId, index) => {
-        tokenMap[tokenId].index = index;
-        return [tokenId, address];
-      }
-    );
-    await api.query.genericAsset.freeBalance.multi(
-      balanceSubscriptionArg,
-      (balances) => {
-        const userBalances = {};
-        Object.keys(tokenMap).forEach((tokenId) => {
-          const token = tokenMap[tokenId];
-          const tokenBalance =
-            balances[token.index] / Math.pow(10, token.decimalPlaces);
-          if (tokenBalance > 0 && token.symbol !== "")
-            userBalances[token.symbol] = {
-              balance: tokenBalance,
-              tokenId,
-              decimalPlaces: token.decimalPlaces,
-              address: token.address,
-              symbol: token.symbol,
-            };
-        });
-        setBalances(userBalances);
-      }
-    );
-  };
+      const balanceSubscriptionArg = Object.keys(tokenMap).map(
+        (tokenId, index) => {
+          tokenMap[tokenId].index = index;
+          return [tokenId, address];
+        }
+      );
+      await api.query.genericAsset.freeBalance.multi(
+        balanceSubscriptionArg,
+        (balances) => {
+          const userBalances = {};
+          Object.keys(tokenMap).forEach((tokenId) => {
+            const token = tokenMap[tokenId];
+            const tokenBalance =
+              balances[token.index] / Math.pow(10, token.decimalPlaces);
+            if (tokenBalance > 0 && token.symbol !== "")
+              userBalances[token.symbol] = {
+                balance: tokenBalance,
+                tokenId,
+                decimalPlaces: token.decimalPlaces,
+                address: token.address,
+                symbol: token.symbol,
+              };
+          });
+          setBalances(userBalances);
+        }
+      );
+    },
+    [api]
+  );
 
   const updateSelectedAccount = async (account) => {
     setSelectedAccount(account);
@@ -167,13 +173,11 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
 
       setHasWeb3Injected(true);
     } catch (error) {
-      setModal(defineWeb3Modal("noExtension", setModalOpen));
       setHasWeb3Injected(false);
     }
   };
 
-  // Create api instance on endpoint change
-  useEffect(() => {
+  const updateApi = (endpoint) => {
     let apiInstance: ApiPromise;
     try {
       apiInstance = new ApiPromise({ provider: endpoint });
@@ -187,14 +191,31 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     }
 
     apiInstance.isReady.then(() => setAPI(apiInstance));
-  }, [endpoint]);
+  };
+
+  // Create api instance
+  // useEffect(() => {
+  //   let apiInstance: ApiPromise;
+  //   try {
+  //     apiInstance = new ApiPromise({ provider: endpoint });
+  //   } catch (err) {
+  //     console.error(`cennznet connection failed: ${err}`);
+  //   }
+
+  //   if (!apiInstance) {
+  //     console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
+  //     return;
+  //   }
+
+  //   apiInstance.isReady.then(() => setAPI(apiInstance));
+  // }, []);
 
   // Get balances for extension account when api or web3Account has changed
   useEffect(() => {
     if (api && selectedAccount) {
       getAccountAssets(selectedAccount.address);
     }
-  }, [api, selectedAccount]);
+  }, [api, selectedAccount, getAccountAssets]);
 
   // Set account/signer when wallet has changed
   useEffect(() => {
@@ -204,7 +225,7 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
 
       if (accounts.length === 0) {
         setSelectedAccount(null);
-        setModal(defineWeb3Modal("noAccounts", setModalOpen));
+        //error modal no accounts
       } else {
         const acc = accounts.map((acc) => ({
           address: acc.address,
@@ -225,12 +246,10 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     };
 
     // if wallet exist,
-    if (wallet) {
-      getSelectedAccount().then(() =>
-        setModal(defineWeb3Modal("selectAccount", setModalOpen))
-      );
+    if (wallet && !selectedAccount) {
+      getSelectedAccount();
     }
-  }, [wallet]);
+  }, [wallet, selectedAccount]);
 
   useEffect(() => {
     (async () => {
@@ -241,7 +260,7 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
           setSigner(injector.signer);
           if (!injector) throw new Error("No extension found");
         } catch (error) {
-          setModal(defineWeb3Modal("noExtension", setModalOpen));
+          //error modal no extension
         }
       }
       if (
@@ -252,7 +271,7 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         setSelectedAccount(accounts[0]);
       }
     })();
-  }, [accounts]);
+  }, [accounts, selectedAccount, signer]);
 
   return (
     <Web3Context.Provider
@@ -267,19 +286,13 @@ const ConnectCENNZ: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         selectedAccount,
         api,
         decodeAddress,
+        setBalances,
+        updateApi,
       }}
     >
-      {modalOpen && (
-        <Web3Modal
-          modalState={modal.state}
-          modalText={modal.text}
-          modalSubText={modal.subText}
-          setModalOpen={setModalOpen}
-        />
-      )}
       {children}
     </Web3Context.Provider>
   );
 };
 
-export default ConnectCENNZ;
+export default Web3;

@@ -8,6 +8,7 @@ import {
   Modal,
   Typography,
 } from "@mui/material";
+import { Heading, StyledModal } from "./StyledComponents";
 interface Props {
   modalState: string;
   modalText: string;
@@ -26,63 +27,72 @@ const TxModal: React.FC<Props> = ({
 
   return (
     <Modal open={open} onClose={handleClose}>
-      <Box
+      <StyledModal
         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 400,
-          border: "3px outset #cfcfcf",
-          padding: 4,
+          justifyContent: "center",
+          display: "flex",
+          flexDirection: "column",
+          border: "4px solid black",
           textAlign: "center",
-          borderRadius: 10,
-          boxShadow: 24,
-          bgcolor: "background.paper",
         }}
       >
-        <Typography
-          variant="h6"
-          component="h4"
-          sx={{ color: "secondary.dark" }}
+        <Heading
+          sx={{
+            color: "black",
+            fontSize: "24px",
+            letterSpacing: "1px",
+            m: "50px auto 15px",
+            maxWidth: "70%",
+          }}
         >
           {modalText}
-        </Typography>
+        </Heading>
         {modalState !== "relayer" &&
+          modalState !== "bridgePaused" &&
           modalState !== "error" &&
           modalState !== "finished" && (
-            <Box sx={{ margin: "10px auto" }}>
-              <CircularProgress />
+            <Box sx={{ margin: "10px auto 50px" }}>
+              <CircularProgress size="3rem" sx={{ color: "black" }} />
             </Box>
           )}
-        <Divider sx={{ margin: "15px 0 15px 0" }} />
         {etherscanHash !== "" && etherscanHash !== "noTokenSelected" && (
-          <Link
-            href={`https://ropsten.etherscan.io/tx/${etherscanHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Button
+            size="large"
+            variant="contained"
+            sx={{
+              backgroundColor: "primary.main",
+              width: "50%",
+              margin: "20px auto 50px",
+            }}
           >
-            <Typography
-              variant="h6"
-              component="h6"
-              sx={{ color: "secondary.dark" }}
+            <Link
+              href={`https://ropsten.etherscan.io/tx/${etherscanHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              View transaction on Etherscan
-            </Typography>
-          </Link>
+              <Heading sx={{ color: "#FFFFFF", fontSize: "24px" }}>
+                View on Etherscan
+              </Heading>
+            </Link>
+          </Button>
         )}
         {(modalState === "relayer" ||
+          modalState === "bridgePaused" ||
           modalState === "error" ||
           modalState === "finished") && (
           <Button
             variant="contained"
-            sx={{ color: "secondary.dark" }}
+            sx={{
+              backgroundColor: "primary.main",
+              width: "50%",
+              margin: "50px auto 50px",
+            }}
             onClick={() => setModalOpen(false)}
           >
-            Close
+            <Heading sx={{ color: "#FFFFFF", fontSize: "24px" }}>close</Heading>
           </Button>
         )}
-      </Box>
+      </StyledModal>
     </Modal>
   );
 };

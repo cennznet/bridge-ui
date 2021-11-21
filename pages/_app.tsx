@@ -1,44 +1,19 @@
-import React, { useEffect } from "react";
+import React from "react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import Switch from "../components/Switch";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
-import theme from "../components/theme";
+import theme from "../theme/theme";
 import BlockchainProvider from "../context/BlockchainContext";
-import { AppBar, Typography } from "@mui/material";
 import dynamic from "next/dynamic";
-const { NEXT_PUBLIC_ETHEREUM_NETWORK } = process.env;
-import store from "store";
+import "../theme/styles.css";
+import { AppBar, Box, Typography } from "@mui/material";
+import { useRouter } from "next/router";
 
 const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-
-  useEffect(() => {
-    (async () => {
-      const { ethereum } = window as any;
-
-      let chainId = await ethereum.request({ method: "eth_chainId" });
-      console.log("Connected to chain " + chainId);
-
-      const ethChainId = store.get("eth-chain-id");
-
-      if (chainId !== ethChainId)
-        NEXT_PUBLIC_ETHEREUM_NETWORK === "Ethereum"
-          ? alert("Please connect to Ethereum Mainnet!")
-          : alert(
-              `Please connect to ${NEXT_PUBLIC_ETHEREUM_NETWORK} Test Network!`
-            );
-      else
-        await ethereum.request({
-          method: "eth_requestAccounts",
-        });
-    })();
-  }, []);
-
   return (
     <>
       <Head>
@@ -48,37 +23,44 @@ function MyApp({ Component, pageProps }: AppProps) {
           content="Ethereum Bridge powered by CENNZnet"
         />
         <link rel="icon" href="/favicon.svg" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-        />
       </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-
-        <AppBar position="static" sx={{ marginBottom: "-5px" }}>
-          <Typography
-            variant="h3"
-            component="div"
-            sx={{
-              padding: "10px 0 10px",
-              cursor: "pointer",
-              textAlign: "center",
-              color: "secondary.dark",
-            }}
-            onClick={() => router.push("/")}
-          >
-            CENNZnet {"<>"} ETH Bridge
-          </Typography>
-        </AppBar>
-
-        <Switch />
-
-        <BlockchainProvider>
-          <Web3>
+        <Web3>
+          <BlockchainProvider>
+            <AppBar position="static">
+              <Box onClick={() => router.push("/")} sx={{ cursor: "pointer" }}>
+                <img
+                  src="/cennznet-header.png"
+                  alt="CENNZnet header"
+                  style={{
+                    width: "90px",
+                    position: "absolute",
+                    top: "5%",
+                    left: "10%",
+                  }}
+                />
+              </Box>
+              <Typography
+                sx={{
+                  position: "absolute",
+                  top: "4.5%",
+                  left: "20%",
+                  fontFamily: "Teko",
+                  fontStyle: "normal",
+                  fontWeight: "bold",
+                  fontSize: "24px",
+                  lineHeight: "124%",
+                  color: "black",
+                  letterSpacing: "1px",
+                }}
+              >
+                ETHEREUM BRIDGE
+              </Typography>
+            </AppBar>
             <Component {...pageProps} />
-          </Web3>
-        </BlockchainProvider>
+          </BlockchainProvider>
+        </Web3>
       </ThemeProvider>
     </>
   );
