@@ -119,12 +119,13 @@ const Bridge: React.FC<{}> = () => {
           sx={{
             ml: "10px",
             mt: "3px",
-            fontSize: "18px",
+            fontSize: "17px",
             color:
               modalState === "showWallet" || modalState === "changeAccount"
                 ? "#FFFFFF"
                 : "#1130FF",
             flexGrow: 1,
+            whiteSpace: "nowrap",
           }}
         >
           CENNZnet WALLET
@@ -132,6 +133,10 @@ const Bridge: React.FC<{}> = () => {
         {selectedAccount && (
           <SmallText
             sx={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              ml: "1.5px",
+              fontSize: "15px",
               color:
                 modalState === "showWallet" || modalState === "changeAccount"
                   ? "#FFFFFF"
