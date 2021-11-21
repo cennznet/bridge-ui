@@ -21,19 +21,9 @@ const CENNZnetAccountPicker: React.FC<{
   const updateAccount = (accountName: string) => {
     accounts.forEach((account: { name: string; address: string }) => {
       if (account.name === accountName) {
-        switch (location) {
-          case "wallet":
-            updateSelectedAccount(account);
-            break;
-          case "deposit":
-            store.set("selected-cennz-account", account);
-            break;
-          default:
-            store.set("selected-cennz-account", account);
-            break;
-        }
-        setCENNZnetAccountSelected(true);
+        store.set("selected-cennz-account", account);
       }
+      setCENNZnetAccountSelected(true);
     });
   };
 
@@ -43,13 +33,10 @@ const CENNZnetAccountPicker: React.FC<{
       options={accountNames}
       onSelect={(e: any) => updateAccount(e.target.value)}
       sx={{
-        display: "flex",
-        width: "70%",
-        margin: "20px auto",
-        borderRadius: 10,
+        width: "80%",
       }}
       renderInput={(params) => (
-        <TextField {...params} label="CENNZnet Account" required />
+        <TextField {...params} label="Token Beneficiary" required />
       )}
     />
   );

@@ -7,32 +7,32 @@ function defineTxModal(state: string, hash: string, setModalOpen: Function) {
   };
   switch (state) {
     case "approve":
-      modal.text = "Approving your transaction...";
+      modal.text = "APPROVING YOUR TRANSACTION...";
       break;
     case "deposit":
-      modal.text = "Depositing your tokens...";
+      modal.text = "DEPOSITING YOUR TOKENS...";
       break;
     case "relayer":
-      modal.text = "Your tokens will appear on CENNZnet soon!";
+      modal.text = "YOUR TOKENS WILL APPEAR ON CENNZnet SOON!";
       break;
     case "withdrawCENNZside":
-      modal.text = "Burning your tokens for withdrawal from CENNZnet...";
+      modal.text = "BURNING YOUR TOKENS FOR WITHDRAWAL FROM CENNZnet...";
       break;
     case "withdrawETHside":
-      modal.text = "Withdrawing your tokens...";
+      modal.text = "WITHDRAWING YOUR TOKENS...";
       break;
     case "finished":
-      modal.text = "Done! You may now close this window";
+      modal.text = "DONE! YOU MAY NOW CLOSE THIS WINDOW.";
       break;
     case "bridgePaused":
-      modal.text = "Token bridge is currently paused. Please try again later!";
+      modal.text = "TOKEN BRIDGE IS CURRENTLY PAUSED. PLEASE TRY AGAIN LATER!";
       break;
     case "error":
-      if (hash === "noTokenSelected") modal.text = "Please select a token";
-      else modal.text = "Whoops! Please try again";
+      if (hash === "noTokenSelected") modal.text = "PLEASE SELECT A TOKEN";
+      else modal.text = "WHOOPS! PLEASE TRY AGAIN";
       break;
     default:
-      modal.text = "Whoops! Please try again";
+      modal.text = "WHOOPS! PLEASE TRY AGAIN";
       break;
   }
 

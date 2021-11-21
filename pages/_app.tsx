@@ -1,20 +1,19 @@
 import React from "react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import Switch from "../components/Switch";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
-import theme from "../components/theme";
+import theme from "../theme/theme";
 import BlockchainProvider from "../context/BlockchainContext";
-import { AppBar, Typography } from "@mui/material";
 import dynamic from "next/dynamic";
+import "../theme/styles.css";
+import { AppBar, Box, Typography } from "@mui/material";
+import { useRouter } from "next/router";
 
 const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-
   return (
     <>
       <Head>
@@ -27,27 +26,38 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-
-        <AppBar position="static" sx={{ marginBottom: "-5px" }}>
-          <Typography
-            variant="h3"
-            component="div"
-            sx={{
-              padding: "10px 0 10px",
-              cursor: "pointer",
-              textAlign: "center",
-              color: "secondary.dark",
-            }}
-            onClick={() => router.push("/")}
-          >
-            CENNZnet {"<>"} ETH Bridge
-          </Typography>
-        </AppBar>
-
-        <Switch />
-
         <Web3>
           <BlockchainProvider>
+            <AppBar position="static">
+              <Box onClick={() => router.push("/")} sx={{ cursor: "pointer" }}>
+                <img
+                  src="/cennznet-header.png"
+                  alt="CENNZnet header"
+                  style={{
+                    width: "90px",
+                    position: "absolute",
+                    top: "5%",
+                    left: "10%",
+                  }}
+                />
+              </Box>
+              <Typography
+                sx={{
+                  position: "absolute",
+                  top: "4.5%",
+                  left: "20%",
+                  fontFamily: "Teko",
+                  fontStyle: "normal",
+                  fontWeight: "bold",
+                  fontSize: "24px",
+                  lineHeight: "124%",
+                  color: "black",
+                  letterSpacing: "1px",
+                }}
+              >
+                ETHEREUM BRIDGE
+              </Typography>
+            </AppBar>
             <Component {...pageProps} />
           </BlockchainProvider>
         </Web3>

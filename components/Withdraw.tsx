@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
 import { Box, Button, TextField } from "@mui/material";
-import TxModal from "../components/TxModal";
-import TokenPicker from "../components/TokenPicker";
+import TxModal from "./TxModal";
+import TokenPicker from "./TokenPicker";
 import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import { useWeb3 } from "../context/Web3Context";
@@ -238,6 +238,7 @@ const Withdraw: React.FC<{}> = () => {
             mt: "30px",
             mb: "50px",
           }}
+          disabled={amount && token ? false : true}
           size="large"
           variant="outlined"
           onClick={withdraw}
