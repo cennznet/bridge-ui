@@ -194,21 +194,21 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   };
 
   // Create api instance
-  useEffect(() => {
-    let apiInstance: ApiPromise;
-    try {
-      apiInstance = new ApiPromise({ provider: endpoint });
-    } catch (err) {
-      console.error(`cennznet connection failed: ${err}`);
-    }
+  // useEffect(() => {
+  //   let apiInstance: ApiPromise;
+  //   try {
+  //     apiInstance = new ApiPromise({ provider: endpoint });
+  //   } catch (err) {
+  //     console.error(`cennznet connection failed: ${err}`);
+  //   }
 
-    if (!apiInstance) {
-      console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
-      return;
-    }
+  //   if (!apiInstance) {
+  //     console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
+  //     return;
+  //   }
 
-    apiInstance.isReady.then(() => setAPI(apiInstance));
-  }, []);
+  //   apiInstance.isReady.then(() => setAPI(apiInstance));
+  // }, []);
 
   // Get balances for extension account when api or web3Account has changed
   useEffect(() => {

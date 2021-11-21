@@ -34,6 +34,7 @@ const NetworkModal: React.FC<{
           params: [{ chainId: "0x1" }],
         });
         updateNetwork(ethereum, "Mainnet");
+        window.localStorage.setItem("ethereum-chain", "Mainnet");
         break;
       case networks[1]:
         await ethereum.request({
@@ -41,6 +42,7 @@ const NetworkModal: React.FC<{
           params: [{ chainId: "0x3" }],
         });
         updateNetwork(ethereum, "Ropsten");
+        window.localStorage.setItem("ethereum-chain", "Ropsten");
         break;
       case networks[2]:
         await ethereum.request({
@@ -48,6 +50,7 @@ const NetworkModal: React.FC<{
           params: [{ chainId: "0x2a" }],
         });
         updateNetwork(ethereum, "Kovan");
+        window.localStorage.setItem("ethereum-chain", "Kovan");
         break;
       default:
         break;

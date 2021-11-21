@@ -15,7 +15,7 @@ const Bridge: React.FC<{}> = () => {
   const [modalState, setModalState] = useState<string>("");
 
   const [isWalletConnected, setIsWalletConnected] = useState(false);
-  const { selectedAccount, connectWallet }: any = useWeb3();
+  const { selectedAccount, connectWallet, updateApi }: any = useWeb3();
 
   useEffect(() => {
     if (selectedAccount) {
@@ -39,16 +39,21 @@ const Bridge: React.FC<{}> = () => {
   };
 
   useEffect(() => {
-    const ethereumNetwork = store.get("ethereum-network");
+    const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
+      ? window.localStorage.getItem("ethereum-chain")
+      : store.get("ethereum-network");
     switch (ethereumNetwork) {
       case "Mainnet":
         setCurrentNetwork("Mainnet/Mainnet");
+        updateApi("wss://cennznet.unfrastructure.io/public/ws");
         break;
       case "Ropsten":
         setCurrentNetwork("Ropsten/Rata");
+        updateApi("wss://kong2.centrality.me/public/rata/ws");
         break;
       case "Kovan":
         setCurrentNetwork("Kovan/Nikau");
+        updateApi("wss://nikau.centrality.me/public/ws");
         break;
       default:
         break;

@@ -124,7 +124,10 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
   useEffect(() => {
     const { ethereum } = window as any;
-    init(ethereum, NEXT_PUBLIC_ETHEREUM_NETWORK).then((eth) => {
+    const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
+      ? window.localStorage.getItem("ethereum-chain")
+      : NEXT_PUBLIC_ETHEREUM_NETWORK;
+    init(ethereum, ethereumNetwork).then((eth) => {
       const { bridge, peg, accounts, signer }: any = eth;
       setValue({
         Contracts: {
