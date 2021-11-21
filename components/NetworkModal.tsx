@@ -12,7 +12,8 @@ const NetworkModal: React.FC<{
   setModalOpen: Function;
   setModalState: Function;
   setCurrentNetwork: Function;
-}> = ({ setModalOpen, setModalState, setCurrentNetwork }) => {
+  currentNetwork: string;
+}> = ({ setModalOpen, setModalState, setCurrentNetwork, currentNetwork }) => {
   const [open, setOpen] = useState(true);
   const handleClose = () => setOpen(false);
   const [networks] = useState([
@@ -25,35 +26,33 @@ const NetworkModal: React.FC<{
 
   const updateNetworks = async (selectedNetwork) => {
     const { ethereum }: any = window;
-    if (selectedNetwork !== "") {
-      setSelectedNetwork(selectedNetwork);
-      switch (selectedNetwork) {
-        case networks[0]:
-          await ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0x1" }],
-          });
-          updateNetwork(ethereum, "Mainnet");
-          break;
-        case networks[1]:
-          await ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0x3" }],
-          });
-          updateNetwork(ethereum, "Ropsten");
-          break;
-        case networks[2]:
-          await ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0x2a" }],
-          });
-          updateNetwork(ethereum, "Kovan");
-          break;
-        default:
-          break;
-      }
-      setCurrentNetwork(selectedNetwork);
+    setSelectedNetwork(selectedNetwork);
+    switch (selectedNetwork) {
+      case networks[0]:
+        await ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x1" }],
+        });
+        updateNetwork(ethereum, "Mainnet");
+        break;
+      case networks[1]:
+        await ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x3" }],
+        });
+        updateNetwork(ethereum, "Ropsten");
+        break;
+      case networks[2]:
+        await ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x2a" }],
+        });
+        updateNetwork(ethereum, "Kovan");
+        break;
+      default:
+        break;
     }
+    setCurrentNetwork(selectedNetwork);
   };
 
   return (
@@ -87,7 +86,7 @@ const NetworkModal: React.FC<{
         >
           SELECT NETWORK
         </Heading>
-        {networks.map((network) => (
+        {networks.map((network, i) => (
           <Option
             sx={{
               width: "85%",
@@ -97,15 +96,20 @@ const NetworkModal: React.FC<{
               mb: "10px",
               border: "1px solid #1130FF",
               backgroundColor:
-                selectedNetwork === network ? "#1130FF" : "#FFFFFF",
+                currentNetwork === network ? "#1130FF" : "#FFFFFF",
             }}
-            onClick={() => updateNetworks(network)}
+            key={i}
+            onClick={() => {
+              updateNetworks(network);
+              setModalState("");
+              setModalOpen(false);
+            }}
           >
             <SmallText
               sx={{
                 ml: "15px",
                 fontSize: "20px",
-                color: selectedNetwork === network ? "#FFFFFF" : "black",
+                color: currentNetwork === network ? "#FFFFFF" : "black",
                 textTransform: "none",
               }}
             >

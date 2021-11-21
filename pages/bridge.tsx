@@ -11,7 +11,6 @@ import { useWeb3 } from "../context/Web3Context";
 const Bridge: React.FC<{}> = () => {
   const [isDeposit, toggleIsDeposit] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [metamaskNetwork, setMetamaskNetwork] = useState("");
   const [currentNetwork, setCurrentNetwork] = useState("");
   const [modalState, setModalState] = useState<string>("");
 
@@ -54,26 +53,6 @@ const Bridge: React.FC<{}> = () => {
       default:
         break;
     }
-
-    (async () => {
-      const { ethereum }: any = window;
-      let chainId = await ethereum.request({ method: "eth_chainId" });
-
-      switch (chainId) {
-        case "0x3":
-          setMetamaskNetwork("Ropsten");
-          break;
-        case "0x1":
-          setMetamaskNetwork("Mainnet");
-          break;
-        case "0x2a":
-          setMetamaskNetwork("Kovan");
-          break;
-        default:
-          setMetamaskNetwork(chainId);
-          break;
-      }
-    })();
   }, []);
 
   return (
@@ -83,6 +62,7 @@ const Bridge: React.FC<{}> = () => {
           setModalOpen={setModalOpen}
           setModalState={setModalState}
           setCurrentNetwork={setCurrentNetwork}
+          currentNetwork={currentNetwork}
         />
       )}
       {modalOpen &&
