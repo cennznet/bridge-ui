@@ -32,6 +32,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               <Box onClick={() => router.push("/")} sx={{ cursor: "pointer" }}>
                 <img
                   src="/cennznet-header.png"
+                  alt="CENNZnet header"
                   style={{
                     width: "90px",
                     position: "absolute",

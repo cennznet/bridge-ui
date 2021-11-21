@@ -249,7 +249,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     if (wallet && !selectedAccount) {
       getSelectedAccount();
     }
-  }, [wallet]);
+  }, [wallet, selectedAccount]);
 
   useEffect(() => {
     (async () => {

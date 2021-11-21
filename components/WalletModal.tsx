@@ -21,7 +21,7 @@ const WalletModal: React.FC<{
 
   useEffect(() => {
     if (!selectedAccount) connectWallet();
-  }, [selectedAccount]);
+  }, [selectedAccount, connectWallet]);
 
   const closeButtonMargin =
     modalState === "showWallet" ? "0 auto 30px" : "10px auto 30px";
@@ -184,6 +184,7 @@ const WalletModal: React.FC<{
                           ? "#FFFFFF"
                           : "primary.main",
                     }}
+                    key={account.name}
                   >
                     {account.name}
                   </Heading>
