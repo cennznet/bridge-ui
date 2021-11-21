@@ -69,19 +69,19 @@ const NetworkModal: React.FC<{
             color: "primary.main",
             fontSize: "24px",
             mt: "3%",
-            ml: "7.5%",
+            pl: "5%",
           }}
         >
           NOTE
         </Heading>
-        <SmallText sx={{ ml: "7.5%", mb: "5%" }}>
+        <SmallText sx={{ pl: "5%", mb: "5%" }}>
           Please refresh page after switching network in MetaMask.
         </SmallText>
         <Heading
           sx={{
             color: "primary.main",
             fontSize: "24px",
-            ml: "7.5%",
+            pl: "5%",
           }}
         >
           SELECT NETWORK
@@ -107,7 +107,6 @@ const NetworkModal: React.FC<{
           >
             <SmallText
               sx={{
-                ml: "15px",
                 fontSize: "20px",
                 color: currentNetwork === network ? "#FFFFFF" : "black",
                 textTransform: "none",

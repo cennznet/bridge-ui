@@ -106,7 +106,7 @@ const Bridge: React.FC<{}> = () => {
       <Frame
         sx={{
           top: "4%",
-          right: "6%",
+          right: "5%",
           backgroundColor:
             modalState === "showWallet" || modalState === "changeAccount"
               ? "#1130FF"

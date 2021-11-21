@@ -28,7 +28,7 @@ const WalletModal: React.FC<{
 
   const AccountBalances = selectedAccount && (
     <>
-      <Box sx={{ mt: "5%", ml: "7.5%", display: "flex" }}>
+      <Box sx={{ mt: "5%", pl: "5%", display: "flex" }}>
         <Heading
           sx={{
             color: "primary.main",
@@ -49,11 +49,11 @@ const WalletModal: React.FC<{
           {"[Account Name]"}
         </Heading>
       </Box>
-      <SmallText sx={{ ml: "7.5%", opacity: "70%" }}>
+      <SmallText sx={{ pl: "5%", opacity: "70%" }}>
         {selectedAccount.address}
       </SmallText>
       {balances ? (
-        <Box sx={{ mt: "3%", ml: "7.5%", display: "block" }}>
+        <Box sx={{ mt: "3%", pl: "5%", display: "block" }}>
           {Object.values(balances).map((token: any, i) => (
             <>
               <SmallText
@@ -103,7 +103,7 @@ const WalletModal: React.FC<{
           flexDirection: "column",
         }}
       >
-        <Box sx={{ display: "flex", mt: "3%", ml: "7.5%" }}>
+        <Box sx={{ display: "flex", mt: "3%", pl: "5%" }}>
           <Heading
             sx={{
               color: "primary.main",
@@ -148,7 +148,7 @@ const WalletModal: React.FC<{
           <>
             <Heading
               sx={{
-                m: "3% 0 1.5% 7.5%",
+                m: "3% 0 1.5% 5%",
                 color: "primary.main",
                 fontSize: "22px",
               }}
