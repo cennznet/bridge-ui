@@ -190,9 +190,8 @@ const Deposit: React.FC<{}> = () => {
             color: "#1130FF",
             mt: "30px",
             mb: "50px",
-            opacity:
-              CENNZnetAccountSelected && amount && token ? "100%" : "60%",
           }}
+          disabled={amount && token && CENNZnetAccountSelected ? false : true}
           size="large"
           variant="outlined"
           onClick={deposit}

@@ -238,6 +238,7 @@ const Withdraw: React.FC<{}> = () => {
             mt: "30px",
             mb: "50px",
           }}
+          disabled={amount && token ? false : true}
           size="large"
           variant="outlined"
           onClick={withdraw}
