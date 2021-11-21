@@ -22,7 +22,7 @@ const Home: React.FC<{}> = () => {
     <Frame
       sx={{
         top: "4%",
-        right: "26%",
+        right: "30%",
         cursor: "pointer",
         backgroundColor: "#FFFFFF",
       }}
@@ -44,7 +44,7 @@ const Home: React.FC<{}> = () => {
     <Frame
       sx={{
         top: "4%",
-        right: "6%",
+        right: "8%",
         cursor: "pointer",
         backgroundColor: "white",
       }}

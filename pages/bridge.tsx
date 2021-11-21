@@ -78,7 +78,7 @@ const Bridge: React.FC<{}> = () => {
         sx={{
           cursor: "pointer",
           top: "4%",
-          right: "26%",
+          right: "30%",
           backgroundColor: modalState === "networks" ? "#1130FF" : "#FFFFFF",
         }}
         onClick={() => {

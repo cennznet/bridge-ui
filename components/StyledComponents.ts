@@ -4,7 +4,7 @@ import { Typography, Box, Button } from "@mui/material";
 export const Frame = styled(Box)({
   position: "absolute",
   border: "2.5px solid #1130FF",
-  width: "265px",
+  width: "245px",
   height: "45px",
   display: "flex",
   flexDirection: "row",
@@ -27,10 +27,10 @@ export const SmallText = styled(Typography)({
 
 export const StyledModal = styled(Box)({
   position: "absolute",
-  width: "552px",
+  width: "48%",
   height: "auto",
-  left: "444px",
-  top: "152px",
+  left: "26%",
+  top: "20%",
 
   background: "#FFFFFF",
   border: "4px solid #1130FF",
