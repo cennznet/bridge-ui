@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, TextField, Typography } from "@mui/material";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
 import store from "store";
 
@@ -38,12 +38,18 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
       options={tokens}
       onSelect={(e: any) => setSelectedToken(e.target.value)}
       sx={{
-        display: "flex",
-        width: "70%",
-        margin: "20px auto",
-        borderRadius: 10,
+        width: "80%",
+        mt: "50px",
       }}
-      renderInput={(params) => <TextField {...params} label="Token" required />}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Select Token"
+          variant="outlined"
+          required
+          type="text"
+        />
+      )}
     />
   );
 };

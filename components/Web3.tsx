@@ -13,8 +13,6 @@ import { decodeAddress } from "@polkadot/keyring";
 import store from "store";
 import axios from "axios";
 import Web3Context from "../context/Web3Context";
-import Web3Modal from "./Web3Modal";
-import { defineWeb3Modal } from "../utils/modal";
 const endpoint = process.env.NEXT_PUBLIC_CENNZ_API_ENDPOINT;
 const EXTENSION = "cennznet-extension";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
@@ -69,12 +67,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [api, setAPI] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modal, setModal] = useState({
-    state: "",
-    text: "",
-    subText: "",
-  });
 
   const getAccountAssets = useCallback(
     async (address: string) => {
@@ -181,7 +173,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
 
       setHasWeb3Injected(true);
     } catch (error) {
-      setModal(defineWeb3Modal("noExtension", setModalOpen));
       setHasWeb3Injected(false);
     }
   };
@@ -234,7 +225,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
 
       if (accounts.length === 0) {
         setSelectedAccount(null);
-        setModal(defineWeb3Modal("noAccounts", setModalOpen));
+        //error modal no accounts
       } else {
         const acc = accounts.map((acc) => ({
           address: acc.address,
@@ -255,10 +246,8 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     };
 
     // if wallet exist,
-    if (wallet) {
-      getSelectedAccount().then(() =>
-        setModal(defineWeb3Modal("selectAccount", setModalOpen))
-      );
+    if (wallet && !selectedAccount) {
+      getSelectedAccount();
     }
   }, [wallet]);
 
@@ -271,7 +260,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
           setSigner(injector.signer);
           if (!injector) throw new Error("No extension found");
         } catch (error) {
-          setModal(defineWeb3Modal("noExtension", setModalOpen));
+          //error modal no extension
         }
       }
       if (
@@ -301,14 +290,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         updateApi,
       }}
     >
-      {modalOpen && (
-        <Web3Modal
-          modalState={modal.state}
-          modalText={modal.text}
-          modalSubText={modal.subText}
-          setModalOpen={setModalOpen}
-        />
-      )}
       {children}
     </Web3Context.Provider>
   );

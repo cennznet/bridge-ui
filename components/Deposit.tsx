@@ -3,13 +3,14 @@ import { ethers } from "ethers";
 import { useWeb3 } from "../context/Web3Context";
 import { Box, Button, TextField, Typography } from "@mui/material";
 
-import TxModal from "../components/TxModal";
-import TokenPicker from "../components/TokenPicker";
+import TxModal from "./TxModal";
+import TokenPicker from "./TokenPicker";
 import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
-import CENNZnetAccountPicker from "../components/CENNZnetAccountPicker";
+import CENNZnetAccountPicker from "./CENNZnetAccountPicker";
 import store from "store";
+import { SmallText } from "./StyledComponents";
 
 const Deposit: React.FC<{}> = () => {
   const { decodeAddress } = useWeb3();
@@ -176,18 +177,10 @@ const Deposit: React.FC<{}> = () => {
           }}
           onChange={(e) => setAmount(e.target.value)}
         />
-        {CENNZnetAccountSelected ? (
-          <div>
-            <Typography sx={{ textAlign: "center", fontSize: 21 }}>
-              Beneficiary: {CENNZnetAccount.name}
-            </Typography>
-          </div>
-        ) : (
-          <CENNZnetAccountPicker
-            setCENNZnetAccountSelected={setCENNZnetAccountSelected}
-            location={"deposit"}
-          />
-        )}
+        <CENNZnetAccountPicker
+          setCENNZnetAccountSelected={setCENNZnetAccountSelected}
+          location={"deposit"}
+        />
         <Button
           sx={{
             fontFamily: "Teko",
@@ -197,6 +190,8 @@ const Deposit: React.FC<{}> = () => {
             color: "#1130FF",
             mt: "30px",
             mb: "50px",
+            opacity:
+              CENNZnetAccountSelected && amount && token ? "100%" : "60%",
           }}
           size="large"
           variant="outlined"
