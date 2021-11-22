@@ -15,6 +15,7 @@ import axios from "axios";
 import Web3Context from "../context/Web3Context";
 const EXTENSION = "cennznet-extension";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
+import ErrorModal from "./ErrorModal";
 
 async function extractMeta(api) {
   const systemChain = await api.rpc.system.chain();
@@ -66,6 +67,8 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [api, setAPI] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalState, setModalState] = useState("");
 
   const getAccountAssets = useCallback(
     async (address: string) => {
@@ -146,16 +149,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const connectWallet = async () => {
     try {
       const extensions = await web3Enable("Bridge");
-
-      if (signer === null || signer === undefined) {
-        try {
-          const injector = await web3FromSource(EXTENSION);
-          setSigner(injector.signer);
-          if (!injector) throw new Error("No extension found");
-        } catch (error) {
-          //error modal no extension
-        }
-      }
       if (
         (selectedAccount === undefined || selectedAccount === null) &&
         accounts.length > 0
@@ -189,9 +182,28 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
 
       setHasWeb3Injected(true);
     } catch (error) {
+      setModalState("noExtension");
+      setModalOpen(true);
       setHasWeb3Injected(false);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      await web3Enable("Bridge");
+      if (signer === null || signer === undefined) {
+        const injector = await web3FromSource(EXTENSION);
+        setSigner(injector.signer);
+      }
+      if (
+        (selectedAccount === undefined || selectedAccount === null) &&
+        accounts.length > 0
+      ) {
+        //  select the 0th account by default if no accounts are selected
+        setSelectedAccount(accounts[0]);
+      }
+    })();
+  }, [accounts]);
 
   const updateApi = (endpoint) => {
     let apiInstance: ApiPromise;
@@ -267,6 +279,9 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         updateApi,
       }}
     >
+      {modalOpen && (
+        <ErrorModal setModalOpen={setModalOpen} modalState={modalState} />
+      )}
       {children}
     </Web3Context.Provider>
   );
