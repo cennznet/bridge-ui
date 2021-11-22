@@ -8,7 +8,6 @@ import { useBlockchain } from "../context/BlockchainContext";
 import { useWeb3 } from "../context/Web3Context";
 
 const Withdraw: React.FC<{}> = () => {
-  const [customToken, setCustomToken] = useState(false);
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
   const [modalOpen, setModalOpen] = useState(false);

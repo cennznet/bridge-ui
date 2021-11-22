@@ -1,14 +1,7 @@
-import React, {
-  createContext,
-  useContext,
-  ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, useContext, ReactNode, useState } from "react";
 import { ethers } from "ethers";
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
-const { NEXT_PUBLIC_ETHEREUM_NETWORK } = process.env;
 import store from "store";
 import { useWeb3 } from "./Web3Context";
 

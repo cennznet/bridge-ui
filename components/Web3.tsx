@@ -13,7 +13,6 @@ import { decodeAddress } from "@polkadot/keyring";
 import store from "store";
 import axios from "axios";
 import Web3Context from "../context/Web3Context";
-const endpoint = process.env.NEXT_PUBLIC_CENNZ_API_ENDPOINT;
 const EXTENSION = "cennznet-extension";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
 

@@ -4,10 +4,8 @@ import {
   Box,
   Button,
   CircularProgress,
-  Divider,
   Link,
   Modal,
-  Typography,
 } from "@mui/material";
 import { Heading, StyledModal } from "./StyledComponents";
 interface Props {

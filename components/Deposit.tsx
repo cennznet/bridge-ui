@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { useWeb3 } from "../context/Web3Context";
-import { Box, Button, TextField, Typography } from "@mui/material";
-
+import { Box, Button, TextField } from "@mui/material";
 import TxModal from "./TxModal";
 import TokenPicker from "./TokenPicker";
 import { defineTxModal } from "../utils/modal";

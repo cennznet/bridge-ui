@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Box, Button } from "@mui/material";
 import { useBlockchain } from "../context/BlockchainContext";
 import { Frame, Heading, SmallText } from "../components/StyledComponents";
@@ -8,20 +8,8 @@ import { useWeb3 } from "../context/Web3Context";
 const Home: React.FC<{}> = () => {
   const router = useRouter();
   const { Account } = useBlockchain();
-  const [showMetamaskAccount, setShowMetamaskAccount] = useState(false);
-  const [showCENNZnetAccount, setShowCENNZnetAccount] = useState(false);
   const { updateNetwork }: any = useBlockchain();
   const { connectWallet, selectedAccount }: any = useWeb3();
-
-  useEffect(() => {
-    if (Account) {
-      setShowMetamaskAccount(true);
-    }
-
-    if (selectedAccount) {
-      setShowCENNZnetAccount(true);
-    }
-  }, [Account, selectedAccount]);
 
   const connectMetamask = () => {
     const { ethereum } = window as any;
@@ -30,10 +18,6 @@ const Home: React.FC<{}> = () => {
       : process.env.NEXT_PUBLIC_ETHEREUM_NETWORK;
 
     updateNetwork(ethereum, ethereumNetwork);
-  };
-
-  const connectCENNZnet = () => {
-    connectWallet();
   };
 
   const CENNZnetButton = (
@@ -45,7 +29,7 @@ const Home: React.FC<{}> = () => {
         height: "60px",
         width: "70%",
       }}
-      onClick={connectCENNZnet}
+      onClick={() => connectWallet()}
     >
       {selectedAccount ? (
         <>

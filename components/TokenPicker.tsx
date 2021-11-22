@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
-  Autocomplete,
   FormControl,
   InputLabel,
   MenuItem,
   OutlinedInput,
   Select,
-  TextField,
-  Typography,
 } from "@mui/material";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
 import store from "store";
