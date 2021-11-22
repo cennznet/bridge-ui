@@ -41,25 +41,32 @@ const Bridge: React.FC<{}> = () => {
   };
 
   useEffect(() => {
+    const { ethereum }: any = window;
+    let currentNetwork: string;
+    let apiUrl: string;
     const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
       ? window.localStorage.getItem("ethereum-chain")
       : store.get("ethereum-network");
+
     switch (ethereumNetwork) {
       case "Mainnet":
-        setCurrentNetwork("Mainnet/Mainnet");
-        updateApi("wss://cennznet.unfrastructure.io/public/ws");
-        break;
-      case "Ropsten":
-        setCurrentNetwork("Ropsten/Rata");
-        updateApi("wss://kong2.centrality.me/public/rata/ws");
-        break;
-      case "Kovan":
-        setCurrentNetwork("Kovan/Nikau");
-        updateApi("wss://nikau.centrality.me/public/ws");
+        currentNetwork = "Mainnet/Mainnet";
+        apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
         break;
       default:
+      case "Ropsten":
+        currentNetwork = "Ropsten/Rata";
+        apiUrl = "wss://kong2.centrality.me/public/rata/ws";
+        break;
+      case "Kovan":
+        currentNetwork = "Kovan/Nikau";
+        apiUrl = "wss://nikau.centrality.me/public/ws";
         break;
     }
+
+    setCurrentNetwork(currentNetwork);
+    updateApi(apiUrl);
+    updateNetwork(ethereum, ethereumNetwork);
   }, []);
 
   return (
