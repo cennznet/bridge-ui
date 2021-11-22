@@ -56,7 +56,7 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
 
   return (
     <FormControl sx={{ width: "80%", mt: "50px" }} required>
-      <InputLabel id="demo-multiple-name-label">Token</InputLabel>
+      <InputLabel>Token</InputLabel>
       <Select
         required
         value={selectedToken}
@@ -65,9 +65,9 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
         MenuProps={MenuProps}
         sx={{ fontSize: "18px" }}
       >
-        {tokens.map((token: any) => (
+        {tokens.map((token: any, i) => (
           <MenuItem
-            key={token.symbol}
+            key={i}
             value={token.symbol}
             sx={{
               fontSize: "18px",

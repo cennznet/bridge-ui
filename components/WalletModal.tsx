@@ -52,9 +52,8 @@ const WalletModal: React.FC<{
       {balances ? (
         <Box sx={{ mt: "3%", pl: "5%", display: "block" }}>
           {Object.values(balances).map((token: any, i) => (
-            <>
+            <Box key={i}>
               <SmallText
-                key={token.symbol}
                 sx={{
                   color: "black",
                   fontSize: "18px",
@@ -64,7 +63,6 @@ const WalletModal: React.FC<{
                 {token.symbol} Balance:
               </SmallText>
               <SmallText
-                key={i}
                 sx={{
                   color: "black",
                   fontWeight: "bold",
@@ -75,7 +73,7 @@ const WalletModal: React.FC<{
                 {token.balance}
               </SmallText>
               <br />
-            </>
+            </Box>
           ))}
         </Box>
       ) : (
