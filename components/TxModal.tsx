@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Backdrop,
   Box,
@@ -23,6 +23,26 @@ const TxModal: React.FC<Props> = ({
 }) => {
   const [open, setOpen] = useState(true);
   const handleClose = () => setOpen(false);
+  const [etherscanLink, setEtherscanLink] = useState("");
+
+  useEffect(() => {
+    const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
+      ? window.localStorage.getItem("ethereum-chain")
+      : store.get("ethereum-network");
+
+    switch (ethereumNetwork) {
+      case "Mainnet":
+        setEtherscanLink(`https://etherscan.io/tx/${etherscanHash}`);
+        break;
+      default:
+      case "Ropsten":
+        setEtherscanLink(`https://ropsten.etherscan.io/tx/${etherscanHash}`);
+        break;
+      case "Kovan":
+        setEtherscanLink(`https://kovan.etherscan.io/tx/${etherscanHash}`);
+        break;
+    }
+  }, [etherscanHash]);
 
   return (
     <Backdrop
@@ -73,7 +93,7 @@ const TxModal: React.FC<Props> = ({
               }}
             >
               <Link
-                href={`https://ropsten.etherscan.io/tx/${etherscanHash}`}
+                href={etherscanLink}
                 target="_blank"
                 rel="noopener noreferrer"
               >
