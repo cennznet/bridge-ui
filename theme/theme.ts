@@ -43,6 +43,13 @@ const theme = createTheme({
         src: local('Teko'), local('Teko-Bold'), url('/fonts/Teko-Bold.ttf') format('ttf');
       }`,
     },
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          opacity: "0.3",
+        },
+      },
+    },
   },
 });
 
