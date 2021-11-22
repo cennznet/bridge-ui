@@ -42,42 +42,52 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     Signer: {} as ethers.providers.JsonRpcSigner,
   });
 
-  const init = async (ethereum: any, ethereumNetwork: string) => {
+  const updateNetwork = async (ethereum: any, ethereumNetwork: string) => {
     return new Promise(async (resolve, reject) => {
       try {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         store.set("ethereum-network", ethereumNetwork);
-        let BridgeAddress: string, ERC20PegAddress: string;
+        let BridgeAddress: string,
+          ERC20PegAddress: string,
+          ethChainId: string,
+          tokenChainId: number,
+          CENNZnetNetwork: string,
+          apiUrl: string;
 
         switch (ethereumNetwork) {
           case "Mainnet":
             BridgeAddress = "";
             ERC20PegAddress = "";
-            store.set("eth-chain-id", "0x1");
-            store.set("token-chain-id", 1);
-            store.set("CENNZnet-network", "Azalea");
-            updateApi("wss://cennznet.unfrastructure.io/public/ws");
+            ethChainId = "0x1";
+            tokenChainId = 1;
+            CENNZnetNetwork = "Azalea";
+            apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
             break;
           case "Kovan":
             BridgeAddress = "0x9AFe4E42d8ab681d402e8548Ee860635BaA952C5";
             ERC20PegAddress = "0x5Ff2f9582FcA1e11d47e4e623BEf4594EB12b30d";
-            store.set("eth-chain-id", "0x2a");
-            store.set("token-chain-id", 42);
-            store.set("CENNZnet-network", "Nikau");
-            updateApi("wss://nikau.centrality.me/public/ws");
+            ethChainId = "0x2a";
+            tokenChainId = 42;
+            CENNZnetNetwork = "Nikau";
+            apiUrl = "wss://nikau.centrality.me/public/ws";
             break;
           case "Ropsten":
             BridgeAddress = "0x25b53B1bDc5F03e982c383865889A4B3c6cB98AA";
             ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
-            store.set("eth-chain-id", "0x3");
-            store.set("token-chain-id", 3);
-            store.set("CENNZnet-network", "Rata");
-            updateApi("wss://kong2.centrality.me/public/rata/ws");
+            ethChainId = "0x3";
+            tokenChainId = 3;
+            CENNZnetNetwork = "Rata";
+            apiUrl = "wss://kong2.centrality.me/public/rata/ws";
             break;
           default:
             break;
         }
+
+        store.set("eth-chain-id", ethChainId);
+        store.set("token-chain-id", tokenChainId);
+        store.set("CENNZnet-network", CENNZnetNetwork);
+        updateApi(apiUrl);
 
         const bridge: ethers.Contract = new ethers.Contract(
           BridgeAddress,
@@ -113,7 +123,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
   return (
     <>
-      <BlockchainContext.Provider value={{ ...value, updateNetwork: init }}>
+      <BlockchainContext.Provider value={{ ...value, updateNetwork }}>
         {children}
       </BlockchainContext.Provider>
     </>
