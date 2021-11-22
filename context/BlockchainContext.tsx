@@ -36,30 +36,17 @@ type Props = {
   children?: ReactNode;
 };
 
-interface Peg {
-  address: "";
-  deposit: (
-    tokenAddress: string,
-    amount: any,
-    CENNZnetAddress: Uint8Array
-  ) => {};
-}
-
-interface Bridge {
-  verificationFee: () => any;
-}
-
 const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }: Props) => {
   const { updateApi } = useWeb3();
   const [value, setValue] = useState({
     Contracts: {
-      bridge: {} as Bridge,
-      peg: {} as Peg,
+      bridge: {} as ethers.Contract,
+      peg: {} as ethers.Contract,
     },
     Account: "",
-    Signer: ethers.providers.JsonRpcSigner,
+    Signer: {} as ethers.providers.JsonRpcSigner,
   });
 
   const init = async (ethereum: any, ethereumNetwork: string) => {
@@ -115,30 +102,21 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
           method: "eth_requestAccounts",
         });
 
+        setValue({
+          Contracts: {
+            bridge,
+            peg,
+          },
+          Account: accounts[0],
+          Signer: signer,
+        });
+
         resolve({ bridge, peg, accounts, signer });
       } catch (err) {
         reject(err);
       }
     });
   };
-
-  useEffect(() => {
-    const { ethereum } = window as any;
-    const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
-      ? window.localStorage.getItem("ethereum-chain")
-      : NEXT_PUBLIC_ETHEREUM_NETWORK;
-    init(ethereum, ethereumNetwork).then((eth) => {
-      const { bridge, peg, accounts, signer }: any = eth;
-      setValue({
-        Contracts: {
-          bridge,
-          peg,
-        },
-        Account: accounts[0],
-        Signer: signer,
-      });
-    });
-  }, []);
 
   return (
     <>

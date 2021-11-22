@@ -148,6 +148,23 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     try {
       const extensions = await web3Enable("Bridge");
 
+      if (signer === null || signer === undefined) {
+        try {
+          const injector = await web3FromSource(EXTENSION);
+          setSigner(injector.signer);
+          if (!injector) throw new Error("No extension found");
+        } catch (error) {
+          //error modal no extension
+        }
+      }
+      if (
+        (selectedAccount === undefined || selectedAccount === null) &&
+        accounts.length > 0
+      ) {
+        //  select the 0th account by default if no accounts are selected
+        setSelectedAccount(accounts[0]);
+      }
+
       const cennznetWallet = extensions.find(
         (extension) => extension.name === "cennznet-extension"
       );
@@ -193,23 +210,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     apiInstance.isReady.then(() => setAPI(apiInstance));
   };
 
-  // Create api instance
-  // useEffect(() => {
-  //   let apiInstance: ApiPromise;
-  //   try {
-  //     apiInstance = new ApiPromise({ provider: endpoint });
-  //   } catch (err) {
-  //     console.error(`cennznet connection failed: ${err}`);
-  //   }
-
-  //   if (!apiInstance) {
-  //     console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
-  //     return;
-  //   }
-
-  //   apiInstance.isReady.then(() => setAPI(apiInstance));
-  // }, []);
-
   // Get balances for extension account when api or web3Account has changed
   useEffect(() => {
     if (api && selectedAccount) {
@@ -250,28 +250,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       getSelectedAccount();
     }
   }, [wallet, selectedAccount]);
-
-  useEffect(() => {
-    (async () => {
-      await web3Enable("Bridge");
-      if (signer === null || signer === undefined) {
-        try {
-          const injector = await web3FromSource(EXTENSION);
-          setSigner(injector.signer);
-          if (!injector) throw new Error("No extension found");
-        } catch (error) {
-          //error modal no extension
-        }
-      }
-      if (
-        (selectedAccount === undefined || selectedAccount === null) &&
-        accounts.length > 0
-      ) {
-        //  select the 0th account by default if no accounts are selected
-        setSelectedAccount(accounts[0]);
-      }
-    })();
-  }, [accounts, selectedAccount, signer]);
 
   return (
     <Web3Context.Provider

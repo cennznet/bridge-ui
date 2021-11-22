@@ -7,6 +7,7 @@ import store from "store";
 import { Frame, Heading, SmallText } from "../components/StyledComponents";
 import WalletModal from "../components/WalletModal";
 import { useWeb3 } from "../context/Web3Context";
+import { useBlockchain } from "../context/BlockchainContext";
 
 const Bridge: React.FC<{}> = () => {
   const [isDeposit, toggleIsDeposit] = useState<boolean>(true);
@@ -16,6 +17,7 @@ const Bridge: React.FC<{}> = () => {
 
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const { selectedAccount, connectWallet, updateApi }: any = useWeb3();
+  const { updateNetwork }: any = useBlockchain();
 
   useEffect(() => {
     if (selectedAccount) {

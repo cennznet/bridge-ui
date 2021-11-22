@@ -10,7 +10,6 @@ import { useBlockchain } from "../context/BlockchainContext";
 import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
 import CENNZnetAccountPicker from "./CENNZnetAccountPicker";
 import store from "store";
-import { SmallText } from "./StyledComponents";
 
 const Deposit: React.FC<{}> = () => {
   const { decodeAddress } = useWeb3();

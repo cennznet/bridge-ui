@@ -1,61 +1,106 @@
 import React, { useEffect, useState } from "react";
-import { Button, Box, Divider, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useBlockchain } from "../context/BlockchainContext";
-import NetworkModal from "../components/NetworkModal";
-import store from "store";
 import { Frame, Heading, SmallText } from "../components/StyledComponents";
 import { useRouter } from "next/router";
+import { useWeb3 } from "../context/Web3Context";
 
 const Home: React.FC<{}> = () => {
   const router = useRouter();
   const { Account } = useBlockchain();
-  const [modalOpen, setModalOpen] = useState(false);
   const [showMetamaskAccount, setShowMetamaskAccount] = useState(false);
+  const [showCENNZnetAccount, setShowCENNZnetAccount] = useState(false);
+  const { updateNetwork }: any = useBlockchain();
+  const { connectWallet, selectedAccount }: any = useWeb3();
 
   useEffect(() => {
     if (Account) {
       setShowMetamaskAccount(true);
     }
-  }, [Account]);
+
+    if (selectedAccount) {
+      setShowCENNZnetAccount(true);
+    }
+  }, [Account, selectedAccount]);
+
+  const connectMetamask = () => {
+    const { ethereum } = window as any;
+    const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
+      ? window.localStorage.getItem("ethereum-chain")
+      : process.env.NEXT_PUBLIC_ETHEREUM_NETWORK;
+
+    updateNetwork(ethereum, ethereumNetwork);
+  };
+
+  const connectCENNZnet = () => {
+    connectWallet();
+  };
 
   const CENNZnetButton = (
     <Frame
       sx={{
-        top: "4%",
-        right: "30%",
+        top: "40%",
         cursor: "pointer",
         backgroundColor: "#FFFFFF",
+        height: "60px",
+        width: "70%",
       }}
-      onClick={() => router.push("/bridge")}
+      onClick={connectCENNZnet}
     >
-      <Heading
-        sx={{
-          fontSize: "20px",
-          margin: "0 auto",
-          color: "primary.main",
-        }}
-      >
-        ENTER BRIDGE
-      </Heading>
+      {selectedAccount ? (
+        <>
+          <Heading
+            sx={{
+              color: "primary.main",
+              ml: "10px",
+              mt: "3px",
+              fontSize: "20px",
+              flexGrow: 1,
+              textTransform: "none",
+            }}
+          >
+            CENNZnet
+          </Heading>
+          <SmallText
+            sx={{
+              color: "black",
+              fontSize: "16px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              ml: "5px",
+            }}
+          >
+            {selectedAccount.name}
+          </SmallText>
+        </>
+      ) : (
+        <Heading
+          sx={{
+            fontSize: "20px",
+            margin: "0 auto",
+            color: "primary.main",
+            textTransform: "none",
+          }}
+        >
+          CONNECT CENNZnet WALLET
+        </Heading>
+      )}
     </Frame>
   );
 
   const MetamaskButton = (
     <Frame
       sx={{
-        top: "4%",
-        right: "8%",
+        display: "flex",
+        mt: "8%",
+        width: "70%",
+        height: "60px",
         cursor: "pointer",
         backgroundColor: "white",
       }}
-      onClick={async () => {
-        const { ethereum }: any = window;
-        await ethereum.request({
-          method: "eth_requestAccounts",
-        });
-      }}
+      onClick={connectMetamask}
     >
-      {showMetamaskAccount ? (
+      {Account ? (
         <>
           <Heading
             sx={{
@@ -83,107 +128,48 @@ const Home: React.FC<{}> = () => {
             margin: "0 auto",
           }}
         >
-          CONNECT METAMASK
+          CONNECT METAMASK WALLET
         </Heading>
       )}
     </Frame>
   );
 
   return (
-    <>
-      {CENNZnetButton}
+    <Box
+      sx={{
+        position: "absolute",
+        width: "40%",
+        height: "auto",
+        left: "30%",
+        top: "25%",
+        background: "#FFFFFF",
+        border: "4px solid #1130FF",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        alignContent: "center",
+        alignItems: "center",
+      }}
+    >
       {MetamaskButton}
-    </>
+      {CENNZnetButton}
+      <Button
+        variant="outlined"
+        size="large"
+        disabled={Account && selectedAccount ? false : true}
+        sx={{
+          width: "50%",
+          backgroundColor: "#FFFFFF",
+          color: "primary.main",
+          m: "45% 0 30px",
+          border: "2.5px solid #1130FF",
+        }}
+        onClick={() => router.push("/bridge")}
+      >
+        <Heading sx={{ fontSize: "20px" }}>enter bridge</Heading>
+      </Button>
+    </Box>
   );
-
-  //   return (
-  //     <>
-  //       {modalOpen && <>{alert("yeet")}</>}
-  //       <Box
-  //         sx={{
-  //           margin: "0 auto",
-  //           borderRadius: 10,
-  //           width: "30%",
-  //           height: "auto",
-  //           display: "block",
-  //           border: "3px outset #cfcfcf",
-  //         }}
-  //       >
-  //         <Typography
-  //           variant="h4"
-  //           sx={{
-  //             textAlign: "center",
-  //             color: "secondary.dark",
-  //             marginBottom: "10px",
-  //           }}
-  //         >
-  //           Networks
-  //         </Typography>
-  //         <Typography
-  //           variant="h6"
-  //           sx={{
-  //             textAlign: "center",
-  //             color: "secondary.dark",
-  //             marginBottom: "10px",
-  //           }}
-  //         >
-  //           Current Networks: {currentNetwork}
-  //         </Typography>
-  //         <Button
-  //           variant="contained"
-  //           sx={{
-  //             margin: "0 auto 15px",
-  //             display: "flex",
-  //             textTransform: "none",
-  //             width: "70%",
-  //           }}
-  //           onClick={() => setModalOpen(true)}
-  //         >
-  //           <Typography
-  //             sx={{
-  //               color: "secondary.dark",
-  //             }}
-  //           >
-  //             Change Networks
-  //           </Typography>
-  //         </Button>
-  //         <Divider />
-  //         <Typography
-  //           variant="h4"
-  //           sx={{
-  //             textAlign: "center",
-  //             color: "secondary.dark",
-  //             margin: "5px 0",
-  //           }}
-  //         >
-  //           Wallets
-  //         </Typography>
-  //         <Typography
-  //           variant="h6"
-  //           sx={{
-  //             textAlign: "center",
-  //             color: "secondary.dark",
-  //           }}
-  //         >
-  //           MetaMask:
-  //           <br />
-  //           {Account.substr(0, 6).concat(
-  //             "...",
-  //             Account.substr(Account.length - 4, 4)
-  //           )}
-  //         </Typography>
-  //         <Typography
-  //           sx={{
-  //             textAlign: "center",
-  //             color: "secondary.dark",
-  //           }}
-  //         >
-  //           Connected to network: {metamaskNetwork}
-  //         </Typography>
-  //         <CENNZnetWallet />
-  //       </Box>
-  //     </>
-  //   );
 };
 
 export default Home;

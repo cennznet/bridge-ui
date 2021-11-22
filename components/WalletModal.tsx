@@ -54,23 +54,23 @@ const WalletModal: React.FC<{
           {Object.values(balances).map((token: any, i) => (
             <>
               <SmallText
+                key={token.symbol}
                 sx={{
                   color: "black",
                   fontSize: "18px",
                   display: "inline-flex",
                 }}
-                key={token.symbol}
               >
                 {token.symbol} Balance:
               </SmallText>
               <SmallText
+                key={i}
                 sx={{
                   color: "black",
                   fontWeight: "bold",
                   fontSize: "18px",
                   display: "inline-flex",
                 }}
-                key={i}
               >
                 {token.balance}
               </SmallText>
