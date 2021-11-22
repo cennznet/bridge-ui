@@ -77,6 +77,8 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
             }}
           >
             <img
+              key={`img ${token.logo}`}
+              alt="token logo"
               src={token.logo}
               style={{ marginRight: "12px", width: "20px" }}
             />

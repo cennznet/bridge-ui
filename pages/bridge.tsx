@@ -67,6 +67,7 @@ const Bridge: React.FC<{}> = () => {
     setCurrentNetwork(currentNetwork);
     updateApi(apiUrl);
     updateNetwork(ethereum, ethereumNetwork);
+    //eslint-disable-next-line
   }, []);
 
   return (
