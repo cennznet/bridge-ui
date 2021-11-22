@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import store from "store";
 import { Autocomplete, TextField } from "@mui/material";
 import { useWeb3 } from "../context/Web3Context";
 
 const CENNZnetAccountPicker: React.FC<{
-  setCENNZnetAccountSelected: Function;
-  location: string;
-}> = ({ setCENNZnetAccountSelected, location }) => {
-  const { accounts, updateSelectedAccount }: any = useWeb3();
+  updateSelectedAccount: Function;
+}> = ({ updateSelectedAccount }) => {
+  const { accounts }: any = useWeb3();
   const [accountNames, setAccountNames] = useState<string[]>([]);
 
   useEffect(() => {
@@ -21,9 +19,8 @@ const CENNZnetAccountPicker: React.FC<{
   const updateAccount = (accountName: string) => {
     accounts.forEach((account: { name: string; address: string }) => {
       if (account.name === accountName) {
-        store.set("selected-cennz-account", account);
+        updateSelectedAccount(account);
       }
-      setCENNZnetAccountSelected(true);
     });
   };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ethers } from "ethers";
 import { useWeb3 } from "../context/Web3Context";
 import { Box, Button, TextField } from "@mui/material";
@@ -8,15 +8,13 @@ import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
 import CENNZnetAccountPicker from "./CENNZnetAccountPicker";
-import store from "store";
 
 const Deposit: React.FC<{}> = () => {
   const { decodeAddress } = useWeb3();
   const [customAddress, setCustomAddress] = useState(false);
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
-  const [CENNZnetAccountSelected, setCENNZnetAccountSelected] = useState(false);
-  const [CENNZnetAccount, setCENNZnetAccount] = useState({
+  const [selectedAccount, updateSelectedAccount] = useState({
     address: "",
     name: "",
   });
@@ -29,18 +27,11 @@ const Deposit: React.FC<{}> = () => {
   const { Contracts, Signer }: any = useBlockchain();
   const { api }: any = useWeb3();
 
-  useEffect(() => {
-    if (CENNZnetAccountSelected) {
-      const account = store.get("selected-cennz-account");
-      setCENNZnetAccount(account);
-    }
-  }, [CENNZnetAccountSelected]);
-
   const depositEth = async () => {
     let tx: any = await Contracts.peg.deposit(
       "0x0000000000000000000000000000000000000000",
       ethers.utils.parseUnits(amount),
-      decodeAddress(CENNZnetAccount.address),
+      decodeAddress(selectedAccount.address),
       {
         value: ethers.utils.parseUnits(amount),
       }
@@ -67,7 +58,7 @@ const Deposit: React.FC<{}> = () => {
     tx = await Contracts.peg.deposit(
       token,
       ethers.utils.parseUnits(amount),
-      decodeAddress(CENNZnetAccount.address)
+      decodeAddress(selectedAccount.address)
     );
     setModal(defineTxModal("deposit", tx.hash, setModalOpen));
     await tx.wait();
@@ -137,8 +128,8 @@ const Deposit: React.FC<{}> = () => {
                 width: "80%",
               }}
               onChange={(e) =>
-                setCENNZnetAccount({
-                  ...CENNZnetAccount,
+                updateSelectedAccount({
+                  name: "",
                   address: e.target.value,
                 })
               }
@@ -164,8 +155,7 @@ const Deposit: React.FC<{}> = () => {
         ) : (
           <>
             <CENNZnetAccountPicker
-              setCENNZnetAccountSelected={setCENNZnetAccountSelected}
-              location={"deposit"}
+              updateSelectedAccount={updateSelectedAccount}
             />
             <Button
               size="small"
@@ -196,7 +186,7 @@ const Deposit: React.FC<{}> = () => {
             mt: "30px",
             mb: "50px",
           }}
-          disabled={amount && token && CENNZnetAccountSelected ? false : true}
+          disabled={amount && token && selectedAccount ? false : true}
           size="large"
           variant="outlined"
           onClick={deposit}
