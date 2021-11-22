@@ -14,7 +14,7 @@ import { SmallText } from "./StyledComponents";
 
 const Deposit: React.FC<{}> = () => {
   const { decodeAddress } = useWeb3();
-  const [customToken, setCustomToken] = useState(false);
+  const [customAddress, setCustomAddress] = useState(false);
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
   const [CENNZnetAccountSelected, setCENNZnetAccountSelected] = useState(false);
@@ -117,70 +117,77 @@ const Deposit: React.FC<{}> = () => {
           padding: "0px",
         }}
       >
-        {customToken ? (
-          <>
-            <TextField
-              label="Token Address"
-              variant="outlined"
-              required
-              sx={{
-                width: "80%",
-                mt: "50px",
-              }}
-              onChange={(e) => setToken(e.target.value)}
-            />
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setCustomToken(false)}
-              sx={{
-                fontFamily: "Teko",
-                fontWeight: "bold",
-                fontSize: "21px",
-                lineHeight: "124%",
-                color: "#1130FF",
-                width: "80%",
-                mb: "30px",
-              }}
-            >
-              select token instead*
-            </Button>
-          </>
-        ) : (
-          <>
-            <TokenPicker setToken={setToken} />
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setCustomToken(true)}
-              sx={{
-                fontFamily: "Teko",
-                fontWeight: "bold",
-                fontSize: "21px",
-                lineHeight: "124%",
-                color: "#1130FF",
-                width: "80%",
-                mb: "30px",
-              }}
-            >
-              use token address instead*
-            </Button>
-          </>
-        )}
+        <TokenPicker setToken={setToken} />
+
         <TextField
           label="Amount"
           variant="outlined"
           required
           sx={{
             width: "80%",
-            mb: "30px",
+            m: "30px 0 30px",
           }}
           onChange={(e) => setAmount(e.target.value)}
         />
-        <CENNZnetAccountPicker
-          setCENNZnetAccountSelected={setCENNZnetAccountSelected}
-          location={"deposit"}
-        />
+        {customAddress ? (
+          <>
+            <TextField
+              label="Destination"
+              variant="outlined"
+              required
+              sx={{
+                width: "80%",
+              }}
+              onChange={(e) =>
+                setCENNZnetAccount({
+                  ...CENNZnetAccount,
+                  address: e.target.value,
+                })
+              }
+            />
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setCustomAddress(false)}
+              sx={{
+                fontFamily: "Teko",
+                fontWeight: "bold",
+                fontSize: "21px",
+                lineHeight: "124%",
+                color: "#1130FF",
+                width: "80%",
+                mb: "30px",
+                textTransform: "none",
+              }}
+            >
+              SELECT CENNZnet ADDRESS INSTEAD*
+            </Button>
+          </>
+        ) : (
+          <>
+            <CENNZnetAccountPicker
+              setCENNZnetAccountSelected={setCENNZnetAccountSelected}
+              location={"deposit"}
+            />
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setCustomAddress(true)}
+              sx={{
+                fontFamily: "Teko",
+                fontWeight: "bold",
+                fontSize: "21px",
+                lineHeight: "124%",
+                color: "#1130FF",
+                width: "80%",
+                mb: "30px",
+                textTransform: "none",
+              }}
+            >
+              ENTER CENNZnet ADDRESS INSTEAD*
+            </Button>
+          </>
+        )}
         <Button
           sx={{
             fontFamily: "Teko",

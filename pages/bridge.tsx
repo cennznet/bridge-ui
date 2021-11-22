@@ -58,7 +58,7 @@ const Bridge: React.FC<{}> = () => {
       default:
         break;
     }
-  }, [updateApi]);
+  }, []);
 
   return (
     <>

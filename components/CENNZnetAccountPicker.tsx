@@ -36,7 +36,7 @@ const CENNZnetAccountPicker: React.FC<{
         width: "80%",
       }}
       renderInput={(params) => (
-        <TextField {...params} label="Token Beneficiary" required />
+        <TextField {...params} label="Destination" required />
       )}
     />
   );

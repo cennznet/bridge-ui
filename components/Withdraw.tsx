@@ -169,62 +169,14 @@ const Withdraw: React.FC<{}> = () => {
           padding: "0px",
         }}
       >
-        {customToken ? (
-          <>
-            <TextField
-              label="Token Address"
-              variant="outlined"
-              required
-              sx={{
-                width: "80%",
-                mt: "50px",
-              }}
-              onChange={(e) => setToken(e.target.value)}
-            />
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setCustomToken(false)}
-              sx={{
-                fontFamily: "Teko",
-                fontWeight: "bold",
-                fontSize: "21px",
-                lineHeight: "124%",
-                color: "#1130FF",
-                width: "80%",
-                mb: "30px",
-              }}
-            >
-              select token instead*
-            </Button>
-          </>
-        ) : (
-          <>
-            <TokenPicker setToken={setToken} />
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setCustomToken(true)}
-              sx={{
-                fontFamily: "Teko",
-                fontWeight: "bold",
-                fontSize: "21px",
-                lineHeight: "124%",
-                color: "#1130FF",
-                width: "80%",
-                mb: "30px",
-              }}
-            >
-              use token address instead*
-            </Button>
-          </>
-        )}
+        <TokenPicker setToken={setToken} />
         <TextField
           label="Amount"
           variant="outlined"
           required
           sx={{
             width: "80%",
+            m: "30px 0 50px",
           }}
           onChange={(e) => setAmount(e.target.value)}
         />

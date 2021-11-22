@@ -23,9 +23,6 @@ const WalletModal: React.FC<{
     if (!selectedAccount) connectWallet();
   }, [selectedAccount, connectWallet]);
 
-  const closeButtonMargin =
-    modalState === "showWallet" ? "0 auto 30px" : "10px auto 30px";
-
   const AccountBalances = selectedAccount && (
     <>
       <Box sx={{ mt: "5%", pl: "5%", display: "flex" }}>
@@ -203,7 +200,7 @@ const WalletModal: React.FC<{
             lineHeight: "124%",
             color: "primary.main",
             width: "35%",
-            m: closeButtonMargin,
+            m: modalState === "showWallet" ? "0 auto 30px" : "10px auto 30px",
             display: "flex",
           }}
           size="large"
