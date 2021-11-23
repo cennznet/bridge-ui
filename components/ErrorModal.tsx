@@ -112,7 +112,7 @@ const ErrorModal: React.FC<{
                 mb: "30px",
               }}
             >
-              Please switch to one of these Metamask networks and refresh page
+              Please select one of these networks
             </SmallText>
             {networks.map((network, i) => (
               <Option
