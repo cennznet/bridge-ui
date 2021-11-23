@@ -21,12 +21,10 @@ const NetworkModal: React.FC<{
     "Ropsten/Rata",
     "Kovan/Nikau",
   ]);
-  const [selectedNetwork, setSelectedNetwork] = useState("");
   const { updateNetwork } = useBlockchain();
 
   const updateNetworks = async (selectedNetwork) => {
     const { ethereum }: any = window;
-    setSelectedNetwork(selectedNetwork);
     switch (selectedNetwork) {
       case networks[0]:
         await ethereum.request({

@@ -81,6 +81,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
             apiUrl = "wss://kong2.centrality.me/public/rata/ws";
             break;
           default:
+            reject();
             break;
         }
 

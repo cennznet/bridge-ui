@@ -149,17 +149,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const connectWallet = async () => {
     try {
       const extensions = await web3Enable("Bridge");
-      if (signer === null || signer === undefined) {
-        const injector = await web3FromSource(EXTENSION);
-        setSigner(injector.signer);
-      }
-      if (
-        (selectedAccount === undefined || selectedAccount === null) &&
-        accounts.length > 0
-      ) {
-        //  select the 0th account by default if no accounts are selected
-        setSelectedAccount(accounts[0]);
-      }
 
       const cennznetWallet = extensions.find(
         (extension) => extension.name === "cennznet-extension"
@@ -191,6 +180,23 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       setHasWeb3Injected(false);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      await web3Enable("Bridge");
+      if (signer === null || signer === undefined) {
+        const injector = await web3FromSource(EXTENSION);
+        setSigner(injector.signer);
+      }
+      if (
+        (selectedAccount === undefined || selectedAccount === null) &&
+        accounts.length > 0
+      ) {
+        //  select the 0th account by default if no accounts are selected
+        setSelectedAccount(accounts[0]);
+      }
+    })();
+  }, [accounts]);
 
   const updateApi = (endpoint) => {
     let apiInstance: ApiPromise;
