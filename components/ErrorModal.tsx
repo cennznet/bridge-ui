@@ -112,7 +112,7 @@ const ErrorModal: React.FC<{
                 mb: "30px",
               }}
             >
-              Please select one of these networks
+              Please select one of these networks and refresh page
             </SmallText>
             {networks.map((network, i) => (
               <Option
