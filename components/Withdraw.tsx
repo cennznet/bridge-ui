@@ -22,8 +22,14 @@ const Withdraw: React.FC<{}> = () => {
   const withdraw = async () => {
     setModalOpen(false);
     const bridgePaused = await api.query.ethBridge.bridgePaused();
+    const CENNZwithdrawalsActive = await api.query.erc20Peg.withdrawalsActive();
+    const ETHwithdrawalsActive = await Contracts.peg.withdrawalsActive();
 
-    if (!bridgePaused.isTrue) {
+    if (
+      bridgePaused.isFalse &&
+      CENNZwithdrawalsActive.isTrue &&
+      ETHwithdrawalsActive
+    ) {
       if (token !== "") {
         setModal(defineTxModal("withdrawCENNZside", "", setModalOpen));
         let withdrawAmount = ethers.utils.parseUnits(amount).toString();
@@ -82,7 +88,7 @@ const Withdraw: React.FC<{}> = () => {
     });
 
     let eventProof: any;
-    await new Promise<void>(async (resolve) => {
+    await new Promise(async (resolve) => {
       const unsubHeads = await api.rpc.chain.subscribeNewHeads(async () => {
         console.log(`Waiting till event proof is fetched....`);
         const versionedEventProof = (
@@ -92,7 +98,7 @@ const Withdraw: React.FC<{}> = () => {
           eventProof = versionedEventProof.EventProof;
           console.log("Event proof found;::", eventProof);
           unsubHeads();
-          resolve();
+          resolve(eventProof);
         }
       });
     });
