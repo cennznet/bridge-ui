@@ -23,6 +23,14 @@ const WalletModal: React.FC<{
     if (!selectedAccount) connectWallet();
   }, [selectedAccount, connectWallet]);
 
+  const updateAccount = (account) => {
+    if (account !== selectedAccount) {
+      setBalances(null);
+      updateSelectedAccount(account);
+    }
+    setModalState("showWallet");
+  };
+
   const AccountBalances = selectedAccount && (
     <>
       <Box sx={{ mt: "5%", pl: "5%", display: "flex" }}>
@@ -126,15 +134,13 @@ const WalletModal: React.FC<{
                 fontSize: "21px",
                 lineHeight: "124%",
                 color: "primary.main",
-                width: "35%",
+                width: "40%",
                 m: "30px auto 5px",
                 display: "flex",
               }}
               size="large"
               variant="outlined"
-              onClick={() => {
-                setModalState("changeAccount");
-              }}
+              onClick={() => setModalState("changeAccount")}
             >
               Change Account
             </Button>
@@ -150,7 +156,7 @@ const WalletModal: React.FC<{
             >
               SELECT ACCOUNT
             </Heading>
-            {accounts ? (
+            {accounts[0] ? (
               accounts.map((account, i) => (
                 <Option
                   sx={{
@@ -163,11 +169,7 @@ const WalletModal: React.FC<{
                     backgroundColor:
                       account === selectedAccount ? "primary.main" : "#FFFFFF",
                   }}
-                  onClick={() => {
-                    setBalances(null);
-                    updateSelectedAccount(account);
-                    setModalState("showWallet");
-                  }}
+                  onClick={() => updateAccount(account)}
                   key={i}
                 >
                   <Heading
@@ -186,7 +188,7 @@ const WalletModal: React.FC<{
                 </Option>
               ))
             ) : (
-              <CircularProgress />
+              <CircularProgress size="4rem" sx={{ margin: "10px auto 30px" }} />
             )}
           </>
         )}
@@ -197,7 +199,7 @@ const WalletModal: React.FC<{
             fontSize: "21px",
             lineHeight: "124%",
             color: "primary.main",
-            width: "35%",
+            width: "40%",
             m: modalState === "showWallet" ? "0 auto 30px" : "10px auto 30px",
             display: "flex",
           }}

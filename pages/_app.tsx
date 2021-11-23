@@ -37,7 +37,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     width: "90px",
                     position: "absolute",
                     top: "5%",
-                    left: "10%",
+                    left: "6%",
                   }}
                 />
               </Box>
@@ -45,7 +45,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 sx={{
                   position: "absolute",
                   top: "4.5%",
-                  left: "20%",
+                  left: "16%",
                   fontFamily: "Teko",
                   fontStyle: "normal",
                   fontWeight: "bold",
