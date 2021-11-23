@@ -16,7 +16,8 @@ function defineTxModal(state: string, hash: string, setModalOpen: Function) {
       modal.text = "YOUR TOKENS WILL APPEAR ON CENNZnet SOON!";
       break;
     case "withdrawCENNZside":
-      modal.text = "BURNING YOUR TOKENS FOR WITHDRAWAL FROM CENNZnet...";
+      modal.text =
+        "CLAIMING YOUR TOKENS FOR WITHDRAWAL FROM CENNZnet. PLEASE STAY ON THIS PAGE";
       break;
     case "withdrawETHside":
       modal.text = "WITHDRAWING YOUR TOKENS...";
@@ -25,11 +26,11 @@ function defineTxModal(state: string, hash: string, setModalOpen: Function) {
       modal.text = "DONE! YOU MAY NOW CLOSE THIS WINDOW.";
       break;
     case "bridgePaused":
-      modal.text = "TOKEN BRIDGE IS CURRENTLY PAUSED. PLEASE TRY AGAIN LATER!";
+      modal.text =
+        "TOKEN BRIDGE IS PAUSED FOR MAINTENANCE. PLEASE TRY AGAIN LATER.";
       break;
     case "error":
-      if (hash === "noTokenSelected") modal.text = "PLEASE SELECT A TOKEN";
-      else modal.text = "WHOOPS! PLEASE TRY AGAIN";
+      modal.text = "WHOOPS! PLEASE TRY AGAIN";
       break;
     default:
       modal.text = "WHOOPS! PLEASE TRY AGAIN";
