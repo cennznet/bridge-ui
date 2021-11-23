@@ -68,13 +68,17 @@ const Deposit: React.FC<{}> = () => {
   const deposit = async () => {
     setModalOpen(false);
     const bridgePaused = await api.query.ethBridge.bridgePaused();
-    if (!bridgePaused.isTrue) {
+    const ETHdepositsActive = await Contracts.peg.depositsActive();
+    const CENNZdepositsActive = await api.query.erc20Peg.depositsActive();
+    if (
+      bridgePaused.isFalse &&
+      ETHdepositsActive &&
+      CENNZdepositsActive.isTrue
+    ) {
       if (token === "eth") {
         depositEth();
       } else if (token && token !== "eth") {
         depositERC20();
-      } else {
-        setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
       }
     } else {
       setModal(defineTxModal("bridgePaused", "", setModalOpen));
