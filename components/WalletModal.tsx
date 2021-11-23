@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, Modal } from "@mui/material";
 import { StyledModal, Heading, SmallText, Option } from "./StyledComponents";
 import { useWeb3 } from "../context/Web3Context";
@@ -16,12 +16,7 @@ const WalletModal: React.FC<{
     selectedAccount,
     updateSelectedAccount,
     setBalances,
-    connectWallet,
   }: any = useWeb3();
-
-  useEffect(() => {
-    if (!selectedAccount) connectWallet();
-  }, [selectedAccount, connectWallet]);
 
   const updateAccount = (account) => {
     if (account !== selectedAccount) {
