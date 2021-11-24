@@ -2,7 +2,7 @@ import React, { createContext, useContext, ReactNode, useState } from "react";
 import { ethers } from "ethers";
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
-import Timelock from "../artifacts/timelock.json";
+import Timelock from "../artifacts/Timelock.json";
 import store from "store";
 import { useWeb3 } from "./Web3Context";
 
