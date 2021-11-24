@@ -42,3 +42,14 @@ export const Option = styled(Button)({
   background: "#FFFFFF",
   border: "4px solid #1130FF",
 });
+
+export const AdminButton = styled(Button)({
+  flexGrow: 1,
+  border: "none",
+  textTransform: "none",
+  fontFamily: "Teko",
+  fontWeight: "bold",
+  fontSize: "20px",
+  letterSpacing: "0.5px",
+  lineHeight: "125%",
+});
