@@ -8,7 +8,7 @@ const ErrorModal: React.FC<{
   setModalOpen: Function;
   modalState: string;
 }> = ({ setModalOpen, modalState }) => {
-  const [open, setOpen] = useState(true);
+  const [open] = useState(true);
   const [networks] = useState([
     "Mainnet/Mainnet",
     "Ropsten/Rata",
@@ -51,7 +51,7 @@ const ErrorModal: React.FC<{
   };
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)}>
+    <Modal open={open}>
       <StyledModal
         sx={{
           justifyContent: "center",

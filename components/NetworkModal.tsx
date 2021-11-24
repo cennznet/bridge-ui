@@ -14,8 +14,7 @@ const NetworkModal: React.FC<{
   setCurrentNetwork: Function;
   currentNetwork: string;
 }> = ({ setModalOpen, setModalState, setCurrentNetwork, currentNetwork }) => {
-  const [open, setOpen] = useState(true);
-  const handleClose = () => setOpen(false);
+  const [open] = useState(true);
   const [networks] = useState([
     "Mainnet/Mainnet",
     "Ropsten/Rata",
@@ -57,7 +56,7 @@ const NetworkModal: React.FC<{
   };
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal open={open}>
       <StyledModal
         sx={{
           justifyContent: "center",

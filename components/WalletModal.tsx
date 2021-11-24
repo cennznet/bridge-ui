@@ -9,7 +9,7 @@ const WalletModal: React.FC<{
   setModalState: Function;
   modalState: string;
 }> = ({ setModalOpen, setModalState, modalState }) => {
-  const [open, setOpen] = useState(true);
+  const [open] = useState(true);
   const {
     balances,
     accounts,
@@ -93,7 +93,7 @@ const WalletModal: React.FC<{
   );
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)}>
+    <Modal open={open}>
       <StyledModal
         sx={{
           justifyContent: "center",
