@@ -146,13 +146,13 @@ const Admin: React.FC<{}> = () => {
   return (
     <Box
       sx={{
-        m: "8% auto",
+        m: "8.7% auto",
+        width: "40%",
       }}
     >
       <ButtonGroup
         sx={{
           display: "flex",
-          width: "552px",
           m: "auto",
           flexDirection: "row",
           justifyContent: "center",
@@ -195,7 +195,6 @@ const Admin: React.FC<{}> = () => {
       <Box
         component="form"
         sx={{
-          width: "552px",
           height: "auto",
           m: "0 auto",
           background: "#FFFFFF",
