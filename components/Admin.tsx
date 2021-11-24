@@ -7,7 +7,7 @@ import {
   TextField,
   Autocomplete,
 } from "@mui/material";
-import { Heading } from "./StyledComponents";
+import { AdminButton } from "./StyledComponents";
 import { useBlockchain } from "../context/BlockchainContext";
 
 const abi = new ethers.utils.AbiCoder();
@@ -144,86 +144,60 @@ const Admin: React.FC<{}> = () => {
   }, []);
 
   return (
-    <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          mt: "7%",
-        }}
-      >
-        <Heading
-          sx={{
-            fontSize: "40px",
-            textDecoration: "underline",
-          }}
-        >
-          UNf*ck the Bridge
-        </Heading>
-      </Box>
+    <Box
+      sx={{
+        m: "8% auto",
+      }}
+    >
       <ButtonGroup
         sx={{
           display: "flex",
           width: "552px",
+          m: "auto",
           flexDirection: "row",
           justifyContent: "center",
           alignItems: "center",
-          margin: "auto",
           border: "4px solid #1130FF",
           borderBottom: 0,
         }}
       >
-        <Button
+        <AdminButton
           variant="outlined"
           sx={{
-            m: 0,
             backgroundColor: state.txType === "queue" ? "#1130FF" : "#FFFFFF",
             color: state.txType === "queue" ? "#FFFFFF" : "#1130FF",
-            flexGrow: 1,
-            border: "none",
-            textTransform: "none",
           }}
           onClick={() => updateState({ ...state, txType: "queue" })}
         >
           QueueTx
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outlined"
           sx={{
-            m: 0,
             backgroundColor: state.txType === "execute" ? "#1130FF" : "#FFFFFF",
             color: state.txType === "execute" ? "#FFFFFF" : "#1130FF",
-            flexGrow: 1,
-            border: "none",
-            textTransform: "none",
           }}
           onClick={() => updateState({ ...state, txType: "execute" })}
         >
           ExecuteTx
-        </Button>
-        <Button
+        </AdminButton>
+        <AdminButton
           variant="outlined"
           sx={{
-            m: 0,
             backgroundColor: state.txType === "cancel" ? "#1130FF" : "#FFFFFF",
             color: state.txType === "cancel" ? "#FFFFFF" : "#1130FF",
-            flexGrow: 1,
-            border: "none",
-            textTransform: "none",
           }}
           onClick={() => updateState({ ...state, txType: "cancel" })}
         >
           CancelTx
-        </Button>
+        </AdminButton>
       </ButtonGroup>
       <Box
         component="form"
         sx={{
           width: "552px",
           height: "auto",
-          margin: "0 auto",
+          m: "0 auto",
           background: "#FFFFFF",
           border: "4px solid #1130FF",
           display: "flex",
@@ -240,7 +214,7 @@ const Admin: React.FC<{}> = () => {
             updateState({ ...state, target: e.target.value })
           }
           sx={{
-            m: "30px 0 30px",
+            m: "20px 0 20px",
             width: "80%",
           }}
           renderInput={(params) => (
@@ -255,7 +229,7 @@ const Admin: React.FC<{}> = () => {
               updateState({ ...state, signature: e.target.value })
             }
             sx={{
-              mb: "30px",
+              mb: "20px",
               width: "80%",
             }}
             renderInput={(params) => (
@@ -273,7 +247,7 @@ const Admin: React.FC<{}> = () => {
                   required
                   sx={{
                     width: "80%",
-                    mb: "30px",
+                    mb: "20px",
                   }}
                   onChange={(e) =>
                     updateState({
@@ -288,7 +262,7 @@ const Admin: React.FC<{}> = () => {
                   required
                   sx={{
                     width: "80%",
-                    mb: "30px",
+                    mb: "20px",
                   }}
                   onChange={(e) =>
                     updateState({ ...state, validatorSetId: e.target.value })
@@ -305,7 +279,7 @@ const Admin: React.FC<{}> = () => {
                     updateState({ ...state, bool: e.target.value })
                   }
                   sx={{
-                    mb: "30px",
+                    mb: "20px",
                     width: "80%",
                   }}
                   renderInput={(params) => (
@@ -323,7 +297,7 @@ const Admin: React.FC<{}> = () => {
                   required
                   sx={{
                     width: "80%",
-                    mb: "30px",
+                    mb: "20px",
                   }}
                   onChange={(e) =>
                     updateState({ ...state, uint256: e.target.value })
@@ -338,7 +312,7 @@ const Admin: React.FC<{}> = () => {
           required
           sx={{
             width: "80%",
-            mb: "30px",
+            mb: "20px",
           }}
           onChange={(e) => updateState({ ...state, value: e.target.value })}
         />
@@ -349,7 +323,7 @@ const Admin: React.FC<{}> = () => {
             fontSize: "21px",
             lineHeight: "124%",
             color: "#1130FF",
-            mt: "30px",
+            mt: "20px",
             mb: "50px",
           }}
           disabled={state.target && state.value ? false : true}
@@ -360,7 +334,7 @@ const Admin: React.FC<{}> = () => {
           Submit
         </Button>
       </Box>
-    </>
+    </Box>
   );
 };
 
