@@ -2,6 +2,7 @@ import React, { createContext, useContext, ReactNode, useState } from "react";
 import { ethers } from "ethers";
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
+import Timelock from "../artifacts/timelock.json";
 import store from "store";
 import { useWeb3 } from "./Web3Context";
 
@@ -9,12 +10,14 @@ type blockchainContextType = {
   Contracts: object;
   Account: string;
   updateNetwork: Function;
+  activateAdmin: Function;
 };
 
 const blockchainContextDefaultValues: blockchainContextType = {
   Contracts: {},
   Account: "",
   updateNetwork: (ethereum: any, ethereumNetwork: string) => {},
+  activateAdmin: (ethereum: any, ethereumNetwork: string) => {},
 };
 
 const BlockchainContext = createContext<blockchainContextType>(
@@ -122,9 +125,63 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     });
   };
 
+  const activateAdmin = async (ethereum: any, ethereumNetwork: string) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+
+        let TimeLockAddress: string,
+          ethChainId: string,
+          CENNZnetNetwork: string,
+          apiUrl: string;
+
+        switch (ethereumNetwork) {
+          case "Mainnet":
+            TimeLockAddress = "";
+            ethChainId = "0x1";
+            CENNZnetNetwork = "Azalea";
+            apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
+            break;
+          case "Kovan":
+            TimeLockAddress = "0xa98b4EA5655e4F1a76334b3abdFead45d0A673D2";
+            ethChainId = "0x2a";
+            CENNZnetNetwork = "Kovan";
+            apiUrl = "wss://nikau.centrality.me/public/ws";
+            break;
+          case "Ropsten":
+            TimeLockAddress = "0xc804f34950be856b22CD258ed732E20200438C81";
+            ethChainId = "0x3";
+            CENNZnetNetwork = "Ropsten";
+            apiUrl = "wss://kong2.centrality.me/public/rata/ws";
+            break;
+          default:
+            reject();
+            break;
+        }
+
+        store.set("eth-chain-id", ethChainId);
+        store.set("CENNZnet-network", CENNZnetNetwork);
+        updateApi(apiUrl);
+
+        const timeLock: ethers.Contract = new ethers.Contract(
+          TimeLockAddress,
+          Timelock.abi,
+          signer
+        );
+
+        resolve({ provider, timeLock });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
   return (
     <>
-      <BlockchainContext.Provider value={{ ...value, updateNetwork }}>
+      <BlockchainContext.Provider
+        value={{ ...value, updateNetwork, activateAdmin }}
+      >
         {children}
       </BlockchainContext.Provider>
     </>

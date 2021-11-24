@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Switch from "../components/Switch";
+import Admin from "../components/Admin";
 import Deposit from "../components/Deposit";
 import Withdraw from "../components/Withdraw";
 import NetworkModal from "../components/NetworkModal";
@@ -11,6 +12,7 @@ import { useBlockchain } from "../context/BlockchainContext";
 
 const Bridge: React.FC<{}> = () => {
   const [isDeposit, toggleIsDeposit] = useState<boolean>(true);
+  const [isAdmin, toggleIsAdmin] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentNetwork, setCurrentNetwork] = useState("");
   const [modalState, setModalState] = useState<string>("");
@@ -20,11 +22,7 @@ const Bridge: React.FC<{}> = () => {
   const { updateNetwork }: any = useBlockchain();
 
   useEffect(() => {
-    if (selectedAccount) {
-      setIsWalletConnected(true);
-    } else {
-      setIsWalletConnected(false);
-    }
+    selectedAccount ? setIsWalletConnected(true) : setIsWalletConnected(false);
   }, [selectedAccount]);
 
   const walletClickHandler: React.EventHandler<React.SyntheticEvent> = (
@@ -88,7 +86,28 @@ const Bridge: React.FC<{}> = () => {
             setModalState={setModalState}
           />
         )}
-      <Switch isDeposit={isDeposit} toggleIsDeposit={toggleIsDeposit} />
+      {!isAdmin && (
+        <Switch isDeposit={isDeposit} toggleIsDeposit={toggleIsDeposit} />
+      )}
+      <Frame
+        sx={{
+          cursor: "pointer",
+          top: "11%",
+          right: "5%",
+          backgroundColor: modalState === "networks" ? "#1130FF" : "#FFFFFF",
+        }}
+        onClick={() => toggleIsAdmin(!isAdmin)}
+      >
+        <Heading
+          sx={{
+            fontSize: "20px",
+            color: "#1130FF",
+            ml: "40%",
+          }}
+        >
+          {isAdmin ? "BRIDGE" : "ADMIN"}
+        </Heading>
+      </Frame>
       <Frame
         sx={{
           cursor: "pointer",
@@ -162,7 +181,8 @@ const Bridge: React.FC<{}> = () => {
           </SmallText>
         )}
       </Frame>
-      {isDeposit ? <Deposit /> : <Withdraw />}
+      {!isAdmin && <>{isDeposit ? <Deposit /> : <Withdraw />}</>}
+      {isAdmin && <Admin />}
     </>
   );
 };
