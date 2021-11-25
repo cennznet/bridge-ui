@@ -50,37 +50,29 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
       try {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        store.set("ethereum-network", ethereumNetwork);
+        window.localStorage.setItem("ethereum-network", ethereumNetwork);
         let BridgeAddress: string,
           ERC20PegAddress: string,
-          ethChainId: string,
           tokenChainId: number,
-          CENNZnetNetwork: string,
           apiUrl: string;
 
         switch (ethereumNetwork) {
           case "Mainnet":
-            BridgeAddress = "";
-            ERC20PegAddress = "";
-            ethChainId = "0x1";
+            BridgeAddress = "0x369e2285CCf43483e76746cebbf3d1d6060913EC";
+            ERC20PegAddress = "0x8F68fe02884b2B05e056aF72E4F2D2313E9900eC";
             tokenChainId = 1;
-            CENNZnetNetwork = "Azalea";
             apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
             break;
           case "Kovan":
             BridgeAddress = "0x9AFe4E42d8ab681d402e8548Ee860635BaA952C5";
             ERC20PegAddress = "0x5Ff2f9582FcA1e11d47e4e623BEf4594EB12b30d";
-            ethChainId = "0x2a";
             tokenChainId = 42;
-            CENNZnetNetwork = "Nikau";
             apiUrl = "wss://nikau.centrality.me/public/ws";
             break;
           case "Ropsten":
             BridgeAddress = "0x25b53B1bDc5F03e982c383865889A4B3c6cB98AA";
             ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
-            ethChainId = "0x3";
             tokenChainId = 3;
-            CENNZnetNetwork = "Rata";
             apiUrl = "wss://kong2.centrality.me/public/rata/ws";
             break;
           default:
@@ -88,9 +80,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
             break;
         }
 
-        store.set("eth-chain-id", ethChainId);
         store.set("token-chain-id", tokenChainId);
-        store.set("CENNZnet-network", CENNZnetNetwork);
         updateApi(apiUrl);
 
         const bridge: ethers.Contract = new ethers.Contract(

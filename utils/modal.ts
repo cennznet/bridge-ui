@@ -29,9 +29,6 @@ function defineTxModal(state: string, hash: string, setModalOpen: Function) {
       modal.text =
         "TOKEN BRIDGE IS PAUSED FOR MAINTENANCE. PLEASE TRY AGAIN LATER.";
       break;
-    case "error":
-      modal.text = "WHOOPS! PLEASE TRY AGAIN";
-      break;
     default:
       modal.text = "WHOOPS! PLEASE TRY AGAIN";
       break;
