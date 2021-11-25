@@ -67,14 +67,14 @@ const ErrorModal: React.FC<{
               size="large"
               variant="outlined"
             >
-              <a
+              <Link
                 href="https://chrome.google.com/webstore/detail/cennznet-extension/feckpephlmdcjnpoclagmaogngeffafk"
                 rel="noopener noreferrer"
                 target="blank"
                 style={{ textDecoration: "none", color: "#1130FF" }}
               >
                 GET CENNZnet
-              </a>
+              </Link>
             </Button>
           </>
         )}
@@ -104,14 +104,14 @@ const ErrorModal: React.FC<{
               size="large"
               variant="outlined"
             >
-              <a
+              <Link
                 href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en"
                 rel="noopener noreferrer"
                 target="blank"
                 style={{ textDecoration: "none", color: "#1130FF" }}
               >
                 Get MetaMask
-              </a>
+              </Link>
             </Button>
           </>
         )}
