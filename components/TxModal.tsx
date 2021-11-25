@@ -28,10 +28,10 @@ const TxModal: React.FC<Props> = ({
     const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
     switch (ethereumNetwork) {
+      default:
       case "Mainnet":
         setEtherscanLink(`https://etherscan.io/tx/${etherscanHash}`);
         break;
-      default:
       case "Ropsten":
         setEtherscanLink(`https://ropsten.etherscan.io/tx/${etherscanHash}`);
         break;

@@ -47,11 +47,11 @@ const Bridge: React.FC<{}> = () => {
     const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
     switch (ethereumNetwork) {
+      default:
       case "Mainnet":
         currentNetwork = "Mainnet/Mainnet";
         apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
         break;
-      default:
       case "Ropsten":
         currentNetwork = "Ropsten/Rata";
         apiUrl = "wss://kong2.centrality.me/public/rata/ws";
