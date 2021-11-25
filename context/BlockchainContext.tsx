@@ -57,8 +57,8 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
         switch (ethereumNetwork) {
           case "Mainnet":
-            BridgeAddress = "";
-            ERC20PegAddress = "";
+            BridgeAddress = "0x369e2285CCf43483e76746cebbf3d1d6060913EC";
+            ERC20PegAddress = "0x8F68fe02884b2B05e056aF72E4F2D2313E9900eC";
             ethChainId = "0x1";
             tokenChainId = 1;
             CENNZnetNetwork = "Azalea";
