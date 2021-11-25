@@ -3,13 +3,14 @@ import Switch from "../components/Switch";
 import Deposit from "../components/Deposit";
 import Withdraw from "../components/Withdraw";
 import NetworkModal from "../components/NetworkModal";
-import store from "store";
 import { Frame, Heading, SmallText } from "../components/StyledComponents";
 import WalletModal from "../components/WalletModal";
 import { useWeb3 } from "../context/Web3Context";
 import { useBlockchain } from "../context/BlockchainContext";
+import { useRouter } from "next/router";
 
 const Bridge: React.FC<{}> = () => {
+  const router = useRouter();
   const [isDeposit, toggleIsDeposit] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentNetwork, setCurrentNetwork] = useState("");
@@ -19,32 +20,16 @@ const Bridge: React.FC<{}> = () => {
   const { selectedAccount, connectWallet, updateApi }: any = useWeb3();
   const { updateNetwork }: any = useBlockchain();
 
-  useEffect(() => {
-    if (selectedAccount) {
-      setIsWalletConnected(true);
-    } else {
-      setIsWalletConnected(false);
-    }
-  }, [selectedAccount]);
-
-  const walletClickHandler: React.EventHandler<React.SyntheticEvent> = (
-    event: React.SyntheticEvent
-  ) => {
-    if (isWalletConnected) {
-      setModalState("showWallet");
-      setModalOpen(true);
-    } else {
-      connectWallet();
-      setModalState("changeAccount");
-      setModalOpen(true);
-    }
-  };
+  const forceLandingPage = () =>
+    router.push("/").then(() => window.location.reload());
 
   useEffect(() => {
     const { ethereum }: any = window;
     let currentNetwork: string;
     let apiUrl: string;
-    const ethereumNetwork = window.localStorage.getItem("ethereum-network");
+    const ethereumNetwork = window.localStorage.getItem("ethereum-network")
+      ? window.localStorage.getItem("ethereum-network")
+      : forceLandingPage();
 
     switch (ethereumNetwork) {
       default:
@@ -67,6 +52,27 @@ const Bridge: React.FC<{}> = () => {
     updateNetwork(ethereum, ethereumNetwork);
     //eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (selectedAccount) {
+      setIsWalletConnected(true);
+    } else {
+      setIsWalletConnected(false);
+    }
+  }, [selectedAccount]);
+
+  const walletClickHandler: React.EventHandler<React.SyntheticEvent> = (
+    event: React.SyntheticEvent
+  ) => {
+    if (isWalletConnected) {
+      setModalState("showWallet");
+      setModalOpen(true);
+    } else {
+      connectWallet();
+      setModalState("changeAccount");
+      setModalOpen(true);
+    }
+  };
 
   return (
     <>
