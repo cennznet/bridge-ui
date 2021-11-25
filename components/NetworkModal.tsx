@@ -7,6 +7,9 @@ import {
   SmallText,
   Option,
 } from "../components/StyledComponents";
+import { updateNetworks } from "../utils/networks";
+
+const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
 
 const NetworkModal: React.FC<{
   setModalOpen: Function;
@@ -15,44 +18,13 @@ const NetworkModal: React.FC<{
   currentNetwork: string;
 }> = ({ setModalOpen, setModalState, setCurrentNetwork, currentNetwork }) => {
   const [open] = useState(true);
-  const [networks] = useState([
-    "Mainnet/Mainnet",
-    "Ropsten/Rata",
-    "Kovan/Nikau",
-  ]);
   const { updateNetwork } = useBlockchain();
 
-  const updateNetworks = async (selectedNetwork) => {
-    const { ethereum }: any = window;
-    switch (selectedNetwork) {
-      case networks[0]:
-        await ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x1" }],
-        });
-        updateNetwork(ethereum, "Mainnet");
-        window.localStorage.setItem("ethereum-chain", "Mainnet");
-        break;
-      case networks[1]:
-        await ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x3" }],
-        });
-        updateNetwork(ethereum, "Ropsten");
-        window.localStorage.setItem("ethereum-chain", "Ropsten");
-        break;
-      case networks[2]:
-        await ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x2a" }],
-        });
-        updateNetwork(ethereum, "Kovan");
-        window.localStorage.setItem("ethereum-chain", "Kovan");
-        break;
-      default:
-        break;
-    }
-    setCurrentNetwork(selectedNetwork);
+  const changeNetwork = (selectedNetwork) => {
+    updateNetworks(selectedNetwork, updateNetwork).then(() => {
+      setCurrentNetwork(selectedNetwork);
+      window.location.reload();
+    });
   };
 
   return (
@@ -75,7 +47,7 @@ const NetworkModal: React.FC<{
           NOTE
         </Heading>
         <SmallText sx={{ pl: "5%", mb: "5%" }}>
-          Please refresh page after switching network in MetaMask.
+          Please select one of these networks and wait for page to refresh
         </SmallText>
         <Heading
           sx={{
@@ -100,7 +72,7 @@ const NetworkModal: React.FC<{
             }}
             key={i}
             onClick={() => {
-              updateNetworks(network);
+              changeNetwork(network);
               setModalState("");
               setModalOpen(false);
             }}

@@ -3,51 +3,21 @@ import { Button, Link, Modal } from "@mui/material";
 import { StyledModal, Heading, SmallText, Option } from "./StyledComponents";
 import { Box } from "@mui/material";
 import { useBlockchain } from "../context/BlockchainContext";
+import { updateNetworks } from "../utils/networks";
+
+const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
 
 const ErrorModal: React.FC<{
   setModalOpen: Function;
   modalState: string;
 }> = ({ setModalOpen, modalState }) => {
   const [open] = useState(true);
-  const [networks] = useState([
-    "Mainnet/Mainnet",
-    "Ropsten/Rata",
-    "Kovan/Nikau",
-  ]);
   const { updateNetwork } = useBlockchain();
 
-  const updateNetworks = async (selectedNetwork) => {
-    const { ethereum }: any = window;
-    switch (selectedNetwork) {
-      case networks[0]:
-        await ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x1" }],
-        });
-        updateNetwork(ethereum, "Mainnet");
-        window.localStorage.setItem("ethereum-chain", "Mainnet");
-        break;
-      case networks[1]:
-        await ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x3" }],
-        });
-        updateNetwork(ethereum, "Ropsten");
-        window.localStorage.setItem("ethereum-chain", "Ropsten");
-        break;
-      case networks[2]:
-        await ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x2a" }],
-        });
-        updateNetwork(ethereum, "Kovan");
-        window.localStorage.setItem("ethereum-chain", "Kovan");
-        break;
-      default:
-        break;
-    }
-
-    setModalOpen(false);
+  const changeNetwork = (selectedNetwork) => {
+    updateNetworks(selectedNetwork, updateNetwork).then(() =>
+      window.location.reload()
+    );
   };
 
   return (
@@ -71,24 +41,79 @@ const ErrorModal: React.FC<{
           </Heading>
         </Box>
         {modalState === "noExtension" && (
-          <SmallText
-            sx={{
-              ml: "5%",
-              display: "inline-flex",
-              fontSize: "18px",
-              mb: "30px",
-            }}
-          >
-            Please install the CENNZnet extension - available&nbsp;
-            <a
-              href="https://chrome.google.com/webstore/detail/cennznet-extension/feckpephlmdcjnpoclagmaogngeffafk"
-              rel="noopener noreferrer"
-              target="blank"
-              style={{ textDecoration: "none" }}
+          <>
+            <SmallText
+              sx={{
+                ml: "5%",
+                display: "inline-flex",
+                fontSize: "18px",
+                mb: "30px",
+              }}
             >
-              here.
-            </a>
-          </SmallText>
+              Please install the CENNZnet extension then refresh page
+            </SmallText>
+            <Button
+              sx={{
+                fontFamily: "Teko",
+                fontWeight: "bold",
+                fontSize: "21px",
+                lineHeight: "124%",
+                color: "primary.main",
+                width: "35%",
+                m: "30px auto 0",
+                display: "flex",
+                textTransform: "none",
+              }}
+              size="large"
+              variant="outlined"
+            >
+              <a
+                href="https://chrome.google.com/webstore/detail/cennznet-extension/feckpephlmdcjnpoclagmaogngeffafk"
+                rel="noopener noreferrer"
+                target="blank"
+                style={{ textDecoration: "none", color: "#1130FF" }}
+              >
+                GET CENNZnet
+              </a>
+            </Button>
+          </>
+        )}
+        {modalState === "noMetamask" && (
+          <>
+            <SmallText
+              sx={{
+                ml: "5%",
+                display: "inline-flex",
+                fontSize: "18px",
+                mb: "30px",
+              }}
+            >
+              Please install the MetaMask extension then refresh page
+            </SmallText>
+            <Button
+              sx={{
+                fontFamily: "Teko",
+                fontWeight: "bold",
+                fontSize: "21px",
+                lineHeight: "124%",
+                color: "primary.main",
+                width: "35%",
+                m: "30px auto 0",
+                display: "flex",
+              }}
+              size="large"
+              variant="outlined"
+            >
+              <a
+                href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en"
+                rel="noopener noreferrer"
+                target="blank"
+                style={{ textDecoration: "none", color: "#1130FF" }}
+              >
+                Get MetaMask
+              </a>
+            </Button>
+          </>
         )}
         {modalState === "noAccounts" && (
           <SmallText
@@ -112,7 +137,7 @@ const ErrorModal: React.FC<{
                 mb: "30px",
               }}
             >
-              Please select one of these networks and refresh page
+              Please select one of these networks and wait for page to refresh
             </SmallText>
             {networks.map((network, i) => (
               <Option
@@ -126,7 +151,7 @@ const ErrorModal: React.FC<{
                   backgroundColor: "#FFFFFF",
                 }}
                 key={i}
-                onClick={() => updateNetworks(network)}
+                onClick={() => changeNetwork(network)}
               >
                 <SmallText
                   sx={{
