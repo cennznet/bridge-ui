@@ -6,7 +6,6 @@ import {
   web3Accounts,
 } from "@polkadot/extension-dapp";
 import { InjectedExtension } from "@polkadot/extension-inject/types";
-import { defaults as addressDefaults } from "@polkadot/util-crypto/address/defaults";
 import { Api as ApiPromise } from "@cennznet/api";
 import { hexToString } from "@polkadot/util";
 import { decodeAddress } from "@polkadot/keyring";
@@ -140,7 +139,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
           setSelectedAccount(accounts[0]);
         }
       })();
-  }, [accounts, wallet]);
+  }, [accounts, wallet, selectedAccount, signer]);
 
   const updateApi = (endpoint) => {
     let apiInstance: ApiPromise;
