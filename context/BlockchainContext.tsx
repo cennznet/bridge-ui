@@ -131,46 +131,34 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
 
-        let TimeLockAddress: string,
-          ethChainId: string,
-          CENNZnetNetwork: string,
-          apiUrl: string;
+        let BridgeAddress: string, TimelockAddress: string;
 
         switch (ethereumNetwork) {
           case "Mainnet":
-            TimeLockAddress = "";
-            ethChainId = "0x1";
-            CENNZnetNetwork = "Azalea";
-            apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
+            BridgeAddress = "";
+            TimelockAddress = "";
             break;
-          case "Kovan":
-            TimeLockAddress = "0xa98b4EA5655e4F1a76334b3abdFead45d0A673D2";
-            ethChainId = "0x2a";
-            CENNZnetNetwork = "Kovan";
-            apiUrl = "wss://nikau.centrality.me/public/ws";
-            break;
-          case "Ropsten":
-            TimeLockAddress = "0xc804f34950be856b22CD258ed732E20200438C81";
-            ethChainId = "0x3";
-            CENNZnetNetwork = "Ropsten";
-            apiUrl = "wss://kong2.centrality.me/public/rata/ws";
+          case "Rinkeby":
+            BridgeAddress = "0x0572ffCB68b1c7E7478900b034BFe925D5aC14B3";
+            TimelockAddress = "0x1a7341b4DDC735Fe9f3F05bA2ad88C7648E7a2d1";
             break;
           default:
-            reject();
             break;
         }
 
-        store.set("eth-chain-id", ethChainId);
-        store.set("CENNZnet-network", CENNZnetNetwork);
-        updateApi(apiUrl);
+        const bridge: ethers.Contract = new ethers.Contract(
+          BridgeAddress,
+          CENNZnetBridge,
+          signer
+        );
 
-        const timeLock: ethers.Contract = new ethers.Contract(
-          TimeLockAddress,
+        const timelock: ethers.Contract = new ethers.Contract(
+          TimelockAddress,
           Timelock.abi,
           signer
         );
 
-        resolve({ provider, timeLock });
+        resolve({ provider, timelock, bridge });
       } catch (err) {
         reject(err);
       }
