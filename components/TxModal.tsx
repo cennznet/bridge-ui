@@ -21,14 +21,11 @@ const TxModal: React.FC<Props> = ({
   modalState,
   setModalOpen,
 }) => {
-  const [open, setOpen] = useState(true);
-  const handleClose = () => setOpen(false);
+  const [open] = useState(true);
   const [etherscanLink, setEtherscanLink] = useState("");
 
   useEffect(() => {
-    const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
-      ? window.localStorage.getItem("ethereum-chain")
-      : store.get("ethereum-network");
+    const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
     switch (ethereumNetwork) {
       case "Mainnet":
@@ -53,7 +50,7 @@ const TxModal: React.FC<Props> = ({
       }}
       open={open}
     >
-      <Modal open={open} onClose={handleClose}>
+      <Modal open={open}>
         <StyledModal
           sx={{
             justifyContent: "center",

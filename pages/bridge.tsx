@@ -44,9 +44,7 @@ const Bridge: React.FC<{}> = () => {
     const { ethereum }: any = window;
     let currentNetwork: string;
     let apiUrl: string;
-    const ethereumNetwork = window.localStorage.getItem("ethereum-chain")
-      ? window.localStorage.getItem("ethereum-chain")
-      : store.get("ethereum-network");
+    const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
     switch (ethereumNetwork) {
       case "Mainnet":
