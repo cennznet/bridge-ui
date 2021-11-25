@@ -86,13 +86,10 @@ const Bridge: React.FC<{}> = () => {
             setModalState={setModalState}
           />
         )}
-      {!isAdmin && (
-        <Switch isDeposit={isDeposit} toggleIsDeposit={toggleIsDeposit} />
-      )}
       <Frame
         sx={{
           cursor: "pointer",
-          top: "11%",
+          top: isAdmin ? "4%" : "11%",
           right: "5%",
           backgroundColor: modalState === "networks" ? "#1130FF" : "#FFFFFF",
         }}
@@ -108,81 +105,89 @@ const Bridge: React.FC<{}> = () => {
           {isAdmin ? "BRIDGE" : "ADMIN"}
         </Heading>
       </Frame>
-      <Frame
-        sx={{
-          cursor: "pointer",
-          top: "4%",
-          right: "30%",
-          backgroundColor: modalState === "networks" ? "#1130FF" : "#FFFFFF",
-        }}
-        onClick={() => {
-          setModalOpen(true);
-          setModalState("networks");
-        }}
-      >
-        <Heading
-          sx={{
-            ml: "10px",
-            mt: "3px",
-            fontSize: "20px",
-            flexGrow: 1,
-            color: modalState === "networks" ? "#FFFFFF" : "#1130FF",
-          }}
-        >
-          NETWORK
-        </Heading>
-        <SmallText
-          sx={{ color: modalState === "networks" ? "#FFFFFF" : "black" }}
-        >
-          {currentNetwork}
-        </SmallText>
-      </Frame>
-      <Frame
-        sx={{
-          top: "4%",
-          right: "5%",
-          backgroundColor:
-            modalState === "showWallet" || modalState === "changeAccount"
-              ? "#1130FF"
-              : "#FFFFFF",
-          cursor: "pointer",
-        }}
-        onClick={walletClickHandler}
-      >
-        <Heading
-          sx={{
-            ml: "10px",
-            mt: "3px",
-            fontSize: "17px",
-            color:
-              modalState === "showWallet" || modalState === "changeAccount"
-                ? "#FFFFFF"
-                : "#1130FF",
-            flexGrow: 1,
-            whiteSpace: "nowrap",
-          }}
-        >
-          CENNZnet WALLET
-        </Heading>
-        {selectedAccount && (
-          <SmallText
+      {isAdmin ? (
+        <Admin />
+      ) : (
+        <>
+          <Switch isDeposit={isDeposit} toggleIsDeposit={toggleIsDeposit} />
+          {isDeposit ? <Deposit /> : <Withdraw />}
+          <Frame
             sx={{
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              ml: "1.5px",
-              fontSize: "15px",
-              color:
-                modalState === "showWallet" || modalState === "changeAccount"
-                  ? "#FFFFFF"
-                  : "black",
+              cursor: "pointer",
+              top: "4%",
+              right: "30%",
+              backgroundColor:
+                modalState === "networks" ? "#1130FF" : "#FFFFFF",
+            }}
+            onClick={() => {
+              setModalOpen(true);
+              setModalState("networks");
             }}
           >
-            {selectedAccount.name}
-          </SmallText>
-        )}
-      </Frame>
-      {!isAdmin && <>{isDeposit ? <Deposit /> : <Withdraw />}</>}
-      {isAdmin && <Admin />}
+            <Heading
+              sx={{
+                ml: "10px",
+                mt: "3px",
+                fontSize: "20px",
+                flexGrow: 1,
+                color: modalState === "networks" ? "#FFFFFF" : "#1130FF",
+              }}
+            >
+              NETWORK
+            </Heading>
+            <SmallText
+              sx={{ color: modalState === "networks" ? "#FFFFFF" : "black" }}
+            >
+              {currentNetwork}
+            </SmallText>
+          </Frame>
+          <Frame
+            sx={{
+              top: "4%",
+              right: "5%",
+              backgroundColor:
+                modalState === "showWallet" || modalState === "changeAccount"
+                  ? "#1130FF"
+                  : "#FFFFFF",
+              cursor: "pointer",
+            }}
+            onClick={walletClickHandler}
+          >
+            <Heading
+              sx={{
+                ml: "10px",
+                mt: "3px",
+                fontSize: "17px",
+                color:
+                  modalState === "showWallet" || modalState === "changeAccount"
+                    ? "#FFFFFF"
+                    : "#1130FF",
+                flexGrow: 1,
+                whiteSpace: "nowrap",
+              }}
+            >
+              CENNZnet WALLET
+            </Heading>
+            {selectedAccount && (
+              <SmallText
+                sx={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  ml: "1.5px",
+                  fontSize: "15px",
+                  color:
+                    modalState === "showWallet" ||
+                    modalState === "changeAccount"
+                      ? "#FFFFFF"
+                      : "black",
+                }}
+              >
+                {selectedAccount.name}
+              </SmallText>
+            )}
+          </Frame>
+        </>
+      )}
     </>
   );
 };
