@@ -16,27 +16,32 @@ const Home: React.FC<{}> = () => {
 
   const connectMetamask = async () => {
     const { ethereum } = window as any;
-    await ethereum.request({ method: "eth_requestAccounts" });
-    const ethChainId = await ethereum.request({ method: "eth_chainId" });
-    let ethereumNetwork;
-    switch (ethChainId) {
-      case "0x1":
-        ethereumNetwork = "Mainnet";
-        break;
-      case "0x3":
-        ethereumNetwork = "Ropsten";
-        break;
-      case "0x2a":
-        ethereumNetwork = "Kovan";
-        break;
-      default:
-        setModalState("wrongNetwork");
-        setModalOpen(true);
-        break;
-    }
+    try {
+      await ethereum.request({ method: "eth_requestAccounts" });
+      const ethChainId = await ethereum.request({ method: "eth_chainId" });
+      let ethereumNetwork;
+      switch (ethChainId) {
+        case "0x1":
+          ethereumNetwork = "Mainnet";
+          break;
+        case "0x3":
+          ethereumNetwork = "Ropsten";
+          break;
+        case "0x2a":
+          ethereumNetwork = "Kovan";
+          break;
+        default:
+          setModalState("wrongNetwork");
+          setModalOpen(true);
+          break;
+      }
 
-    window.localStorage.setItem("ethereum-chain", ethereumNetwork);
-    updateNetwork(ethereum, ethereumNetwork);
+      window.localStorage.setItem("ethereum-network", ethereumNetwork);
+      updateNetwork(ethereum, ethereumNetwork);
+    } catch (err) {
+      setModalState("noMetamask");
+      setModalOpen(true);
+    }
   };
 
   const CENNZnetButton = (
