@@ -8,7 +8,8 @@ const networks = ["Mainnet", "Rinkeby"];
 const AdminModal: React.FC<{
   setModalOpen: Function;
   modalState: string;
-}> = ({ setModalOpen, modalState }) => {
+  updateState: Function;
+}> = ({ setModalOpen, modalState, updateState }) => {
   const [open] = useState(true);
 
   const updateNetworks = async (selectedNetwork) => {
@@ -139,6 +140,16 @@ const AdminModal: React.FC<{
           size="large"
           variant="outlined"
           onClick={() => {
+            updateState({
+              txType: "queue",
+              target: "",
+              value: "",
+              signature: "",
+              validatorPublicKey: "",
+              validatorSetId: "",
+              uint256: "",
+              bool: "",
+            });
             setModalOpen(false);
           }}
         >
