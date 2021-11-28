@@ -3,6 +3,7 @@ import { Button, Modal } from "@mui/material";
 import { StyledModal, Heading, SmallText, Option } from "./StyledComponents";
 import { useWeb3 } from "../context/Web3Context";
 import { Box, CircularProgress } from "@mui/material";
+import store from "store";
 
 const WalletModal: React.FC<{
   setModalOpen: Function;
@@ -22,6 +23,7 @@ const WalletModal: React.FC<{
     if (account !== selectedAccount) {
       setBalances(null);
       updateSelectedAccount(account);
+      store.set("selected-CENNZnet-account", account);
     }
     setModalState("showWallet");
   };
@@ -151,7 +153,7 @@ const WalletModal: React.FC<{
             >
               SELECT ACCOUNT
             </Heading>
-            {accounts[0] ? (
+            {accounts.length ? (
               accounts.map((account, i) => (
                 <Option
                   sx={{

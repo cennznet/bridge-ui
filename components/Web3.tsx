@@ -136,25 +136,28 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
           accounts.length > 0
         ) {
           //  select the 0th account by default if no accounts are selected
-          setSelectedAccount(accounts[0]);
+          const account = store.get("selected-CENNZnet-account")
+            ? store.get("selected-CENNZnet-account")
+            : accounts[0];
+          setSelectedAccount(account);
         }
       })();
   }, [accounts, wallet, selectedAccount, signer]);
 
-  const updateApi = (endpoint) => {
-    let apiInstance: ApiPromise;
+  const updateApi = async (endpoint) => {
+    let apiPromise: any;
     try {
-      apiInstance = new ApiPromise({ provider: endpoint });
+      apiPromise = new ApiPromise({ provider: endpoint });
     } catch (err) {
       console.error(`cennznet connection failed: ${err}`);
     }
 
-    if (!apiInstance) {
+    if (!apiPromise) {
       console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
       return;
     }
 
-    apiInstance.isReady.then(() => setAPI(apiInstance));
+    apiPromise.isReady.then(() => setAPI(apiPromise));
   };
 
   // Get balances for extension account when api or web3Account has changed

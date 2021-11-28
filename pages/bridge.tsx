@@ -17,49 +17,44 @@ const Bridge: React.FC<{}> = () => {
   const [modalState, setModalState] = useState<string>("");
 
   const [isWalletConnected, setIsWalletConnected] = useState(false);
-  const { selectedAccount, connectWallet, updateApi }: any = useWeb3();
+  const { selectedAccount, connectWallet }: any = useWeb3();
   const { updateNetwork }: any = useBlockchain();
-
-  const forceLandingPage = () =>
-    router.push("/").then(() => window.location.reload());
 
   useEffect(() => {
     const { ethereum }: any = window;
-    let currentNetwork: string;
-    let apiUrl: string;
-    const ethereumNetwork = window.localStorage.getItem("ethereum-network")
-      ? window.localStorage.getItem("ethereum-network")
-      : forceLandingPage();
+    const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
+    let network: string;
     switch (ethereumNetwork) {
-      default:
       case "Mainnet":
-        currentNetwork = "Mainnet/Mainnet";
-        apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
+        network = "Mainnet/Mainnet";
         break;
       case "Ropsten":
-        currentNetwork = "Ropsten/Rata";
-        apiUrl = "wss://kong2.centrality.me/public/rata/ws";
+        network = "Ropsten/Rata";
         break;
       case "Kovan":
-        currentNetwork = "Kovan/Nikau";
-        apiUrl = "wss://nikau.centrality.me/public/ws";
+        network = "Kovan/Nikau";
+        break;
+      default:
+        router.push("/");
         break;
     }
 
-    setCurrentNetwork(currentNetwork);
-    updateApi(apiUrl);
-    updateNetwork(ethereum, ethereumNetwork);
+    if (ethereumNetwork) {
+      setCurrentNetwork(network);
+      updateNetwork(ethereum, ethereumNetwork);
+      if (!isWalletConnected) connectWallet();
+    }
     //eslint-disable-next-line
   }, []);
 
-  useEffect(() => {
-    if (selectedAccount) {
-      setIsWalletConnected(true);
-    } else {
-      setIsWalletConnected(false);
-    }
-  }, [selectedAccount]);
+  useEffect(
+    () =>
+      selectedAccount
+        ? setIsWalletConnected(true)
+        : setIsWalletConnected(false),
+    [selectedAccount]
+  );
 
   const walletClickHandler: React.EventHandler<React.SyntheticEvent> = (
     event: React.SyntheticEvent
@@ -80,7 +75,6 @@ const Bridge: React.FC<{}> = () => {
         <NetworkModal
           setModalOpen={setModalOpen}
           setModalState={setModalState}
-          setCurrentNetwork={setCurrentNetwork}
           currentNetwork={currentNetwork}
         />
       )}

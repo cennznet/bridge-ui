@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Button, Link, Modal } from "@mui/material";
 import { StyledModal, Heading, SmallText, Option } from "./StyledComponents";
 import { Box } from "@mui/material";
-import { useBlockchain } from "../context/BlockchainContext";
 import { updateNetworks } from "../utils/networks";
 
 const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
@@ -12,12 +11,9 @@ const ErrorModal: React.FC<{
   modalState: string;
 }> = ({ setModalOpen, modalState }) => {
   const [open] = useState(true);
-  const { updateNetwork } = useBlockchain();
 
-  const changeNetwork = (selectedNetwork) => {
-    updateNetworks(selectedNetwork, updateNetwork).then(() =>
-      window.location.reload()
-    );
+  const changeNetwork = async (selectedNetwork) => {
+    updateNetworks(selectedNetwork);
   };
 
   return (
