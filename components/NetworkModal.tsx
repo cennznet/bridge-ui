@@ -14,17 +14,15 @@ const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
 const NetworkModal: React.FC<{
   setModalOpen: Function;
   setModalState: Function;
-  setCurrentNetwork: Function;
   currentNetwork: string;
-}> = ({ setModalOpen, setModalState, setCurrentNetwork, currentNetwork }) => {
+}> = ({ setModalOpen, setModalState, currentNetwork }) => {
   const [open] = useState(true);
   const { updateNetwork } = useBlockchain();
 
   const changeNetwork = (selectedNetwork) => {
-    updateNetworks(selectedNetwork, updateNetwork).then(() => {
-      setCurrentNetwork(selectedNetwork);
-      window.location.reload();
-    });
+    updateNetworks(selectedNetwork, updateNetwork).then(() =>
+      window.location.reload()
+    );
   };
 
   return (

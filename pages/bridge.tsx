@@ -8,6 +8,7 @@ import WalletModal from "../components/WalletModal";
 import { useWeb3 } from "../context/Web3Context";
 import { useBlockchain } from "../context/BlockchainContext";
 import { useRouter } from "next/router";
+import { updateNetworks } from "../utils/networks";
 
 const Bridge: React.FC<{}> = () => {
   const router = useRouter();
@@ -17,49 +18,45 @@ const Bridge: React.FC<{}> = () => {
   const [modalState, setModalState] = useState<string>("");
 
   const [isWalletConnected, setIsWalletConnected] = useState(false);
-  const { selectedAccount, connectWallet, updateApi }: any = useWeb3();
+  const { selectedAccount, connectWallet }: any = useWeb3();
   const { updateNetwork }: any = useBlockchain();
 
-  const forceLandingPage = () =>
-    router.push("/").then(() => window.location.reload());
-
   useEffect(() => {
-    const { ethereum }: any = window;
-    let currentNetwork: string;
-    let apiUrl: string;
-    const ethereumNetwork = window.localStorage.getItem("ethereum-network")
-      ? window.localStorage.getItem("ethereum-network")
-      : forceLandingPage();
+    if (!selectedAccount) connectWallet();
+    const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
-    switch (ethereumNetwork) {
-      default:
-      case "Mainnet":
-        currentNetwork = "Mainnet/Mainnet";
-        apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
-        break;
-      case "Ropsten":
-        currentNetwork = "Ropsten/Rata";
-        apiUrl = "wss://kong2.centrality.me/public/rata/ws";
-        break;
-      case "Kovan":
-        currentNetwork = "Kovan/Nikau";
-        apiUrl = "wss://nikau.centrality.me/public/ws";
-        break;
+    if (currentNetwork !== ethereumNetwork) {
+      let network: string;
+      switch (ethereumNetwork) {
+        case "Mainnet":
+          network = "Mainnet/Mainnet";
+          break;
+        case "Ropsten":
+          network = "Ropsten/Rata";
+          break;
+        case "Kovan":
+          network = "Kovan/Nikau";
+          break;
+        default:
+          break;
+      }
+
+      if (currentNetwork !== network) {
+        const { ethereum }: any = window;
+        updateNetwork(ethereum, ethereumNetwork);
+      }
+      setCurrentNetwork(network);
     }
-
-    setCurrentNetwork(currentNetwork);
-    updateApi(apiUrl);
-    updateNetwork(ethereum, ethereumNetwork);
     //eslint-disable-next-line
-  }, []);
+  }, [currentNetwork]);
 
-  useEffect(() => {
-    if (selectedAccount) {
-      setIsWalletConnected(true);
-    } else {
-      setIsWalletConnected(false);
-    }
-  }, [selectedAccount]);
+  useEffect(
+    () =>
+      selectedAccount
+        ? setIsWalletConnected(true)
+        : setIsWalletConnected(false),
+    [selectedAccount]
+  );
 
   const walletClickHandler: React.EventHandler<React.SyntheticEvent> = (
     event: React.SyntheticEvent
@@ -80,7 +77,6 @@ const Bridge: React.FC<{}> = () => {
         <NetworkModal
           setModalOpen={setModalOpen}
           setModalState={setModalState}
-          setCurrentNetwork={setCurrentNetwork}
           currentNetwork={currentNetwork}
         />
       )}
