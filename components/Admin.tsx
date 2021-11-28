@@ -23,8 +23,15 @@ const signatures = {
     "setThreshold(uint256)",
     "setActive(bool)",
   ],
-  ERC20Peg: ["one", "two", "three"],
+  ERC20Peg: [
+    "activateCENNZDeposits()",
+    "activateDeposits()",
+    "pauseDeposits()",
+    "activateWithdrawals()",
+    "pauseWithdrawals()",
+  ],
 };
+
 const dataParams = {
   bridge: {
     [signatures.Bridge[0]]: ["Validator Public Key", "Validator Set Id"],
@@ -41,6 +48,7 @@ const Admin: React.FC<{}> = () => {
   const [provider, setProvider] = useState<any>();
   const [contracts, setContracts] = useState({
     bridge: {} as ethers.Contract,
+    peg: {} as ethers.Contract,
     timelock: {} as ethers.Contract,
   });
   const [state, updateState] = useState({
@@ -62,12 +70,12 @@ const Admin: React.FC<{}> = () => {
       const { ethereum }: any = window;
       let ethereumNetwork = window.localStorage.getItem("admin-ethereum-chain");
       if (ethereumNetwork === "Mainnet" || ethereumNetwork === "Rinkeby") {
-        const { provider, timelock, bridge }: any = await activateAdmin(
+        const { provider, timelock, bridge, peg }: any = await activateAdmin(
           ethereum,
           ethereumNetwork
         );
         setProvider(provider);
-        setContracts({ timelock, bridge });
+        setContracts({ timelock, bridge, peg });
       } else {
         setModalState("wrongNetwork");
         setModalOpen(true);
@@ -112,17 +120,32 @@ const Admin: React.FC<{}> = () => {
       .add(delay)
       .add(BigNumber.from(100));
 
-    let dataHex = abi.encode(
-      ["string", "string", "uint", "string", "string", "uint"],
-      [
-        `timelock.${state.txType}Transaction()`,
-        contracts.bridge.address,
-        state.value,
-        state.signature,
-        encodedParams,
-        eta.toNumber(),
-      ]
-    );
+    let dataHex;
+
+    if (state.target === "Bridge")
+      dataHex = abi.encode(
+        ["string", "string", "uint", "string", "string", "uint"],
+        [
+          `timelock.${state.txType}Transaction()`,
+          contracts.bridge.address,
+          state.value,
+          state.signature,
+          encodedParams,
+          eta.toNumber(),
+        ]
+      );
+    else if (state.target === "ERC20Peg")
+      dataHex = abi.encode(
+        ["string", "string", "uint", "string", "string", "uint"],
+        [
+          `timelock.${state.txType}Transaction()`,
+          contracts.peg.address,
+          BigNumber.from(0),
+          state.signature,
+          "",
+          eta.toNumber(),
+        ]
+      );
 
     setModalState(dataHex);
     setModalOpen(true);
@@ -136,10 +159,20 @@ const Admin: React.FC<{}> = () => {
     );
   };
 
+  const bridgeSignature = signatures.Bridge.find((signature) => {
+    if (signature === state.signature) {
+      return true;
+    }
+  });
+
   return (
     <>
       {modalOpen && (
-        <AdminModal setModalOpen={setModalOpen} modalState={modalState} />
+        <AdminModal
+          setModalOpen={setModalOpen}
+          modalState={modalState}
+          updateState={updateState}
+        />
       )}
       <Box
         sx={{
@@ -209,7 +242,16 @@ const Admin: React.FC<{}> = () => {
             disablePortal
             options={targets}
             onSelect={(e: any) =>
-              updateState({ ...state, target: e.target.value })
+              updateState({
+                txType: state.txType,
+                target: e.target.value,
+                value: "",
+                signature: "",
+                validatorPublicKey: "",
+                validatorSetId: "",
+                uint256: "",
+                bool: "",
+              })
             }
             sx={{
               m: "20px 0 20px",
@@ -235,7 +277,7 @@ const Admin: React.FC<{}> = () => {
               )}
             />
           )}
-          {state.signature !== "" && (
+          {state.target === "Bridge" && bridgeSignature && (
             <>
               {dataParams.bridge[state.signature].length === 2 && (
                 <>
@@ -263,7 +305,10 @@ const Admin: React.FC<{}> = () => {
                       mb: "20px",
                     }}
                     onChange={(e) =>
-                      updateState({ ...state, validatorSetId: e.target.value })
+                      updateState({
+                        ...state,
+                        validatorSetId: e.target.value,
+                      })
                     }
                   />
                 </>
@@ -302,18 +347,20 @@ const Admin: React.FC<{}> = () => {
                     }
                   />
                 ))}
+              <TextField
+                label="Value"
+                variant="outlined"
+                required
+                sx={{
+                  width: "80%",
+                  mb: "20px",
+                }}
+                onChange={(e) =>
+                  updateState({ ...state, value: e.target.value })
+                }
+              />
             </>
           )}
-          <TextField
-            label="Value"
-            variant="outlined"
-            required
-            sx={{
-              width: "80%",
-              mb: "20px",
-            }}
-            onChange={(e) => updateState({ ...state, value: e.target.value })}
-          />
           <Button
             sx={{
               fontFamily: "Teko",
@@ -324,7 +371,7 @@ const Admin: React.FC<{}> = () => {
               mt: "20px",
               mb: "50px",
             }}
-            disabled={state.target && state.value ? false : true}
+            disabled={state.target && state.signature ? false : true}
             size="large"
             variant="outlined"
             onClick={submit}

@@ -121,15 +121,19 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
 
-        let BridgeAddress: string, TimelockAddress: string;
+        let BridgeAddress: string,
+          ERC20PegAddress: string,
+          TimelockAddress: string;
 
         switch (ethereumNetwork) {
           case "Mainnet":
             BridgeAddress = "";
+            ERC20PegAddress = "";
             TimelockAddress = "";
             break;
           case "Rinkeby":
             BridgeAddress = "0x0572ffCB68b1c7E7478900b034BFe925D5aC14B3";
+            ERC20PegAddress = "0x8236824EdaE713c9B55Ed7125Ee6103213859Bf8";
             TimelockAddress = "0x1a7341b4DDC735Fe9f3F05bA2ad88C7648E7a2d1";
             break;
           default:
@@ -142,13 +146,19 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
           signer
         );
 
+        const peg: ethers.Contract = new ethers.Contract(
+          ERC20PegAddress,
+          ERC20Peg,
+          signer
+        );
+
         const timelock: ethers.Contract = new ethers.Contract(
           TimelockAddress,
           Timelock.abi,
           signer
         );
 
-        resolve({ provider, timelock, bridge });
+        resolve({ provider, timelock, bridge, peg });
       } catch (err) {
         reject(err);
       }
