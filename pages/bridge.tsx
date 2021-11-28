@@ -7,8 +7,10 @@ import { Frame, Heading, SmallText } from "../components/StyledComponents";
 import WalletModal from "../components/WalletModal";
 import { useWeb3 } from "../context/Web3Context";
 import { useBlockchain } from "../context/BlockchainContext";
+import { useRouter } from "next/router";
 
 const Bridge: React.FC<{}> = () => {
+  const router = useRouter();
   const [isDeposit, toggleIsDeposit] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentNetwork, setCurrentNetwork] = useState("");
@@ -19,8 +21,6 @@ const Bridge: React.FC<{}> = () => {
   const { updateNetwork }: any = useBlockchain();
 
   useEffect(() => {
-    if (!selectedAccount) connectWallet();
-
     const { ethereum }: any = window;
     const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
@@ -36,11 +36,15 @@ const Bridge: React.FC<{}> = () => {
         network = "Kovan/Nikau";
         break;
       default:
+        router.push("/");
         break;
     }
 
-    setCurrentNetwork(network);
-    updateNetwork(ethereum, ethereumNetwork);
+    if (ethereumNetwork) {
+      setCurrentNetwork(network);
+      updateNetwork(ethereum, ethereumNetwork);
+      if (!isWalletConnected) connectWallet();
+    }
     //eslint-disable-next-line
   }, []);
 
