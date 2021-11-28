@@ -7,10 +7,8 @@ import { Frame, Heading, SmallText } from "../components/StyledComponents";
 import WalletModal from "../components/WalletModal";
 import { useWeb3 } from "../context/Web3Context";
 import { useBlockchain } from "../context/BlockchainContext";
-import { useRouter } from "next/router";
 
 const Bridge: React.FC<{}> = () => {
-  const router = useRouter();
   const [isDeposit, toggleIsDeposit] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [currentNetwork, setCurrentNetwork] = useState("");
