@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Backdrop,
   Box,
   Button,
   CircularProgress,
-  Divider,
   Link,
   Modal,
-  Typography,
 } from "@mui/material";
+import { Heading, StyledModal } from "./StyledComponents";
 interface Props {
   modalState: string;
   modalText: string;
@@ -21,71 +21,106 @@ const TxModal: React.FC<Props> = ({
   modalState,
   setModalOpen,
 }) => {
-  const [open, setOpen] = useState(true);
-  const handleClose = () => setOpen(false);
+  const [open] = useState(true);
+  const [etherscanLink, setEtherscanLink] = useState("");
+
+  useEffect(() => {
+    const ethereumNetwork = window.localStorage.getItem("ethereum-network");
+
+    switch (ethereumNetwork) {
+      default:
+      case "Mainnet":
+        setEtherscanLink(`https://etherscan.io/tx/${etherscanHash}`);
+        break;
+      case "Ropsten":
+        setEtherscanLink(`https://ropsten.etherscan.io/tx/${etherscanHash}`);
+        break;
+      case "Kovan":
+        setEtherscanLink(`https://kovan.etherscan.io/tx/${etherscanHash}`);
+        break;
+    }
+  }, [etherscanHash]);
 
   return (
-    <Modal open={open} onClose={handleClose}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 400,
-          border: "3px outset #cfcfcf",
-          padding: 4,
-          textAlign: "center",
-          borderRadius: 10,
-          boxShadow: 24,
-          bgcolor: "background.paper",
-        }}
-      >
-        <Typography
-          id="modal-modal-title"
-          variant="h6"
-          component="h4"
-          sx={{ color: "secondary.dark" }}
+    <Backdrop
+      sx={{
+        backgroundColor: "rgba(17,48,255,0.5)",
+        opacity: "0.3",
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+      }}
+      open={open}
+    >
+      <Modal open={open}>
+        <StyledModal
+          sx={{
+            justifyContent: "center",
+            display: "flex",
+            flexDirection: "column",
+            border: "4px solid black",
+            textAlign: "center",
+          }}
         >
-          {modalText}
-        </Typography>
-        {modalState !== "relayer" &&
-          modalState !== "error" &&
-          modalState !== "finished" && (
-            <Box sx={{ margin: "10px auto" }}>
-              <CircularProgress />
-            </Box>
-          )}
-        <Divider sx={{ margin: "15px 0 15px 0" }} />
-        {etherscanHash !== "" && etherscanHash !== "noTokenSelected" && (
-          <Link
-            href={`https://ropsten.etherscan.io/tx/${etherscanHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Heading
+            sx={{
+              color: "black",
+              fontSize: "24px",
+              letterSpacing: "1px",
+              m: "50px auto 15px",
+              maxWidth: "70%",
+            }}
           >
-            <Typography
-              id="modal-modal-title"
-              variant="h6"
-              component="h6"
-              sx={{ color: "secondary.dark" }}
+            {modalText}
+          </Heading>
+          {modalState !== "relayer" &&
+            modalState !== "bridgePaused" &&
+            modalState !== "error" &&
+            modalState !== "finished" && (
+              <Box sx={{ margin: "10px auto 50px" }}>
+                <CircularProgress size="3rem" sx={{ color: "black" }} />
+              </Box>
+            )}
+          {etherscanHash !== "" && etherscanHash !== "noTokenSelected" && (
+            <Button
+              size="large"
+              variant="contained"
+              sx={{
+                backgroundColor: "primary.main",
+                width: "50%",
+                margin: "20px auto 50px",
+              }}
             >
-              View transaction on Etherscan
-            </Typography>
-          </Link>
-        )}
-        {(modalState === "relayer" ||
-          modalState === "error" ||
-          modalState === "finished") && (
-          <Button
-            variant="contained"
-            sx={{ color: "secondary.dark" }}
-            onClick={() => setModalOpen(false)}
-          >
-            Close
-          </Button>
-        )}
-      </Box>
-    </Modal>
+              <Link
+                href={etherscanLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Heading sx={{ color: "#FFFFFF", fontSize: "24px" }}>
+                  View on Etherscan
+                </Heading>
+              </Link>
+            </Button>
+          )}
+          {(modalState === "relayer" ||
+            modalState === "bridgePaused" ||
+            modalState === "error" ||
+            modalState === "finished") && (
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "primary.main",
+                width: "50%",
+                margin: "50px auto 50px",
+              }}
+              onClick={() => setModalOpen(false)}
+            >
+              <Heading sx={{ color: "#FFFFFF", fontSize: "24px" }}>
+                close
+              </Heading>
+            </Button>
+          )}
+        </StyledModal>
+      </Modal>
+    </Backdrop>
   );
 };
 

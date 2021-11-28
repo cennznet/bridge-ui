@@ -9,18 +9,22 @@
   },
   "dependencies": {
     "@cennznet/api": "^1.5.0-alpha.4",
+    "@cennznet/types": "^1.5.0-alpha.5",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@mui/material": "^5.0.6",
-    "@polkadot/keyring": "^7.7.1",
+    "@polkadot/extension-dapp": "^0.41.1",
+    "@polkadot/keyring": "5.9.2",
     "ethers": "^5.5.1",
     "next": "12.0.2",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "store": "^2.0.12"
   },
   "devDependencies": {
     "@types/node": "16.11.6",
     "@types/react": "17.0.34",
+    "@types/store": "^2.0.2",
     "autoprefixer": "^10.4.0",
     "eslint": "7",
     "eslint-config-next": "12.0.2",
