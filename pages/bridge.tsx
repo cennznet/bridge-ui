@@ -8,7 +8,6 @@ import WalletModal from "../components/WalletModal";
 import { useWeb3 } from "../context/Web3Context";
 import { useBlockchain } from "../context/BlockchainContext";
 import { useRouter } from "next/router";
-import { updateNetworks } from "../utils/networks";
 
 const Bridge: React.FC<{}> = () => {
   const router = useRouter();
@@ -23,32 +22,29 @@ const Bridge: React.FC<{}> = () => {
 
   useEffect(() => {
     if (!selectedAccount) connectWallet();
+
+    const { ethereum }: any = window;
     const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
-    if (currentNetwork !== ethereumNetwork) {
-      let network: string;
-      switch (ethereumNetwork) {
-        case "Mainnet":
-          network = "Mainnet/Mainnet";
-          break;
-        case "Ropsten":
-          network = "Ropsten/Rata";
-          break;
-        case "Kovan":
-          network = "Kovan/Nikau";
-          break;
-        default:
-          break;
-      }
-
-      if (currentNetwork !== network) {
-        const { ethereum }: any = window;
-        updateNetwork(ethereum, ethereumNetwork);
-      }
-      setCurrentNetwork(network);
+    let network: string;
+    switch (ethereumNetwork) {
+      case "Mainnet":
+        network = "Mainnet/Mainnet";
+        break;
+      case "Ropsten":
+        network = "Ropsten/Rata";
+        break;
+      case "Kovan":
+        network = "Kovan/Nikau";
+        break;
+      default:
+        break;
     }
+
+    setCurrentNetwork(network);
+    updateNetwork(ethereum, ethereumNetwork);
     //eslint-disable-next-line
-  }, [currentNetwork]);
+  }, []);
 
   useEffect(
     () =>

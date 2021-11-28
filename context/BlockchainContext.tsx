@@ -42,7 +42,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     Signer: {} as ethers.providers.JsonRpcSigner,
   });
 
-  const updateNetwork = async (ethereum: any, ethereumNetwork: string) => {
+  const updateNetwork = (ethereum: any, ethereumNetwork: string) => {
     return new Promise(async (resolve, reject) => {
       try {
         const provider = new ethers.providers.Web3Provider(ethereum);
