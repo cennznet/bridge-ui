@@ -6,6 +6,7 @@ import { Frame, Heading, SmallText } from "../components/StyledComponents";
 import { useRouter } from "next/router";
 import { useWeb3 } from "../context/Web3Context";
 import ErrorModal from "../components/ErrorModal";
+import WalletModal from "../components/WalletModal";
 
 const Home: React.FC<{}> = () => {
   const router = useRouter();
@@ -54,7 +55,11 @@ const Home: React.FC<{}> = () => {
         height: "60px",
         width: "70%",
       }}
-      onClick={() => connectWallet()}
+      onClick={() => {
+        connectWallet();
+        setModalState("changeAccount");
+        setModalOpen(true);
+      }}
     >
       {selectedAccount ? (
         <>
@@ -146,9 +151,19 @@ const Home: React.FC<{}> = () => {
   if (isBrowser)
     return (
       <>
-        {modalOpen && (
-          <ErrorModal setModalOpen={setModalOpen} modalState={modalState} />
-        )}
+        {modalOpen &&
+          modalState !== "showWallet" &&
+          modalState !== "changeAccount" && (
+            <ErrorModal setModalOpen={setModalOpen} modalState={modalState} />
+          )}
+        {modalOpen &&
+          (modalState === "showWallet" || modalState === "changeAccount") && (
+            <WalletModal
+              modalState={modalState}
+              setModalOpen={setModalOpen}
+              setModalState={setModalState}
+            />
+          )}
         <Box
           sx={{
             position: "absolute",
