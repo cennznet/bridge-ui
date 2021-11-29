@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { Box, Button, TextField } from "@mui/material";
 import TxModal from "./TxModal";
@@ -9,6 +9,7 @@ import { useWeb3 } from "../context/Web3Context";
 
 const Withdraw: React.FC<{}> = () => {
   const [token, setToken] = useState("");
+  const [tokenBalance, setTokenBalance] = useState<Number>();
   const [amount, setAmount] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modal, setModal] = useState({
@@ -17,7 +18,24 @@ const Withdraw: React.FC<{}> = () => {
     hash: "",
   });
   const { Contracts, Account }: any = useBlockchain();
-  const { signer, selectedAccount, api }: any = useWeb3();
+  const { signer, selectedAccount, api, balances }: any = useWeb3();
+
+  //Check CENNZnet account has enough tokens to withdraw
+  useEffect(() => {
+    if (token !== "")
+      (async () => {
+        const tokenExist = await api.query.erc20Peg.erc20ToAssetId(token);
+        const tokenId = tokenExist.isSome
+          ? tokenExist.unwrap()
+          : await api.query.genericAsset.nextAssetId();
+
+        Object.values(balances).map((token: any) => {
+          if (token.tokenId === tokenId.toString()) {
+            setTokenBalance(token.balance);
+          }
+        });
+      })();
+  }, [token]);
 
   const withdraw = async () => {
     setModalOpen(false);
@@ -54,12 +72,7 @@ const Withdraw: React.FC<{}> = () => {
     tokenAddress: string
   ) => {
     let eventProofId: any;
-    const tokenExist =
-      tokenAddress === "eth"
-        ? await api.query.erc20Peg.erc20ToAssetId(
-            "0x0000000000000000000000000000000000000000"
-          )
-        : await api.query.erc20Peg.erc20ToAssetId(tokenAddress);
+    const tokenExist = await api.query.erc20Peg.erc20ToAssetId(tokenAddress);
     const tokenId = tokenExist.isSome
       ? tokenExist.unwrap()
       : await api.query.genericAsset.nextAssetId();
@@ -184,6 +197,9 @@ const Withdraw: React.FC<{}> = () => {
             m: "30px 0 50px",
           }}
           onChange={(e) => setAmount(e.target.value)}
+          helperText={
+            tokenBalance < Number(amount) ? "Account balance too low" : ""
+          }
         />
         <Button
           sx={{
@@ -195,7 +211,9 @@ const Withdraw: React.FC<{}> = () => {
             mt: "30px",
             mb: "50px",
           }}
-          disabled={amount && token ? false : true}
+          disabled={
+            token && amount && Number(amount) <= tokenBalance ? false : true
+          }
           size="large"
           variant="outlined"
           onClick={withdraw}
