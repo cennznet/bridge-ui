@@ -45,12 +45,6 @@ const Home: React.FC<{}> = () => {
     }
   };
 
-  const connectCENNZnet = () => {
-    connectWallet();
-    setModalState("changeAccount");
-    setModalOpen(true);
-  };
-
   const CENNZnetButton = (
     <Frame
       sx={{
@@ -60,7 +54,11 @@ const Home: React.FC<{}> = () => {
         height: "60px",
         width: "70%",
       }}
-      onClick={connectCENNZnet}
+      onClick={() => {
+        connectWallet();
+        setModalState("changeAccount");
+        setModalOpen(true);
+      }}
     >
       {selectedAccount ? (
         <>
