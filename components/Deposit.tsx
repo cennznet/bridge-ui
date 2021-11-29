@@ -8,7 +8,7 @@ import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
 import CENNZnetAccountPicker from "./CENNZnetAccountPicker";
-import { getMetamaskBalance } from "../utils/getTokenBalance";
+import { getMetamaskBalance } from "../utils/helpers";
 
 const ETH = "0x0000000000000000000000000000000000000000";
 
