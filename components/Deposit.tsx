@@ -13,7 +13,6 @@ import { getMetamaskBalance } from "../utils/helpers";
 const ETH = "0x0000000000000000000000000000000000000000";
 
 const Deposit: React.FC<{}> = () => {
-  const { decodeAddress } = useWeb3();
   const [customAddress, setCustomAddress] = useState(false);
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
@@ -29,7 +28,7 @@ const Deposit: React.FC<{}> = () => {
   });
   const [tokenBalance, setTokenBalance] = useState<Number>();
   const { Contracts, Signer, Account }: any = useBlockchain();
-  const { api }: any = useWeb3();
+  const { decodeAddress, api }: any = useWeb3();
 
   //Check MetaMask account has enough tokens to deposit
   useEffect(() => {
