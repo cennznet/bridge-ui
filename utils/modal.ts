@@ -1,9 +1,9 @@
-function defineTxModal(state: string, hash: string, setModalOpen: Function) {
+function defineTxModal(state: string, data: any, setModalOpen: Function) {
   setModalOpen(true);
   const modal = {
-    state: state,
+    state,
     text: "",
-    hash: hash,
+    data,
   };
   switch (state) {
     case "approve":
@@ -37,34 +37,4 @@ function defineTxModal(state: string, hash: string, setModalOpen: Function) {
   return modal;
 }
 
-function defineWeb3Modal(state: string, setModalOpen: Function) {
-  setModalOpen(true);
-  const modal = {
-    state,
-    text: "",
-    subText: "",
-  };
-  switch (state) {
-    case "noExtension":
-      modal.text = "Please install the CENNZnet Wallet Extension";
-      modal.subText = "Refresh this page after installing the extension";
-      break;
-    case "noAccounts":
-      modal.text = "Your wallet currently has zero accounts";
-      modal.subText = "Please create an account in the wallet extension";
-      break;
-    case "selectAccount":
-      modal.text = "Please select a CENNZnet account";
-      break;
-    case "showWallet":
-      modal.text = "CENNZnet Wallet";
-      break;
-    default:
-      modal.text = "Whoops! Please try again";
-      break;
-  }
-
-  return modal;
-}
-
-export { defineTxModal, defineWeb3Modal };
+export { defineTxModal };

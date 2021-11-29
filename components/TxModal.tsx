@@ -11,18 +11,22 @@ import { Heading, StyledModal } from "./StyledComponents";
 interface Props {
   modalState: string;
   modalText: string;
-  etherscanHash: string;
+  data: {
+    etherscanHash: any;
+    CENNZnetAccount: any;
+  };
   setModalOpen: (open: boolean) => void;
 }
 
 const TxModal: React.FC<Props> = ({
   modalText,
-  etherscanHash,
+  data,
   modalState,
   setModalOpen,
 }) => {
   const [open] = useState(true);
   const [etherscanLink, setEtherscanLink] = useState("");
+  const [UNcoverLink, setUNcoverLink] = useState("");
 
   useEffect(() => {
     const ethereumNetwork = window.localStorage.getItem("ethereum-network");
@@ -30,16 +34,29 @@ const TxModal: React.FC<Props> = ({
     switch (ethereumNetwork) {
       default:
       case "Mainnet":
-        setEtherscanLink(`https://etherscan.io/tx/${etherscanHash}`);
+        if (modalState === "relayer")
+          setUNcoverLink(
+            `https://uncoverexplorer.com/account/${data.CENNZnetAccount}`
+          );
+        else setEtherscanLink(`https://etherscan.io/tx/${data.etherscanHash}`);
         break;
       case "Ropsten":
-        setEtherscanLink(`https://ropsten.etherscan.io/tx/${etherscanHash}`);
+        setEtherscanLink(
+          `https://ropsten.etherscan.io/tx/${data.etherscanHash}`
+        );
         break;
       case "Kovan":
-        setEtherscanLink(`https://kovan.etherscan.io/tx/${etherscanHash}`);
+        if (modalState === "relayer")
+          setUNcoverLink(
+            `https://uncoverexplorer.com/account/${data.CENNZnetAccount}/?network=Nikau`
+          );
+        else
+          setEtherscanLink(
+            `https://kovan.etherscan.io/tx/${data.etherscanHash}`
+          );
         break;
     }
-  }, [etherscanHash]);
+  }, [data]);
 
   return (
     <Backdrop
@@ -79,23 +96,46 @@ const TxModal: React.FC<Props> = ({
                 <CircularProgress size="3rem" sx={{ color: "black" }} />
               </Box>
             )}
-          {etherscanHash !== "" && etherscanHash !== "noTokenSelected" && (
+          {data.etherscanHash !== "" &&
+            data.etherscanHash !== "noTokenSelected" && (
+              <Button
+                size="large"
+                variant="contained"
+                sx={{
+                  backgroundColor: "primary.main",
+                  width: "50%",
+                  margin: "20px auto 50px",
+                }}
+              >
+                <Link
+                  href={etherscanLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Heading sx={{ color: "#FFFFFF", fontSize: "24px" }}>
+                    View on Etherscan
+                  </Heading>
+                </Link>
+              </Button>
+            )}
+          {modalState === "relayer" && UNcoverLink !== "" && (
             <Button
               size="large"
               variant="contained"
               sx={{
                 backgroundColor: "primary.main",
                 width: "50%",
-                margin: "20px auto 50px",
+                margin: "30px auto 5px",
+                textTransform: "none",
               }}
             >
               <Link
-                href={etherscanLink}
+                href={UNcoverLink}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <Heading sx={{ color: "#FFFFFF", fontSize: "24px" }}>
-                  View on Etherscan
+                  VIEW ON UNcover
                 </Heading>
               </Link>
             </Button>
@@ -109,7 +149,8 @@ const TxModal: React.FC<Props> = ({
               sx={{
                 backgroundColor: "primary.main",
                 width: "50%",
-                margin: "50px auto 50px",
+                margin:
+                  modalState === "relayer" ? "0 auto 50px" : "50px auto 50px",
               }}
               onClick={() => setModalOpen(false)}
             >

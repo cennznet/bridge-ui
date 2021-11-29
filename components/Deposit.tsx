@@ -22,7 +22,10 @@ const Deposit: React.FC<{}> = () => {
   const [modal, setModal] = useState({
     state: "",
     text: "",
-    hash: "",
+    data: {
+      etherscanHash: "",
+      CENNZnetAccount: "",
+    },
   });
   const { Contracts, Signer }: any = useBlockchain();
   const { api }: any = useWeb3();
@@ -37,9 +40,17 @@ const Deposit: React.FC<{}> = () => {
       }
     );
 
-    setModal(defineTxModal("deposit", tx.hash, setModalOpen));
+    setModal(
+      defineTxModal("deposit", { etherscanHash: tx.hash }, setModalOpen)
+    );
     await tx.wait();
-    setModal(defineTxModal("relayer", "", setModalOpen));
+    setModal(
+      defineTxModal(
+        "relayer",
+        { CENNZnetAccount: selectedAccount.address },
+        setModalOpen
+      )
+    );
   };
 
   const depositERC20 = async () => {
@@ -53,16 +64,26 @@ const Deposit: React.FC<{}> = () => {
       Contracts.peg.address,
       ethers.utils.parseEther(amount)
     );
-    setModal(defineTxModal("approve", tx.hash, setModalOpen));
+    setModal(
+      defineTxModal("approve", { etherscanHash: tx.hash }, setModalOpen)
+    );
     await tx.wait();
     tx = await Contracts.peg.deposit(
       token,
       ethers.utils.parseUnits(amount),
       decodeAddress(selectedAccount.address)
     );
-    setModal(defineTxModal("deposit", tx.hash, setModalOpen));
+    setModal(
+      defineTxModal("deposit", { etherscanHash: tx.hash }, setModalOpen)
+    );
     await tx.wait();
-    setModal(defineTxModal("relayer", "", setModalOpen));
+    setModal(
+      defineTxModal(
+        "relayer",
+        { CENNZnetAccount: selectedAccount.address, etherscanHash: "" },
+        setModalOpen
+      )
+    );
   };
 
   const deposit = async () => {
@@ -81,7 +102,13 @@ const Deposit: React.FC<{}> = () => {
         depositERC20();
       }
     } else {
-      setModal(defineTxModal("bridgePaused", "", setModalOpen));
+      setModal(
+        defineTxModal(
+          "bridgePaused",
+          { CENNZnetAccount: "", etherscanHash: "" },
+          setModalOpen
+        )
+      );
     }
   };
 
@@ -91,7 +118,7 @@ const Deposit: React.FC<{}> = () => {
         <TxModal
           modalState={modal.state}
           modalText={modal.text}
-          etherscanHash={modal.hash}
+          data={modal.data}
           setModalOpen={setModalOpen}
         />
       )}
