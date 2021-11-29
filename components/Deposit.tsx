@@ -8,9 +8,7 @@ import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
 import CENNZnetAccountPicker from "./CENNZnetAccountPicker";
-import { getMetamaskBalance } from "../utils/helpers";
-
-const ETH = "0x0000000000000000000000000000000000000000";
+import { getMetamaskBalance, ETH } from "../utils/helpers";
 
 const Deposit: React.FC<{}> = () => {
   const [customAddress, setCustomAddress] = useState(false);
