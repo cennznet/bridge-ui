@@ -7,9 +7,9 @@ import {
   TextField,
   Autocomplete,
 } from "@mui/material";
-import { AdminButton } from "./StyledComponents";
+import { AdminButton, Heading } from "../components/StyledComponents";
 import { useBlockchain } from "../context/BlockchainContext";
-import AdminModal from "./AdminModal";
+import AdminModal from "../components/AdminModal";
 
 const abi = new ethers.utils.AbiCoder();
 const targets: string[] = ["Bridge", "ERC20Peg"];
@@ -176,10 +176,14 @@ const Admin: React.FC<{}> = () => {
       )}
       <Box
         sx={{
-          m: "8.7% auto",
+          m: "6% auto 0",
           width: "40%",
+          textAlign: "center",
         }}
       >
+        <Heading sx={{ margin: "0 auto", fontSize: "30px" }}>
+          UNF*CK THE BRIDGE
+        </Heading>
         <ButtonGroup
           sx={{
             display: "flex",
