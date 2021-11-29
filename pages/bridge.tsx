@@ -8,15 +8,15 @@ import WalletModal from "../components/WalletModal";
 import { useWeb3 } from "../context/Web3Context";
 import { useBlockchain } from "../context/BlockchainContext";
 import { useRouter } from "next/router";
+import { Box, CircularProgress } from "@mui/material";
 
 const Bridge: React.FC<{}> = () => {
   const router = useRouter();
   const [isDeposit, toggleIsDeposit] = useState<boolean>(true);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [currentNetwork, setCurrentNetwork] = useState("");
+  const [currentNetwork, setCurrentNetwork] = useState<string>("");
   const [modalState, setModalState] = useState<string>("");
-
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [isWalletConnected, setIsWalletConnected] = useState<boolean>(false);
   const { selectedAccount, connectWallet }: any = useWeb3();
   const { updateNetwork }: any = useBlockchain();
 
@@ -41,8 +41,8 @@ const Bridge: React.FC<{}> = () => {
     }
 
     if (ethereumNetwork) {
-      setCurrentNetwork(network);
       updateNetwork(ethereum, ethereumNetwork);
+      setCurrentNetwork(network);
       if (!isWalletConnected) connectWallet();
     }
     //eslint-disable-next-line
@@ -160,7 +160,23 @@ const Bridge: React.FC<{}> = () => {
           </SmallText>
         )}
       </Frame>
-      {isDeposit ? <Deposit /> : <Withdraw />}
+      {currentNetwork === "" ? (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "30%",
+            width: "20%",
+            left: "40%",
+            display: "flex",
+          }}
+        >
+          <CircularProgress size="5rem" sx={{ margin: "0 auto" }} />
+        </Box>
+      ) : isDeposit ? (
+        <Deposit />
+      ) : (
+        <Withdraw />
+      )}
     </>
   );
 };
