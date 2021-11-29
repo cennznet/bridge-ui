@@ -1,4 +1,5 @@
 import React from "react";
+import { isBrowser, isTablet } from "react-device-detect";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -34,7 +35,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                   src="/cennznet-header.png"
                   alt="CENNZnet header"
                   style={{
-                    width: "90px",
+                    width: isBrowser || isTablet ? "90px" : "45px",
                     position: "absolute",
                     top: "5%",
                     left: "6%",
@@ -45,11 +46,11 @@ function MyApp({ Component, pageProps }: AppProps) {
                 sx={{
                   position: "absolute",
                   top: "4.5%",
-                  left: "16%",
+                  left: isBrowser ? "16%" : "25%",
                   fontFamily: "Teko",
                   fontStyle: "normal",
                   fontWeight: "bold",
-                  fontSize: "24px",
+                  fontSize: isBrowser || isTablet ? "24px" : "16px",
                   lineHeight: "124%",
                   color: "black",
                   letterSpacing: "1px",
