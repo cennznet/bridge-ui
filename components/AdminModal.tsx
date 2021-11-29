@@ -53,7 +53,6 @@ const AdminModal: React.FC<{
                 sx={{
                   color: "primary.main",
                   fontSize: "24px",
-                  mb: "15px",
                 }}
               >
                 Data Hex for Gnosis-Safe
