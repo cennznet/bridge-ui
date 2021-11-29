@@ -41,13 +41,17 @@ const Deposit: React.FC<{}> = () => {
     );
 
     setModal(
-      defineTxModal("deposit", { etherscanHash: tx.hash }, setModalOpen)
+      defineTxModal(
+        "deposit",
+        { etherscanHash: tx.hash, CENNZnetAccount: "" },
+        setModalOpen
+      )
     );
     await tx.wait();
     setModal(
       defineTxModal(
         "relayer",
-        { CENNZnetAccount: selectedAccount.address },
+        { CENNZnetAccount: selectedAccount.address, etherscanHash: "" },
         setModalOpen
       )
     );
@@ -65,7 +69,11 @@ const Deposit: React.FC<{}> = () => {
       ethers.utils.parseEther(amount)
     );
     setModal(
-      defineTxModal("approve", { etherscanHash: tx.hash }, setModalOpen)
+      defineTxModal(
+        "approve",
+        { etherscanHash: tx.hash, CENNZnetAccount: "" },
+        setModalOpen
+      )
     );
     await tx.wait();
     tx = await Contracts.peg.deposit(
@@ -74,7 +82,11 @@ const Deposit: React.FC<{}> = () => {
       decodeAddress(selectedAccount.address)
     );
     setModal(
-      defineTxModal("deposit", { etherscanHash: tx.hash }, setModalOpen)
+      defineTxModal(
+        "deposit",
+        { etherscanHash: tx.hash, CENNZnetAccount: "" },
+        setModalOpen
+      )
     );
     await tx.wait();
     setModal(

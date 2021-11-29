@@ -14,7 +14,7 @@ const Withdraw: React.FC<{}> = () => {
   const [modal, setModal] = useState({
     state: "",
     text: "",
-    hash: "",
+    data: { etherscanHash: "", CENNZnetAccount: "" },
   });
   const { Contracts, Account }: any = useBlockchain();
   const { signer, selectedAccount, api }: any = useWeb3();
@@ -31,7 +31,13 @@ const Withdraw: React.FC<{}> = () => {
       ETHwithdrawalsActive
     ) {
       if (token !== "") {
-        setModal(defineTxModal("withdrawCENNZside", "", setModalOpen));
+        setModal(
+          defineTxModal(
+            "withdrawCENNZside",
+            { etherscanHash: "", CENNZnetAccount: "" },
+            setModalOpen
+          )
+        );
         let withdrawAmount = ethers.utils.parseUnits(amount).toString();
 
         const eventProof = await withdrawCENNZside(
@@ -41,10 +47,22 @@ const Withdraw: React.FC<{}> = () => {
         );
         await withdrawEthSide(withdrawAmount, eventProof, Account, token);
       } else {
-        setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
+        setModal(
+          defineTxModal(
+            "error",
+            { etherscanHash: "noTokenSelected", CENNZnetAccount: "" },
+            setModalOpen
+          )
+        );
       }
     } else {
-      setModal(defineTxModal("bridgePaused", "", setModalOpen));
+      setModal(
+        defineTxModal(
+          "bridgePaused",
+          { etherscanHash: "", CENNZnetAccount: "" },
+          setModalOpen
+        )
+      );
     }
   };
 
@@ -144,9 +162,21 @@ const Withdraw: React.FC<{}> = () => {
       }
     );
 
-    setModal(defineTxModal("withdrawETHside", tx.hash, setModalOpen));
+    setModal(
+      defineTxModal(
+        "withdrawETHside",
+        { etherscanHash: tx.hash, CENNZnetAccount: "" },
+        setModalOpen
+      )
+    );
     await tx.wait();
-    setModal(defineTxModal("finished", "", setModalOpen));
+    setModal(
+      defineTxModal(
+        "finished",
+        { etherscanHash: "", CENNZnetAccount: "" },
+        setModalOpen
+      )
+    );
   };
 
   return (
@@ -155,7 +185,7 @@ const Withdraw: React.FC<{}> = () => {
         <TxModal
           modalState={modal.state}
           modalText={modal.text}
-          etherscanHash={modal.hash}
+          data={modal.data}
           setModalOpen={setModalOpen}
         />
       )}

@@ -34,7 +34,7 @@ const TxModal: React.FC<Props> = ({
     switch (ethereumNetwork) {
       default:
       case "Mainnet":
-        if (modalState === "relayer")
+        if (data.CENNZnetAccount !== "")
           setUNcoverLink(
             `https://uncoverexplorer.com/account/${data.CENNZnetAccount}`
           );
@@ -46,7 +46,7 @@ const TxModal: React.FC<Props> = ({
         );
         break;
       case "Kovan":
-        if (modalState === "relayer")
+        if (data.CENNZnetAccount !== "")
           setUNcoverLink(
             `https://uncoverexplorer.com/account/${data.CENNZnetAccount}/?network=Nikau`
           );
