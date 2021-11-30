@@ -19,6 +19,11 @@ const Withdraw: React.FC<{}> = () => {
   const { Contracts, Account }: any = useBlockchain();
   const { signer, selectedAccount, api }: any = useWeb3();
 
+  const resetModal = () => {
+    setModal({ state: "", text: "", hash: "" });
+    setModalOpen(false);
+  };
+
   const withdraw = async () => {
     setModalOpen(false);
     const bridgePaused = await api.query.ethBridge.bridgePaused();
@@ -156,7 +161,7 @@ const Withdraw: React.FC<{}> = () => {
           modalState={modal.state}
           modalText={modal.text}
           etherscanHash={modal.hash}
-          setModalOpen={setModalOpen}
+          resetModal={resetModal}
         />
       )}
       <Box

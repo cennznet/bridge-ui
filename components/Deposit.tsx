@@ -27,6 +27,11 @@ const Deposit: React.FC<{}> = () => {
   const { Contracts, Signer }: any = useBlockchain();
   const { api }: any = useWeb3();
 
+  const resetModal = () => {
+    setModal({ state: "", text: "", hash: "" });
+    setModalOpen(false);
+  };
+
   const depositEth = async () => {
     let tx: any = await Contracts.peg.deposit(
       "0x0000000000000000000000000000000000000000",
@@ -92,7 +97,7 @@ const Deposit: React.FC<{}> = () => {
           modalState={modal.state}
           modalText={modal.text}
           etherscanHash={modal.hash}
-          setModalOpen={setModalOpen}
+          resetModal={resetModal}
         />
       )}
       <Box
