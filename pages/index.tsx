@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { isBrowser } from "react-device-detect";
 import { Box, Button } from "@mui/material";
 import { useBlockchain } from "../context/BlockchainContext";
 import { Frame, Heading, SmallText } from "../components/StyledComponents";
@@ -147,57 +148,68 @@ const Home: React.FC<{}> = () => {
     </Frame>
   );
 
-  return (
-    <>
-      {modalOpen &&
-        modalState !== "showWallet" &&
-        modalState !== "changeAccount" && (
-          <ErrorModal setModalOpen={setModalOpen} modalState={modalState} />
-        )}
-      {modalOpen &&
-        (modalState === "showWallet" || modalState === "changeAccount") && (
-          <WalletModal
-            modalState={modalState}
-            setModalOpen={setModalOpen}
-            setModalState={setModalState}
-          />
-        )}
-      <Box
-        sx={{
-          position: "absolute",
-          width: "40%",
-          height: "auto",
-          left: "30%",
-          top: "25%",
-          background: "#FFFFFF",
-          border: "4px solid #1130FF",
-          boxSizing: "border-box",
-          display: "flex",
-          flexDirection: "column",
-          alignContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {MetamaskButton}
-        {CENNZnetButton}
-        <Button
-          variant="outlined"
-          size="large"
-          disabled={Account && selectedAccount ? false : true}
+  if (isBrowser)
+    return (
+      <>
+        {modalOpen &&
+          modalState !== "showWallet" &&
+          modalState !== "changeAccount" && (
+            <ErrorModal setModalOpen={setModalOpen} modalState={modalState} />
+          )}
+        {modalOpen &&
+          (modalState === "showWallet" || modalState === "changeAccount") && (
+            <WalletModal
+              modalState={modalState}
+              setModalOpen={setModalOpen}
+              setModalState={setModalState}
+            />
+          )}
+        <Box
           sx={{
-            width: "50%",
-            backgroundColor: "#FFFFFF",
-            color: "primary.main",
-            m: "45% 0 30px",
-            border: "2.5px solid #1130FF",
+            position: "absolute",
+            width: "40%",
+            height: "auto",
+            left: "30%",
+            top: "25%",
+            background: "#FFFFFF",
+            border: "4px solid #1130FF",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
+            alignContent: "center",
+            alignItems: "center",
           }}
-          onClick={() => router.push("/bridge")}
         >
-          <Heading sx={{ fontSize: "20px" }}>enter bridge</Heading>
-        </Button>
+          <>
+            {MetamaskButton}
+            {CENNZnetButton}
+            <Button
+              variant="outlined"
+              size="large"
+              disabled={Account && selectedAccount ? false : true}
+              sx={{
+                width: "50%",
+                backgroundColor: "#FFFFFF",
+                color: "primary.main",
+                m: "45% 0 30px",
+                border: "2.5px solid #1130FF",
+              }}
+              onClick={() => router.push("/bridge")}
+            >
+              <Heading sx={{ fontSize: "20px" }}>enter bridge</Heading>
+            </Button>
+          </>
+        </Box>
+      </>
+    );
+  else
+    return (
+      <Box sx={{ margin: "30% auto", maxWidth: "50%" }}>
+        <Heading sx={{ textAlign: "center" }}>
+          TO DEPOSIT OR WITHDRAW FROM YOUR WALLET PLEASE USE DESKTOP BROWSER
+        </Heading>
       </Box>
-    </>
-  );
+    );
 };
 
 export default Home;
