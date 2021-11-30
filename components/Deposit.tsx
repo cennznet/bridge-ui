@@ -39,7 +39,7 @@ const Deposit: React.FC<{}> = () => {
 
     setModal(defineTxModal("deposit", tx.hash, setModalOpen));
     await tx.wait();
-    setModal(defineTxModal("relayer", "", setModalOpen));
+    setModal(defineTxModal("relayer", tx.hash, setModalOpen));
   };
 
   const depositERC20 = async () => {
@@ -62,7 +62,7 @@ const Deposit: React.FC<{}> = () => {
     );
     setModal(defineTxModal("deposit", tx.hash, setModalOpen));
     await tx.wait();
-    setModal(defineTxModal("relayer", "", setModalOpen));
+    setModal(defineTxModal("relayer", tx.hash, setModalOpen));
   };
 
   const deposit = async () => {
