@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { useWeb3 } from "../context/Web3Context";
 import { Box, Button, TextField } from "@mui/material";
@@ -8,9 +8,9 @@ import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
 import CENNZnetAccountPicker from "./CENNZnetAccountPicker";
+import { getMetamaskBalance, ETH } from "../utils/helpers";
 
 const Deposit: React.FC<{}> = () => {
-  const { decodeAddress } = useWeb3();
   const [customAddress, setCustomAddress] = useState(false);
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
@@ -24,12 +24,23 @@ const Deposit: React.FC<{}> = () => {
     text: "",
     hash: "",
   });
-  const { Contracts, Signer }: any = useBlockchain();
-  const { api }: any = useWeb3();
+  const [tokenBalance, setTokenBalance] = useState<Number>();
+  const { Contracts, Signer, Account }: any = useBlockchain();
+  const { decodeAddress, api }: any = useWeb3();
+
+  //Check MetaMask account has enough tokens to deposit
+  useEffect(() => {
+    const { ethereum }: any = window;
+    if (token !== "")
+      (async () => {
+        let balance = await getMetamaskBalance(ethereum, token, Account);
+        setTokenBalance(balance);
+      })();
+  }, [token]);
 
   const depositEth = async () => {
     let tx: any = await Contracts.peg.deposit(
-      "0x0000000000000000000000000000000000000000",
+      ETH,
       ethers.utils.parseUnits(amount),
       decodeAddress(selectedAccount.address),
       {
@@ -77,7 +88,7 @@ const Deposit: React.FC<{}> = () => {
     ) {
       if (token === "eth") {
         depositEth();
-      } else if (token && token !== "eth") {
+      } else {
         depositERC20();
       }
     } else {
@@ -121,6 +132,9 @@ const Deposit: React.FC<{}> = () => {
             m: "30px 0 30px",
           }}
           onChange={(e) => setAmount(e.target.value)}
+          helperText={
+            tokenBalance < Number(amount) ? "Account balance too low" : ""
+          }
         />
         {customAddress ? (
           <>
@@ -190,7 +204,11 @@ const Deposit: React.FC<{}> = () => {
             mt: "30px",
             mb: "50px",
           }}
-          disabled={amount && token && selectedAccount ? false : true}
+          disabled={
+            amount && token && selectedAccount && Number(amount) <= tokenBalance
+              ? false
+              : true
+          }
           size="large"
           variant="outlined"
           onClick={deposit}

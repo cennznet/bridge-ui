@@ -49,7 +49,9 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
         (token.symbol === selectedToken && token.chainId === chainId) ||
         selectedToken === "ETH"
       ) {
-        selectedToken === "ETH" ? setToken("eth") : setToken(token.address);
+        selectedToken === "ETH"
+          ? setToken("0x0000000000000000000000000000000000000000")
+          : setToken(token.address);
       }
     });
   }, [selectedToken, setToken]);
