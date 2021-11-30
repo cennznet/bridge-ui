@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import TxModal from "./TxModal";
 import TokenPicker from "./TokenPicker";
 import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import { useWeb3 } from "../context/Web3Context";
+import { Heading, SmallText } from "./StyledComponents";
 
 const Withdraw: React.FC<{}> = () => {
   const [token, setToken] = useState("");
@@ -17,8 +18,23 @@ const Withdraw: React.FC<{}> = () => {
     text: "",
     hash: "",
   });
-  const { Contracts, Account }: any = useBlockchain();
+  const [estimatedFee, setEstimatedFee] = useState(0);
+  const { Contracts, Account, Signer }: any = useBlockchain();
   const { signer, selectedAccount, api, balances }: any = useWeb3();
+
+  //Estimate fee
+  useEffect(() => {
+    (async () => {
+      const gasEstimate = (await Signer.getGasPrice()).toString();
+      const verificationFee = await Contracts.bridge.verificationFee();
+
+      const totalFeeEstimate =
+        Number(ethers.utils.formatUnits(gasEstimate)) +
+        Number(ethers.utils.formatUnits(verificationFee));
+
+      setEstimatedFee(totalFeeEstimate);
+    })();
+  }, []);
 
   //Check CENNZnet account has enough tokens to withdraw
   useEffect(() => {
@@ -152,7 +168,6 @@ const Withdraw: React.FC<{}> = () => {
         s,
       },
       {
-        gasLimit: 500000,
         value: verificationFee,
       }
     );
@@ -194,13 +209,23 @@ const Withdraw: React.FC<{}> = () => {
           required
           sx={{
             width: "80%",
-            m: "30px 0 50px",
+            m: "30px 0 30px",
           }}
           onChange={(e) => setAmount(e.target.value)}
           helperText={
             tokenBalance < Number(amount) ? "Account balance too low" : ""
           }
         />
+        <Box sx={{ textAlign: "center" }}>
+          <Heading sx={{ textTransform: "uppercase", fontSize: "18px" }}>
+            estimated withdrawal fee:
+          </Heading>
+          {estimatedFee ? (
+            <SmallText>{estimatedFee} ETH</SmallText>
+          ) : (
+            <CircularProgress size="1.5rem" sx={{ color: "black" }} />
+          )}
+        </Box>
         <Button
           sx={{
             fontFamily: "Teko",
@@ -208,8 +233,7 @@ const Withdraw: React.FC<{}> = () => {
             fontSize: "21px",
             lineHeight: "124%",
             color: "#1130FF",
-            mt: "30px",
-            mb: "50px",
+            m: "30px auto 50px",
           }}
           disabled={
             token && amount && Number(amount) <= tokenBalance ? false : true
