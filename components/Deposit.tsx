@@ -86,7 +86,7 @@ const Deposit: React.FC<{}> = () => {
       ETHdepositsActive &&
       CENNZdepositsActive.isTrue
     ) {
-      if (token === "eth") {
+      if (token === ETH) {
         depositEth();
       } else {
         depositERC20();

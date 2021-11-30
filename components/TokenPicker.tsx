@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
 import store from "store";
+import { ETH } from "../utils/helpers";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -49,9 +50,7 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
         (token.symbol === selectedToken && token.chainId === chainId) ||
         selectedToken === "ETH"
       ) {
-        selectedToken === "ETH"
-          ? setToken("0x0000000000000000000000000000000000000000")
-          : setToken(token.address);
+        selectedToken === "ETH" ? setToken(ETH) : setToken(token.address);
       }
     });
   }, [selectedToken, setToken]);
