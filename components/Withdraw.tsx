@@ -25,14 +25,17 @@ const Withdraw: React.FC<{}> = () => {
   //Estimate fee
   useEffect(() => {
     (async () => {
-      const gasEstimate = (await Signer.getGasPrice()).toString();
-      const verificationFee = await Contracts.bridge.verificationFee();
+      let gasPrice = (await Signer.getGasPrice()).toString();
+      gasPrice = ethers.utils.formatUnits(gasPrice);
 
-      const totalFeeEstimate =
-        Number(ethers.utils.formatUnits(gasEstimate)) +
-        Number(ethers.utils.formatUnits(verificationFee));
+      const gasEstimate = Number(gasPrice) * 150000;
 
-      setEstimatedFee(totalFeeEstimate);
+      let verificationFee = await Contracts.bridge.verificationFee();
+      verificationFee = ethers.utils.formatUnits(verificationFee);
+
+      const totalFeeEstimate = gasEstimate + Number(verificationFee);
+
+      setEstimatedFee(Number(totalFeeEstimate.toFixed(6)));
     })();
   }, []);
 
@@ -169,6 +172,7 @@ const Withdraw: React.FC<{}> = () => {
       },
       {
         value: verificationFee,
+        gasLimit: 150000,
       }
     );
 
