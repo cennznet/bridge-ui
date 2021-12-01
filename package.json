@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "concurrently \"next dev\" \"wait-on tcp:3000 && synpress run\""
+    "test": "concurrently --kill-others \"next dev\" \"wait-on tcp:3000 && synpress run\""
   },
   "dependencies": {
     "@cennznet/api": "^1.5.0-alpha.4",
