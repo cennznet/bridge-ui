@@ -7,6 +7,7 @@ describe(
     },
   },
   () => {
+    before(() => {});
     it(`should setup metamask using private key`, () => {
       cy.setupMetamask(
         Cypress.env("METAMASK_PRIVATE_KEY"),
@@ -25,6 +26,11 @@ describe(
 
       cy.get("[id='metamask-button']").should("contain", "METAMASK");
       cy.get("[id='metamask-button']").should("contain", "...");
+    });
+    it("should accept connection request to CENNZnet", () => {
+      cy.get("[id='cennznet-button']").click();
+
+      cy.pause();
     });
   }
 );
