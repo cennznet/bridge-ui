@@ -38,7 +38,9 @@ jobs:
       # update images and video files as artifacts
       - name: Archive test results artifacts
         uses: actions/upload-artifact@v2
-        path: |
-          tests/e2e/videos
-          tests/e2e/screenshots
-        continue-on-error: true
+        with:
+          name: test-results
+          path: |
+            tests/e2e/videos
+            tests/e2e/screenshots
+          continue-on-error: true
