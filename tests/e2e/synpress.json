@@ -11,7 +11,9 @@
     "testFiles": "**/*spec.{js,jsx,ts,tsx}"
   },
   "env": {
-    "coverage": false
+    "coverage": false,
+    "PRIVATE_KEY": "YOUR_PRIVATE_KEY",
+    "SKIP_METAMASK_SETUP": true
   },
   "defaultCommandTimeout": 30000,
   "pageLoadTimeout": 30000,
