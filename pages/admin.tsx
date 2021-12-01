@@ -6,10 +6,12 @@ import {
   ButtonGroup,
   TextField,
   Autocomplete,
+  Icon,
 } from "@mui/material";
 import { AdminButton, Heading } from "../components/StyledComponents";
 import { useBlockchain } from "../context/BlockchainContext";
 import AdminModal from "../components/AdminModal";
+import { useWeb3 } from "../context/Web3Context";
 
 const abi = new ethers.utils.AbiCoder();
 const targets: string[] = ["Bridge", "ERC20Peg"];
@@ -34,8 +36,8 @@ const signatures = {
 
 const dataParams = {
   bridge: {
-    [signatures.Bridge[0]]: ["Validator Public Key", "Validator Set Id"],
-    [signatures.Bridge[1]]: ["Validator Public Key", "Validator Set Id"],
+    [signatures.Bridge[0]]: ["Validator Public Keys", "Validator Set Id"],
+    [signatures.Bridge[1]]: ["Validator Public Keys", "Validator Set Id"],
     [signatures.Bridge[2]]: "newTTL",
     [signatures.Bridge[3]]: "newMaxRewardPayout",
     [signatures.Bridge[4]]: "newFee",
@@ -45,6 +47,7 @@ const dataParams = {
 };
 
 const Admin: React.FC<{}> = () => {
+  const { decodeAddress }: any = useWeb3();
   const [provider, setProvider] = useState<any>();
   const [contracts, setContracts] = useState({
     bridge: {} as ethers.Contract,
@@ -56,7 +59,7 @@ const Admin: React.FC<{}> = () => {
     target: "",
     value: "",
     signature: "",
-    validatorPublicKey: "",
+    validatorPublicKeys: "",
     validatorSetId: "",
     uint256: "",
     bool: "",
@@ -84,15 +87,30 @@ const Admin: React.FC<{}> = () => {
     //eslint-disable-next-line
   }, []);
 
+  const updateTarget = (target) => {
+    updateState({
+      txType: state.txType,
+      target,
+      value: "",
+      signature: "",
+      validatorPublicKeys: "",
+      validatorSetId: "",
+      uint256: "",
+      bool: "",
+    });
+  };
+
   const submit = async () => {
     let encodedParams;
 
     switch (state.signature) {
       case signatures.Bridge[0]:
       case signatures.Bridge[1]:
-        let addressArr = [
-          ethers.utils.computeAddress(state.validatorPublicKey),
-        ];
+        let addressArr = state.validatorPublicKeys
+          .split("\n")
+          .map((address) =>
+            ethers.utils.computeAddress(decodeAddress(address))
+          );
         encodedParams = abi.encode(
           ["address[]", "uint32"],
           [addressArr, state.validatorSetId]
@@ -245,18 +263,7 @@ const Admin: React.FC<{}> = () => {
           <Autocomplete
             disablePortal
             options={targets}
-            onSelect={(e: any) =>
-              updateState({
-                txType: state.txType,
-                target: e.target.value,
-                value: "",
-                signature: "",
-                validatorPublicKey: "",
-                validatorSetId: "",
-                uint256: "",
-                bool: "",
-              })
-            }
+            onSelect={(e: any) => updateTarget(e.target.value)}
             sx={{
               m: "20px 0 20px",
               width: "80%",
@@ -289,6 +296,7 @@ const Admin: React.FC<{}> = () => {
                     label={dataParams.bridge[state.signature][0]}
                     variant="outlined"
                     required
+                    multiline
                     sx={{
                       width: "80%",
                       mb: "20px",
@@ -296,9 +304,10 @@ const Admin: React.FC<{}> = () => {
                     onChange={(e) =>
                       updateState({
                         ...state,
-                        validatorPublicKey: e.target.value,
+                        validatorPublicKeys: e.target.value,
                       })
                     }
+                    helperText="Enter each key on new line"
                   />
                   <TextField
                     label={dataParams.bridge[state.signature][1]}
