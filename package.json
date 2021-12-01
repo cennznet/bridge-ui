@@ -5,7 +5,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "synpress run --env PRIVATE_KEY=c76d93c1667dd8f45a5ee39883a4e4834fc4ef7ecead1569968bfbf7d71f8857"
   },
   "dependencies": {
     "@cennznet/api": "^1.5.0-alpha.4",
@@ -23,6 +24,7 @@
     "store": "^2.0.12"
   },
   "devDependencies": {
+    "@synthetixio/synpress": "^1.1.0",
     "@types/node": "16.11.6",
     "@types/react": "17.0.34",
     "@types/store": "^2.0.2",
