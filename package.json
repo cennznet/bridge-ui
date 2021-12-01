@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "synpress run --env PRIVATE_KEY=c76d93c1667dd8f45a5ee39883a4e4834fc4ef7ecead1569968bfbf7d71f8857"
+    "test": "synpress run"
   },
   "dependencies": {
     "@cennznet/api": "^1.5.0-alpha.4",
