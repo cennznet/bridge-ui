@@ -1,12 +1,15 @@
 name: Testing PR CI
 
+
 on:
   push:
-    branches: [main]
+#    branches: [main]
+    branches: [testing_ci_pipeline]
 
 jobs:
   test:
     name: Synpress Testing
+#    if: github.ref == 'refs/heads/main' || || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     strategy:
       matrix:
