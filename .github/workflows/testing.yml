@@ -29,7 +29,6 @@ jobs:
       - name: Test Suite
         run: |
           yarn install --frozen-lockfile
-          export SKIP_METAMASK_SETUP=true
           yarn run test
       - name: Archive Failed Test Results
         uses: actions/upload-artifact@v2
