@@ -1,0 +1,41 @@
+name: Testing
+
+on: [push]
+
+jobs:
+  test:
+    name: Cypress Testing
+    if: "contains(github.event.head_commit.message, 'run-tests')"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Config yarn cache
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Test Suite
+        run: |
+          yarn install --frozen-lockfile
+          export SKIP_METAMASK_SETUP=true
+          yarn run test
+      - name: Archive Failed Test Results
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: failed-test-results
+          path: |
+            tests/e2e/videos
+            tests/e2e/screenshots

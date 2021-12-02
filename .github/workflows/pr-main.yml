@@ -1,14 +1,14 @@
-name: Testing PR CI
+name: Testing PRs to Main
 
 on:
   push:
-#    branches: [main]
-    branches: [testing_ci_pipeline]
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
     name: Cypress Testing
-#    if: github.ref == 'refs/heads/main' || || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,11 +34,11 @@ jobs:
           yarn install --frozen-lockfile
           export SKIP_METAMASK_SETUP=true
           yarn run test
-      - name: Archive failed test results artifacts
+      - name: Archive Failed Test Results
         uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: test-results
+          name: failed-test-results
           path: |
             tests/e2e/videos
             tests/e2e/screenshots
