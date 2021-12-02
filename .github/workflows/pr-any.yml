@@ -35,9 +35,10 @@ jobs:
           yarn install --frozen-lockfile
           export SKIP_METAMASK_SETUP=true
           yarn run test
-      # update images and video files as artifacts
+      # upload images and video files as artifacts
       - name: Archive test results artifacts
         uses: actions/upload-artifact@v2
+        if: failure()
         with:
           name: test-results
           path: |
