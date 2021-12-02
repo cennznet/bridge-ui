@@ -1,6 +1,5 @@
 name: Testing PR CI
 
-
 on:
   push:
 #    branches: [main]
@@ -8,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: Synpress Testing
+    name: Cypress Testing
 #    if: github.ref == 'refs/heads/main' || || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     strategy:
@@ -35,8 +34,7 @@ jobs:
           yarn install --frozen-lockfile
           export SKIP_METAMASK_SETUP=true
           yarn run test
-      # upload images and video files as artifacts
-      - name: Archive test results artifacts
+      - name: Archive failed test results artifacts
         uses: actions/upload-artifact@v2
         if: failure()
         with:
@@ -44,4 +42,3 @@ jobs:
           path: |
             tests/e2e/videos
             tests/e2e/screenshots
-          continue-on-error: true
