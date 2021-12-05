@@ -1,0 +1,7 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "chromeWebSecurity": true,
+  "env": {
+    "SKIP_METAMASK_SETUP": true
+  }
+}
