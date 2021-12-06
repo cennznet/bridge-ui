@@ -1,14 +1,16 @@
 import React, { createContext, useContext, ReactNode, useState } from "react";
-import { ethers } from "ethers";
+import {ethers, Signer} from "ethers";
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
 import Timelock from "../artifacts/Timelock.json";
 import store from "store";
 import { useWeb3 } from "./Web3Context";
+import {JsonRpcSigner} from "@ethersproject/providers/src.ts/json-rpc-provider";
 
 type blockchainContextType = {
   Contracts: object;
   Account: string;
+  Signer: JsonRpcSigner;
   updateNetwork: Function;
   activateAdmin: Function;
 };
@@ -16,8 +18,9 @@ type blockchainContextType = {
 const blockchainContextDefaultValues: blockchainContextType = {
   Contracts: {},
   Account: "",
-  updateNetwork: (ethereum: any, ethereumNetwork: string) => {},
+  Signer: {} as JsonRpcSigner,
   activateAdmin: (ethereum: any, ethereumNetwork: string) => {},
+  updateNetwork: (ethereum: any, ethereumNetwork: string) => {}
 };
 
 const BlockchainContext = createContext<blockchainContextType>(
@@ -74,6 +77,12 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
             ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
             tokenChainId = 3;
             apiUrl = "wss://kong2.centrality.me/public/rata/ws";
+            break;
+          case "Rinkeby":
+            BridgeAddress = "0x75a2488b80D1a12cB0209cB1C40986863745Ee2f";
+            ERC20PegAddress = "0xa3205266ebBd74298729e04a28b8Fa53B5319679";
+            tokenChainId = 4;
+            apiUrl = "wss://nikau.centrality.me/public/ws";
             break;
           default:
             reject();

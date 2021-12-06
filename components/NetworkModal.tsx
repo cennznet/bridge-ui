@@ -8,7 +8,7 @@ import {
 } from "../components/StyledComponents";
 import { updateNetworks } from "../utils/networks";
 
-const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
+const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau", "Rinkeby/Nikau"];
 
 const NetworkModal: React.FC<{
   setModalOpen: Function;

@@ -38,6 +38,9 @@ const TxModal: React.FC<Props> = ({
       case "Kovan":
         setEtherscanLink(`https://kovan.etherscan.io/tx/${etherscanHash}`);
         break;
+      case "Rinkeby":
+        setEtherscanLink(`https://rinkeby.etherscan.io/tx/${etherscanHash}`);
+        break;
     }
   }, [etherscanHash]);
 

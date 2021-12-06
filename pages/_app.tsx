@@ -10,7 +10,6 @@ import dynamic from "next/dynamic";
 import "../theme/styles.css";
 import { AppBar, Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import SafeProvider from "@gnosis.pm/safe-apps-react-sdk";
 
 const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
 
@@ -30,7 +29,6 @@ function MyApp({ Component, pageProps }: AppProps) {
         <CssBaseline />
         <Web3>
             <BlockchainProvider>
-            <SafeProvider>
             <AppBar position="static">
               <Box onClick={() => router.push("/")} sx={{ cursor: "pointer" }}>
                 <img
@@ -59,11 +57,10 @@ function MyApp({ Component, pageProps }: AppProps) {
                 }}
               >
                 ETHEREUM BRIDGE
-              </Typography>
-            </AppBar>
-            <Component {...pageProps} />
-            </SafeProvider>
-            </BlockchainProvider>
+          </Typography>
+        </AppBar>
+        <Component {...pageProps} />
+        </BlockchainProvider>
         </Web3>
       </ThemeProvider>
     </>

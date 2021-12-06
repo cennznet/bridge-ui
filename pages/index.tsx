@@ -32,6 +32,9 @@ const Home: React.FC<{}> = () => {
         case "0x2a":
           ethereumNetwork = "Kovan";
           break;
+        case "0x4":
+          ethereumNetwork = "Rinkeby";
+          break;
         default:
           setModalState("wrongNetwork");
           setModalOpen(true);
