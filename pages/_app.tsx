@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import "../theme/styles.css";
 import { AppBar, Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
+import SafeProvider from "@gnosis.pm/safe-apps-react-sdk";
 
 const Web3 = dynamic(() => import("../components/Web3"), { ssr: false });
 
@@ -25,10 +26,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         />
         <link rel="icon" href="/favicon.svg" />
       </Head>
-      <ThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
         <CssBaseline />
         <Web3>
-          <BlockchainProvider>
+            <BlockchainProvider>
+            <SafeProvider>
             <AppBar position="static">
               <Box onClick={() => router.push("/")} sx={{ cursor: "pointer" }}>
                 <img
@@ -60,7 +62,8 @@ function MyApp({ Component, pageProps }: AppProps) {
               </Typography>
             </AppBar>
             <Component {...pageProps} />
-          </BlockchainProvider>
+            </SafeProvider>
+            </BlockchainProvider>
         </Web3>
       </ThemeProvider>
     </>

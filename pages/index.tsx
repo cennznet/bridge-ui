@@ -194,7 +194,7 @@ const Home: React.FC<{}> = () => {
                 m: "45% 0 30px",
                 border: "2.5px solid #1130FF",
               }}
-              onClick={() => router.push("/bridge")}
+              onClick={() => router.push("/admin")}
             >
               <Heading sx={{ fontSize: "20px" }}>enter bridge</Heading>
             </Button>
