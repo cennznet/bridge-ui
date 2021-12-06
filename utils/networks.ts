@@ -1,4 +1,4 @@
-const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
+const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau", "Rinkeby/Nikau"];
 
 export const updateNetworks = async (selectedNetwork) => {
   const { ethereum }: any = window;
@@ -25,6 +25,13 @@ export const updateNetworks = async (selectedNetwork) => {
         params: [{ chainId: "0x2a" }],
       });
       network = "Kovan";
+      break;
+    case networks[3]:
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x4" }],
+      });
+      network = "Rinkeby";
       break;
   }
   window.localStorage.setItem("ethereum-network", network);

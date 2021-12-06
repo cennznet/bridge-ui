@@ -67,6 +67,9 @@ const TxModal: React.FC<Props> = ({
         if (modalState === "relayer")
           relayerLink = `https://bridge-contracts.nikau.centrality.me/transactions/${etherscanHash}`;
         break;
+      case "Rinkeby":
+        setEtherscanLink(`https://rinkeby.etherscan.io/tx/${etherscanHash}`);
+        break;
     }
 
     if (modalState === "relayer") {
