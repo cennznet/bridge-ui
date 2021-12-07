@@ -3,6 +3,7 @@ const fetch = require("node-fetch");
 
 let puppeteerBrowser;
 let mainWindow;
+let CENNZnetWindow;
 let metamaskWindow;
 let activeTabName;
 
@@ -12,6 +13,9 @@ module.exports = {
   },
   mainWindow: () => {
     return mainWindow;
+  },
+  CENNZnetWindow: () => {
+    return CENNZnetWindow;
   },
   metamaskWindow: () => {
     return metamaskWindow;
@@ -29,6 +33,7 @@ module.exports = {
       ignoreHTTPSErrors: true,
       defaultViewport: null,
     });
+
     return puppeteerBrowser.isConnected();
   },
   clear: async () => {
@@ -42,10 +47,17 @@ module.exports = {
         mainWindow = page;
       } else if (page.url().includes("tests")) {
         mainWindow = page;
-      } else if (page.url().includes("extension")) {
+      } else if (
+        page.url().includes("extension://ibmhocneijnmoanlpkgeookcahgeohdh")
+      ) {
         metamaskWindow = page;
       }
     }
+    CENNZnetWindow = await module.exports.puppeteerBrowser().newPage();
+    CENNZnetWindow.goto(
+      "chrome-extension://knleceodbhedbkaaeaoocgkfoiapjcjd/index.html#"
+    );
+    await module.exports.switchToMetamaskWindow();
     return true;
   },
   assignActiveTabName: async (tabName) => {
@@ -74,6 +86,11 @@ module.exports = {
   switchToCypressWindow: async () => {
     await mainWindow.bringToFront();
     await module.exports.assignActiveTabName("cypress");
+    return true;
+  },
+  switchToCENNZnetWindow: async () => {
+    await CENNZnetWindow.bringToFront();
+    await module.exports.assignActiveTabName("CENNZnet");
     return true;
   },
   switchToMetamaskWindow: async () => {

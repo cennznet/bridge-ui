@@ -1,6 +1,16 @@
 import "@testing-library/cypress/add-commands";
 import "cypress-wait-until";
 
+Cypress.Commands.add("log", (message) => {
+  return cy.task("log", message);
+});
+
+// CENNZnet commands
+
+Cypress.Commands.add("setupCENNZnet", () => {
+  return cy.task("setupCENNZnet");
+});
+
 // puppeteer commands
 
 Cypress.Commands.add("initPuppeteer", () => {
@@ -21,6 +31,10 @@ Cypress.Commands.add("isMetamaskWindowActive", () => {
 
 Cypress.Commands.add("isCypressWindowActive", () => {
   return cy.task("isCypressWindowActive");
+});
+
+Cypress.Commands.add("switchToCENNZnetWindow", () => {
+  return cy.task("switchToCENNZnetWindow");
 });
 
 Cypress.Commands.add("switchToCypressWindow", () => {

@@ -9,9 +9,13 @@ describe("e2e", () => {
     });
   });
   it("should setup CENNZnet extension", () => {
-    cy.visit(
-      "chrome-extension://feckpephlmdcjnpoclagmaogngeffafk/index.html#/"
-    );
+    cy.switchToCENNZnetWindow();
+
+    cy.setupCENNZnet().then((setupFinished) => {
+      expect(setupFinished).to.be.true;
+    });
+
+    cy.switchToCypressWindow();
   });
   it(`should accept connection request to metamask`, () => {
     cy.visit("/");
@@ -23,11 +27,4 @@ describe("e2e", () => {
     cy.get("[id='metamask-button']").should("contain", "METAMASK");
     cy.get("[id='metamask-button']").should("contain", "...");
   });
-  it("should accept connection request to CENNZnet", () => {
-    cy.get("[id='cennznet-button']").click({ force: true });
-
-    cy.pause();
-  });
 });
-
-export {};

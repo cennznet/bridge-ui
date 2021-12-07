@@ -3,6 +3,7 @@ const puppeteer = require("../commands/puppeteer");
 const metamask = require("../commands/metamask");
 const synthetix = require("../commands/synthetix");
 const etherscan = require("../commands/etherscan");
+const cennznet = require("../commands/cennznet");
 
 /**
  * @type {Cypress.PluginConfig}
@@ -56,6 +57,15 @@ module.exports = (on, config) => {
       console.warn("\u001B[33m", "WARNING:", message, "\u001B[0m");
       return true;
     },
+    log(message) {
+      console.log(message);
+      return true;
+    },
+    // cennznet commands
+    setupCENNZnet: async () => {
+      const confirm = await cennznet.setupCENNZnet();
+      return confirm;
+    },
     // puppeteer commands
     initPuppeteer: async () => {
       const connected = await puppeteer.init();
@@ -84,6 +94,10 @@ module.exports = (on, config) => {
     isCypressWindowActive: async () => {
       const isCypressActive = await puppeteer.isCypressWindowActive();
       return isCypressActive;
+    },
+    switchToCENNZnetWindow: async () => {
+      const switched = await puppeteer.switchToCENNZnetWindow();
+      return switched;
     },
     switchToCypressWindow: async () => {
       const switched = await puppeteer.switchToCypressWindow();

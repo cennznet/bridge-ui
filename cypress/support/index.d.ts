@@ -7,6 +7,18 @@ declare namespace Cypress {
      */
     initPuppeteer(): Chainable<Subject>;
     /**
+     * Setup CENNZnet xtension
+     * @example
+     * cy.setupCENNZnet()
+     */
+    setupCENNZnet(): Chainable<Subject>;
+    /**
+     * Switch to CENNZnet window
+     * @example
+     * cy.switchToCENNZnetWindow()
+     */
+    switchToCENNZnetWindow(): Chainable<Subject>;
+    /**
      * Assign currently open tabs with puppeteer
      * @example
      * cy.assignWindows()
