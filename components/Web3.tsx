@@ -6,6 +6,7 @@ import {
   web3Accounts,
 } from "@polkadot/extension-dapp";
 import { InjectedExtension } from "@polkadot/extension-inject/types";
+import { WsProvider } from "@polkadot/api";
 import { Api as ApiPromise } from "@cennznet/api";
 import { hexToString } from "@polkadot/util";
 import { decodeAddress } from "@polkadot/keyring";
@@ -23,6 +24,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [api, setAPI] = useState(null);
+  const [provider, setProvider] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState("");
 
@@ -146,8 +148,10 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
 
   const updateApi = async (endpoint) => {
     let apiPromise: any;
+    let wsProvider: any;
     try {
-      apiPromise = new ApiPromise({ provider: endpoint });
+      wsProvider = new WsProvider(endpoint);
+      apiPromise = new ApiPromise({ provider: wsProvider });
     } catch (err) {
       console.error(`cennznet connection failed: ${err}`);
     }
@@ -157,6 +161,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       return;
     }
 
+    setProvider(wsProvider);
     apiPromise.isReady.then(() => setAPI(apiPromise));
   };
 
@@ -213,6 +218,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         signer,
         accounts,
         selectedAccount,
+        provider,
         api,
         decodeAddress,
         setBalances,

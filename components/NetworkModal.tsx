@@ -7,6 +7,7 @@ import {
   Option,
 } from "../components/StyledComponents";
 import { updateNetworks } from "../utils/networks";
+import { useWeb3 } from "../context/Web3Context";
 
 const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
 
@@ -16,8 +17,10 @@ const NetworkModal: React.FC<{
   currentNetwork: string;
 }> = ({ setModalOpen, setModalState, currentNetwork }) => {
   const [open] = useState(true);
+  const { provider } = useWeb3();
 
   const changeNetwork = async (selectedNetwork) => {
+    if (provider.isConnected) await provider.disconnect();
     updateNetworks(selectedNetwork);
   };
 

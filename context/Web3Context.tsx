@@ -10,6 +10,7 @@ const Web3Context = React.createContext({
   balances: null,
   signer: null,
   accounts: null,
+  provider: null,
   api: null,
   decodeAddress: (address: string) => {},
   setBalances: (balances: any) => {},
