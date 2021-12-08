@@ -17,10 +17,10 @@ const NetworkModal: React.FC<{
   currentNetwork: string;
 }> = ({ setModalOpen, setModalState, currentNetwork }) => {
   const [open] = useState(true);
-  const { provider } = useWeb3();
+  const { api } = useWeb3();
 
   const changeNetwork = async (selectedNetwork) => {
-    if (provider.isConnected) await provider.disconnect();
+    if (api && api.isConnected) await api.disconnect();
     updateNetworks(selectedNetwork);
   };
 
