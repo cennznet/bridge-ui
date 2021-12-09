@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "SKIP_METAMASK_SETUP=true concurrently --kill-others --success first \"next dev\" \"wait-on tcp:3000 && node cypress/cypress.js run -b chrome\""
+    "test": "SKIP_METAMASK_SETUP=true concurrently --kill-others --success first \"next dev\" \"wait-on tcp:3000 && node cypress/cypress.js run -b chrome -ne\""
   },
   "dependencies": {
     "@cennznet/api": "^1.5.0-alpha.4",
@@ -27,18 +27,20 @@
     "wait-on": "^6.0.0"
   },
   "devDependencies": {
-    "@synthetixio/js": "^2.41.0",
-    "@synthetixio/synpress": "^1.1.0",
+    "@testing-library/cypress": "^8.0.2",
     "@types/node": "16.11.6",
     "@types/react": "17.0.34",
     "@types/store": "^2.0.2",
     "autoprefixer": "^10.4.0",
     "bytes32": "^0.0.3",
+    "commander": "^8.3.0",
+    "cross-zip": "^4.0.0",
+    "cypress": "8.7.0",
+    "cypress-wait-until": "^1.7.2",
     "eslint": "7",
     "eslint-config-next": "12.0.2",
     "node-fetch": "2.0.0",
     "puppeteer-core": "^12.0.1",
-    "synthetix-js": "^2.55.0",
     "typescript": "4.4.4"
   }
 }
