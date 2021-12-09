@@ -6,6 +6,7 @@ let mainWindow;
 let CENNZnetWindow;
 let metamaskWindow;
 let activeTabName;
+let local;
 
 module.exports = {
   puppeteerBrowser: () => {
@@ -16,6 +17,9 @@ module.exports = {
   },
   CENNZnetWindow: () => {
     return CENNZnetWindow;
+  },
+  localWindow: () => {
+    return local;
   },
   metamaskWindow: () => {
     return metamaskWindow;
@@ -40,6 +44,10 @@ module.exports = {
     );
 
     return puppeteerBrowser.isConnected();
+  },
+  setupLocal: async () => {
+    local = await puppeteerBrowser.newPage();
+    local.goto("http://localhost:3000");
   },
   clear: async () => {
     puppeteerBrowser = null;

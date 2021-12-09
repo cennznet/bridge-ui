@@ -105,7 +105,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const connectWallet = async () => {
     try {
       const extensions = await web3Enable("Bridge");
-      console.log("extensions promise ?", extensions);
 
       const cennznetWallet = extensions.find((extension) => {
         if (
@@ -135,7 +134,6 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       (async () => {
         if (signer === null || signer === undefined) {
           const injector = await web3FromSource(extension);
-          console.log("injector.signer", injector.signer);
           setSigner(injector.signer);
         }
         if (

@@ -11,6 +11,14 @@ Cypress.Commands.add("setupCENNZnet", () => {
   return cy.task("setupCENNZnet");
 });
 
+Cypress.Commands.add("acceptCENNZnetAccess", () => {
+  return cy.task("acceptCENNZnetAccess");
+});
+
+Cypress.Commands.add("selectCENNZaccount", () => {
+  return cy.task("selectCENNZaccount");
+});
+
 // puppeteer commands
 
 Cypress.Commands.add("initPuppeteer", () => {

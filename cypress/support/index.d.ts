@@ -7,11 +7,23 @@ declare namespace Cypress {
      */
     initPuppeteer(): Chainable<Subject>;
     /**
-     * Setup CENNZnet xtension
+     * Setup CENNZnet extension
      * @example
      * cy.setupCENNZnet()
      */
     setupCENNZnet(): Chainable<Subject>;
+    /**
+     * Accept CENNZnet acceess
+     * @example
+     * cy.acceptCENNZnetAccess()
+     */
+    acceptCENNZnetAccess(): Chainable<Subject>;
+    /**
+     * Select CENNZnet account
+     * @example
+     * cy.selectCENNZaccount()
+     */
+    selectCENNZaccount(): Chainable<Subject>;
     /**
      * Switch to CENNZnet window
      * @example

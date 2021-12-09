@@ -1,9 +1,9 @@
 const {
   CENNZnetWindow,
-  puppeteerBrowser,
-  switchToCENNZnetNotification,
+  setupLocal,
+  localWindow,
+  switchToCENNZnetWindow,
 } = require("./puppeteer");
-const { acceptAccess } = require("./metamask");
 
 module.exports = {
   setupCENNZnet: async () => {
@@ -27,6 +27,17 @@ module.exports = {
 
     return true;
   },
+  acceptAccess: async () => {
+    await setupLocal();
+    await localWindow().waitForSelector("#metamask-button");
+    await module.exports.click("#cennznet-button", localWindow());
+
+    await switchToCENNZnetWindow();
+    await CENNZnetWindow().waitForSelector("button");
+    await module.exports.click("button");
+    await localWindow().bringToFront();
+    return true;
+  },
   click: async (selector, page = CENNZnetWindow()) => {
     const element = await page.$(selector);
     element.evaluate((el) => el.click());
@@ -35,8 +46,8 @@ module.exports = {
     const element = await CENNZnetWindow().$(selector);
     element.type(value);
   },
-  getElements: async (selector) => {
-    const elements = await CENNZnetWindow().$$(selector);
+  getElements: async (selector, page = CENNZnetWindow()) => {
+    const elements = await page.$$(selector);
     return elements;
   },
   clickToImportAccountPage: async () => {
@@ -66,6 +77,15 @@ module.exports = {
       }
     }
   },
+  clickByText: async (selector, page, string) => {
+    const elements = await module.exports.getElements(selector, page);
+    for (const el of elements) {
+      const text = await page.evaluate((el) => el.textContent, el);
+      if (text.toLowerCase().includes(string)) {
+        await el.click();
+      }
+    }
+  },
   repeatPassword: async () => {
     const inputDivs = await module.exports.getElements(
       "div.Label-sc-1m5io7b-0"
@@ -80,5 +100,16 @@ module.exports = {
         await input.type("Tester@1234");
       }
     }
+  },
+  selectAccount: async () => {
+    await localWindow().waitForSelector("button");
+    await module.exports.clickByText("button", localWindow(), "testing");
+    await localWindow().waitForTimeout(300);
+    await module.exports.clickByText("button", localWindow(), "close");
+    await module.exports.click("#metamask-button", localWindow());
+    await localWindow().waitForTimeout(1000);
+    await module.exports.clickByText("button", localWindow(), "enter bridge");
+
+    return true;
   },
 };

@@ -8,15 +8,6 @@ describe("e2e", () => {
       expect(setupFinished).to.be.true;
     });
   });
-  it("should setup CENNZnet extension", () => {
-    cy.switchToCENNZnetWindow();
-
-    cy.setupCENNZnet().then((setupFinished) => {
-      expect(setupFinished).to.be.true;
-    });
-
-    cy.switchToCypressWindow();
-  });
   it("should accept connection request to metamask", () => {
     cy.visit("/");
     cy.get("#metamask-button").click();
@@ -27,7 +18,21 @@ describe("e2e", () => {
     cy.get("#metamask-button").should("contain", "METAMASK");
     cy.get("#metamask-button").should("contain", "...");
   });
-  it("should accept connection request to CENNZnet", () => {
-    cy.get("#cennznet-button").click();
+  it("should setup CENNZnet extension", () => {
+    cy.switchToCENNZnetWindow();
+
+    cy.setupCENNZnet().then((setupFinished) => {
+      expect(setupFinished).to.be.true;
+    });
+  });
+  it("should accept CENNZnet access", () => {
+    cy.acceptCENNZnetAccess().then((accepted) => {
+      expect(accepted).to.be.true;
+    });
+  });
+  it("should select CENNZnet account and enter bridge", () => {
+    cy.selectCENNZaccount().then((selected) => {
+      expect(selected).to.be.true;
+    });
   });
 });

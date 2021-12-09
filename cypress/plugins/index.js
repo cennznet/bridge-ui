@@ -66,6 +66,14 @@ module.exports = (on, config) => {
       const confirm = await cennznet.setupCENNZnet();
       return confirm;
     },
+    acceptCENNZnetAccess: async () => {
+      const accept = await cennznet.acceptAccess();
+      return accept;
+    },
+    selectCENNZaccount: async () => {
+      const select = await cennznet.selectAccount();
+      return select;
+    },
     // puppeteer commands
     initPuppeteer: async () => {
       const connected = await puppeteer.init();
