@@ -542,7 +542,7 @@ module.exports = {
 
     await puppeteer.init();
     await puppeteer.assignWindows();
-    await puppeteer.assignActiveTabName("metamask");
+    await puppeteer.switchToMetamaskWindow();
     await puppeteer.metamaskWindow().waitForTimeout(1000);
     if (
       (await puppeteer.metamaskWindow().$(unlockPageElements.unlockPage)) ===

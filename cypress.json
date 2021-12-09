@@ -14,6 +14,6 @@
     "coverage": false
   },
   "defaultCommandTimeout": 30000,
-  "pageLoadTimeout": 30000,
+  "pageLoadTimeout": 60000,
   "requestTimeout": 30000
 }

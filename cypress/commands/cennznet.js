@@ -1,14 +1,23 @@
-const { CENNZnetWindow } = require("./puppeteer");
+const {
+  CENNZnetWindow,
+  puppeteerBrowser,
+  switchToCENNZnetNotification,
+} = require("./puppeteer");
+const { acceptAccess } = require("./metamask");
 
 module.exports = {
   setupCENNZnet: async () => {
     await module.exports.click("button");
     await module.exports.click("div.popupToggle");
 
-    await module.exports.clickToCreateAccountPage();
+    await module.exports.clickToImportAccountPage();
     await CENNZnetWindow().waitForTimeout(300);
 
-    await module.exports.click("input");
+    await module.exports.type(
+      "textarea",
+      "raccoon green tooth pact expire crime knee metal border sport myself pelican"
+    );
+    await CENNZnetWindow().waitForTimeout(1000);
     await module.exports.click("button");
 
     await module.exports.fillAccountDetails();
@@ -18,8 +27,8 @@ module.exports = {
 
     return true;
   },
-  click: async (selector) => {
-    const element = await CENNZnetWindow().$(selector);
+  click: async (selector, page = CENNZnetWindow()) => {
+    const element = await page.$(selector);
     element.evaluate((el) => el.click());
   },
   type: async (selector, value) => {
@@ -30,11 +39,11 @@ module.exports = {
     const elements = await CENNZnetWindow().$$(selector);
     return elements;
   },
-  clickToCreateAccountPage: async () => {
+  clickToImportAccountPage: async () => {
     const aDivs = await module.exports.getElements("a.Link-sc-61h66h-0");
     for (const a of aDivs) {
       const text = await CENNZnetWindow().evaluate((a) => a.textContent, a);
-      if (text.toLowerCase().includes("create new account")) {
+      if (text.toLowerCase().includes("import account")) {
         await a.click();
         break;
       }
@@ -51,12 +60,8 @@ module.exports = {
       );
       const input = await div.$("input");
       if (text.toLowerCase().includes("a descriptive name")) {
-        await input.click({ clickCount: 3 });
         await input.type("Testing");
       } else if (text.toLowerCase().includes("a new password")) {
-        await input.click({ clickCount: 3 });
-        await input.type("Tester@1234");
-      } else if (text.toLowerCase().includes("repeat password")) {
         await input.type("Tester@1234");
       }
     }

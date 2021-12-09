@@ -8,10 +8,9 @@ import {
 import { InjectedExtension } from "@polkadot/extension-inject/types";
 import { Api as ApiPromise } from "@cennznet/api";
 import { hexToString } from "@polkadot/util";
-import { decodeAddress } from "@polkadot/keyring";
+import Keyring, { decodeAddress } from "@polkadot/keyring";
 import store from "store";
 import Web3Context from "../context/Web3Context";
-const EXTENSION = "cennznet-extension";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
 import ErrorModal from "./ErrorModal";
 
@@ -25,6 +24,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [api, setAPI] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState("");
+  const [extension, setExtension] = useState("");
 
   const getAccountAssets = useCallback(
     async (address: string) => {
@@ -105,10 +105,17 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const connectWallet = async () => {
     try {
       const extensions = await web3Enable("Bridge");
+      console.log("extensions promise ?", extensions);
 
-      const cennznetWallet = extensions.find(
-        (extension) => extension.name === "cennznet-extension"
-      );
+      const cennznetWallet = extensions.find((extension) => {
+        if (
+          extension.name === "polkadot-js" ||
+          extension.name === "cennznet-extension"
+        ) {
+          setExtension(extension.name);
+          return extension;
+        }
+      });
 
       if (!cennznetWallet) throw new Error("CENNZnet wallet not found");
 
@@ -126,9 +133,9 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   useEffect(() => {
     if (wallet)
       (async () => {
-        await web3Enable("Bridge");
         if (signer === null || signer === undefined) {
-          const injector = await web3FromSource(EXTENSION);
+          const injector = await web3FromSource(extension);
+          console.log("injector.signer", injector.signer);
           setSigner(injector.signer);
         }
         if (
@@ -145,19 +152,27 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   }, [accounts, wallet, selectedAccount, signer]);
 
   const updateApi = async (endpoint) => {
-    let apiPromise: any;
-    try {
-      apiPromise = new ApiPromise({ provider: endpoint });
-    } catch (err) {
-      console.error(`cennznet connection failed: ${err}`);
-    }
+    if (extension === "polkadot-js") {
+      const keyring = new Keyring({ type: "sr25519" });
+      const account = keyring.addFromMnemonic(
+        "raccoon green tooth pact expire crime knee metal border sport myself pelican"
+      );
+      setSelectedAccount(account);
+    } else {
+      let apiPromise: any;
+      try {
+        apiPromise = new ApiPromise({ provider: endpoint });
+      } catch (err) {
+        console.error(`cennznet connection failed: ${err}`);
+      }
 
-    if (!apiPromise) {
-      console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
-      return;
-    }
+      if (!apiPromise) {
+        console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
+        return;
+      }
 
-    apiPromise.isReady.then(() => setAPI(apiPromise));
+      apiPromise.isReady.then(() => setAPI(apiPromise));
+    }
   };
 
   // Get balances for extension account when api or web3Account has changed
@@ -170,7 +185,7 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   // Set account/signer when wallet has changed
   useEffect(() => {
     const getSelectedAccount = async () => {
-      await web3Enable("Bridge");
+      if (extension === "") await web3Enable("Bridge");
       const accounts = await web3Accounts();
 
       if (accounts.length === 0) {

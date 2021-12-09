@@ -34,6 +34,11 @@ module.exports = {
       defaultViewport: null,
     });
 
+    CENNZnetWindow = await puppeteerBrowser.newPage();
+    CENNZnetWindow.goto(
+      "chrome-extension://knleceodbhedbkaaeaoocgkfoiapjcjd/index.html#"
+    );
+
     return puppeteerBrowser.isConnected();
   },
   clear: async () => {
@@ -53,11 +58,7 @@ module.exports = {
         metamaskWindow = page;
       }
     }
-    CENNZnetWindow = await module.exports.puppeteerBrowser().newPage();
-    CENNZnetWindow.goto(
-      "chrome-extension://knleceodbhedbkaaeaoocgkfoiapjcjd/index.html#"
-    );
-    await module.exports.switchToMetamaskWindow();
+
     return true;
   },
   assignActiveTabName: async (tabName) => {
