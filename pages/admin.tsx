@@ -72,7 +72,7 @@ const Admin: React.FC<{}> = () => {
   });
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState("");
-  const { activateAdmin }: any = useBlockchain();
+  const { activateAdmin, Signer }: any = useBlockchain();
 
     useEffect(() => {
         const init = async () => {
