@@ -38,11 +38,6 @@ module.exports = {
       defaultViewport: null,
     });
 
-    CENNZnetWindow = await puppeteerBrowser.newPage();
-    CENNZnetWindow.goto(
-      "chrome-extension://knleceodbhedbkaaeaoocgkfoiapjcjd/index.html#"
-    );
-
     return puppeteerBrowser.isConnected();
   },
   setupLocal: async () => {
@@ -60,10 +55,19 @@ module.exports = {
         mainWindow = page;
       } else if (page.url().includes("tests")) {
         mainWindow = page;
-      } else if (
-        page.url().includes("extension://ibmhocneijnmoanlpkgeookcahgeohdh")
-      ) {
+      } else if (page.url().includes("extension")) {
         metamaskWindow = page;
+        for (const target of puppeteerBrowser.targets()) {
+          if (
+            target.url().includes("extension") &&
+            target.type() === "background_page" &&
+            !target.url().includes(page.url().substring(0, 51)) &&
+            !target.url().includes("background.html")
+          );
+          CENNZnetWindow = await puppeteerBrowser.newPage();
+          CENNZnetWindow.goto(`${target.url().substring(0, 51)}/index.html#`);
+          break;
+        }
       }
     }
 
