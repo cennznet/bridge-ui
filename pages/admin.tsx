@@ -13,6 +13,12 @@ import { useBlockchain } from "../context/BlockchainContext";
 import AdminModal from "../components/AdminModal";
 import { useWeb3 } from "../context/Web3Context";
 
+import Safe, {EthersAdapter, EthSignSignature} from '@gnosis.pm/safe-core-sdk'
+import {MetaTransactionData, SafeTransactionData} from "@gnosis.pm/safe-core-sdk-types/dist/src/types";
+import {SafeTransaction} from "@gnosis.pm/safe-core-sdk-types";
+import EthSafeTransaction from "@gnosis.pm/safe-core-sdk/dist/src/utils/transactions/SafeTransaction";
+
+
 const abi = new ethers.utils.AbiCoder();
 const targets: string[] = ["Bridge", "ERC20Peg"];
 const signatures = {
@@ -67,6 +73,75 @@ const Admin: React.FC<{}> = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState("");
   const { activateAdmin }: any = useBlockchain();
+
+    useEffect(() => {
+        const init = async () => {
+            const ethAdapterOwner = new EthersAdapter({
+                ethers,
+                signer: Signer
+            })
+            const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
+            let signerAddress = await Signer.getAddress();
+            const safeSdk: Safe = await Safe.create({ ethAdapter: ethAdapterOwner, safeAddress });
+            //TODO encode transaction data to hex for data section
+            if(signerAddress.toString().toLowerCase() === "0xfA528fBAA85E8be1e72968aC283EAaaf5809C5a1".toString().toLowerCase()){
+                const transaction: MetaTransactionData[] = [{
+                    //ensure this is always lowercase
+                    to: '0xA4Ce4fDF83CeB84d7a3B71d5c76328b6a375A476',
+                    value: '0',
+                    data: '0x960bfe04000000000000000000000000000000000000000000000000000000000000003f'
+                }];
+                const res = await fetch("https://api-rinkeby.etherscan.io/api?module=gastracker&action=gasoracle&apikey=JNFAU892RF9TJWBU3EV7DJCPIWZY8KEMY1");
+                const resJson = await res.json();
+                const nextNonce = await getNextQueuedNonce(safeAddress);
+                let options: any = {safeTxGas: resJson.result.SafeGasPrice};
+                if(nextNonce) options = {nonce: nextNonce, ...options};
+                const safeTransaction: SafeTransaction = await safeSdk.createTransaction(transaction, options);
+                await safeSdk.signTransaction(safeTransaction);
+                //Send proposed transaction to gnosis safe for others to access
+                await proposeTransaction(safeSdk, safeTransaction, signerAddress, safeAddress);
+            }
+            else{
+                //Get all queued transactions and find the multisig_TX_hash
+                const queuedTransactions = await getAllQueuedTransactions(safeAddress);
+                //Get the multi-sig transactions and create a safeTransactions from it and sign with other owners
+                const firstQueuedTransactionID = queuedTransactions[0].transaction.id
+                const multiSigTransaction = await getMultiSignatureTransaction(firstQueuedTransactionID);
+                const transactionData = multiSigTransaction.txData.hexdata ? multiSigTransaction.txData.hexdata : "0x";
+                const safeTransactionData: SafeTransactionData = {
+                    //ensure this is always lowercase
+                    to: multiSigTransaction.txData.to.value,
+                    value: multiSigTransaction.txData.value,
+                    data: transactionData,
+                    operation: multiSigTransaction.txData.operation,
+                    nonce: multiSigTransaction.detailedExecutionInfo.nonce.toString(),
+                    safeTxGas: multiSigTransaction.detailedExecutionInfo.safeTxGas,
+                    baseGas: multiSigTransaction.detailedExecutionInfo.baseGas,
+                    gasPrice: multiSigTransaction.detailedExecutionInfo.gasPrice,
+                    gasToken: multiSigTransaction.detailedExecutionInfo.gasToken,
+                    refundReceiver: multiSigTransaction.detailedExecutionInfo.refundReceiver.value
+                }
+                const pendingTransaction = new EthSafeTransaction(safeTransactionData);
+                //add all confirmation signatures to the pending transaction
+                multiSigTransaction.detailedExecutionInfo.confirmations.map(confirmation => {
+                    const confirmSig = new EthSignSignature(confirmation.signer.value, confirmation.signature);
+                    pendingTransaction.addSignature(confirmSig);
+                });
+                //check if last confirmation needed if so then execute
+                if(multiSigTransaction.detailedExecutionInfo.confirmationsRequired === multiSigTransaction.detailedExecutionInfo.confirmations.length + 1){
+                    const executeTxResponse = await safeSdk.executeTransaction(pendingTransaction);
+                    const transRes = await executeTxResponse.transactionResponse.wait();
+                    console.info(transRes);
+                }
+                //else sign add to the proposed transaction
+                else {
+                    await safeSdk.signTransaction(pendingTransaction);
+                    await proposeTransaction(safeSdk, pendingTransaction, signerAddress, safeAddress);
+                }
+            }
+        };
+        init().then();
+    }, [])
 
   useEffect(() => {
     (async () => {
@@ -182,6 +257,53 @@ const Admin: React.FC<{}> = () => {
       return true;
     }
   });
+
+    const getNextQueuedNonce = async (safeAddress: string) => {
+        const res = await fetch(`https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/queued`);
+        const resJson = await res.json();
+        if(resJson.results.length === 0){
+            return null;
+        }
+        const queuedTransactions = resJson.results.filter(trans => trans.type === "TRANSACTION");
+        const allNonces = queuedTransactions.map(trans => trans.transaction.executionInfo.nonce);
+        const maxNonce = Math.max(...allNonces);
+        return maxNonce + 1;
+    }
+
+    const getAllQueuedTransactions = async (safeAddress: string) => {
+        const res = await fetch(`https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/queued`);
+        const resJson = await res.json();
+        if(resJson.results.length === 0){
+            return null;
+        }
+        return resJson.results.filter(trans => trans.type === "TRANSACTION");
+    }
+
+    const proposeTransaction = async (safeSdk: Safe,safeTransaction: SafeTransaction, signerAddress: string, safeAddress: string) => {
+        const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+        const proposedSafeTx = {
+            ...safeTransaction.data,
+            baseGas: safeTransaction.data.baseGas.toString(),
+            gasPrice: safeTransaction.data.gasPrice.toString(),
+            nonce: safeTransaction.data.nonce.toString(),
+            origin: null,
+            safeTxHash: safeTxHash,
+            sender: signerAddress,
+            signature: safeTransaction.signatures.get(signerAddress.toString().toLowerCase())['data']
+        }
+        const proposeRes = await fetch(`https://safe-client.gnosis.io/v1/chains/4/transactions/${safeAddress}/propose`,
+            {
+                headers: {'Content-Type':'application/json'},
+                method: "POST",
+                body: JSON.stringify(proposedSafeTx)
+            })
+        return await proposeRes.json();
+    }
+
+    const getMultiSignatureTransaction = async (multisignature: string) => {
+        const res = await fetch(`https://safe-client.gnosis.io/v1/chains/4/transactions/${multisignature}`)
+        return await res.json();
+    }
 
   return (
     <>
