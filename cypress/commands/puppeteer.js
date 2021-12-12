@@ -63,10 +63,11 @@ module.exports = {
             target.type() === "background_page" &&
             !target.url().includes(page.url().substring(0, 51)) &&
             !target.url().includes("background.html")
-          );
-          CENNZnetWindow = await puppeteerBrowser.newPage();
-          CENNZnetWindow.goto(`${target.url().substring(0, 51)}/index.html#`);
-          break;
+          ) {
+            CENNZnetWindow = await puppeteerBrowser.newPage();
+            CENNZnetWindow.goto(`${target.url().substring(0, 51)}/index.html#`);
+            break;
+          }
         }
       }
     }
