@@ -191,7 +191,7 @@ const Admin: React.FC<{}> = () => {
         dataHex
       )
     );
-  await createTransaction(dataHex);
+  await createSafeTransaction(dataHex);
   };
 
   const bridgeSignature = signatures.Bridge.find((signature) => {
@@ -200,7 +200,7 @@ const Admin: React.FC<{}> = () => {
     }
   });
 
-    const createTransaction = async (dataHex:any) => {
+    const createSafeTransaction = async (dataHex:any) => {
         //TODO encode transaction data to hex for data section
         const transaction: MetaTransactionData[] = [{
             //ensure this is always lowercase
@@ -221,13 +221,11 @@ const Admin: React.FC<{}> = () => {
         setPendingTransactions(queuedTransactions);
     };
 
-    const signTransaction = async (transactionID: number) => {
+    const signTransaction = async (transactionID: string) => {
         //Get all queued transactions and find the multisig_TX_hash
-        const queuedTransactions = await getAllQueuedTransactions(safeAddress);
-        //Get the multi-sig transactions and create a safeTransactions from it and sign with other owners
-        const firstQueuedTransactionID = queuedTransactions[transactionID].transaction.id
-        const multiSigTransaction = await getMultiSignatureTransaction(firstQueuedTransactionID);
-        const transactionData = multiSigTransaction.txData.hexdata ? multiSigTransaction.txData.hexdata : "0x";
+        const multiSigTransaction = await getMultiSignatureTransaction(transactionID);
+        const transactionData = multiSigTransaction.txData.hexData ? multiSigTransaction.txData.hexData : "0x";
+
         const safeTransactionData: SafeTransactionData = {
             //ensure this is always lowercase
             to: multiSigTransaction.txData.to.value,
@@ -257,6 +255,7 @@ const Admin: React.FC<{}> = () => {
         else {
             await safeSdk.signTransaction(pendingTransaction);
             await proposeTransaction(safeSdk, pendingTransaction, signerAddress, safeAddress);
+            console.info("transaction Signed")
         }
     }
 
@@ -568,10 +567,11 @@ const Admin: React.FC<{}> = () => {
                     padding: "0px",
                 }}
             >
-                {pendingTransactions.map((trans, idx) => {
+                {pendingTransactions?.map((trans, idx) => {
                     const nonce = trans.transaction.executionInfo.nonce;
                     const confirmed = trans.transaction.executionInfo.confirmationsSubmitted;
                     const required = trans.transaction.executionInfo.confirmationsRequired;
+                    const txHashId: string = trans.transaction.id;
                     return(
                         <>
                         <div
@@ -582,7 +582,7 @@ const Admin: React.FC<{}> = () => {
                             "font-style": "bold",
                             "font-weight": 400}}>
                             {`Pending Transaction ${nonce}`}
-                            <Button onClick={() => signTransaction(idx)}>Sign</Button>
+                            <Button onClick={() => signTransaction(txHashId)}>Sign</Button>
                             <Button>
                                 {confirmed}/{required} Confirmed
                             </Button>
