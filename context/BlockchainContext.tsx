@@ -79,7 +79,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
             apiUrl = "wss://kong2.centrality.me/public/rata/ws";
             break;
           case "Rinkeby":
-            BridgeAddress = "0x75a2488b80D1a12cB0209cB1C40986863745Ee2f";
+            BridgeAddress = "0xA4Ce4fDF83CeB84d7a3B71d5c76328b6a375A476";
             ERC20PegAddress = "0xa3205266ebBd74298729e04a28b8Fa53B5319679";
             tokenChainId = 4;
             apiUrl = "wss://nikau.centrality.me/public/ws";
