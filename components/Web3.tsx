@@ -8,7 +8,7 @@ import {
 import { InjectedExtension } from "@polkadot/extension-inject/types";
 import { Api as ApiPromise } from "@cennznet/api";
 import { hexToString } from "@polkadot/util";
-import Keyring, { decodeAddress } from "@polkadot/keyring";
+import { decodeAddress } from "@polkadot/keyring";
 import store from "store";
 import Web3Context from "../context/Web3Context";
 import ERC20Tokens from "../artifacts/erc20tokens.json";
@@ -150,27 +150,19 @@ const Web3: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   }, [accounts, wallet, selectedAccount, signer]);
 
   const updateApi = async (endpoint) => {
-    if (extension === "polkadot-js") {
-      const keyring = new Keyring({ type: "sr25519" });
-      const account = keyring.addFromMnemonic(
-        "raccoon green tooth pact expire crime knee metal border sport myself pelican"
-      );
-      setSelectedAccount(account);
-    } else {
-      let apiPromise: any;
-      try {
-        apiPromise = new ApiPromise({ provider: endpoint });
-      } catch (err) {
-        console.error(`cennznet connection failed: ${err}`);
-      }
-
-      if (!apiPromise) {
-        console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
-        return;
-      }
-
-      apiPromise.isReady.then(() => setAPI(apiPromise));
+    let apiPromise: any;
+    try {
+      apiPromise = new ApiPromise({ provider: endpoint });
+    } catch (err) {
+      console.error(`cennznet connection failed: ${err}`);
     }
+
+    if (!apiPromise) {
+      console.warn(`cennznet is not connected. endpoint: ${endpoint}`);
+      return;
+    }
+
+    apiPromise.isReady.then(() => setAPI(apiPromise));
   };
 
   // Get balances for extension account when api or web3Account has changed
