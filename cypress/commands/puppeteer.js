@@ -61,8 +61,7 @@ module.exports = {
           if (
             target.url().includes("extension") &&
             target.type() === "background_page" &&
-            !target.url().includes(page.url().substring(0, 51)) &&
-            !target.url().includes("background.html")
+            !target.url().includes(page.url().substring(0, 51))
           ) {
             CENNZnetWindow = await puppeteerBrowser.newPage();
             CENNZnetWindow.goto(`${target.url().substring(0, 51)}/index.html#`);
