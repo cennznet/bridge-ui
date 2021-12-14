@@ -23,14 +23,19 @@ module.exports = {
     await module.exports.fillAccountDetails();
     await module.exports.repeatPassword();
 
+    await CENNZnetWindow().waitForTimeout(1000);
+
     await module.exports.click("button.NextStepButton-sc-26dpu8-0");
 
     return true;
   },
   acceptAccess: async () => {
     await setupLocal();
-    await localWindow().waitForSelector("#metamask-button");
-    await module.exports.click("#cennznet-button", localWindow());
+    await localWindow().waitForSelector('[data-testid="metamask-button"]');
+    await module.exports.click(
+      '[data-testid="cennznet-button"]',
+      localWindow()
+    );
 
     await switchToCENNZnetWindow();
     await CENNZnetWindow().waitForSelector("button");
@@ -42,8 +47,8 @@ module.exports = {
     const element = await page.$(selector);
     element.evaluate((el) => el.click());
   },
-  type: async (selector, value) => {
-    const element = await CENNZnetWindow().$(selector);
+  type: async (selector, value, page = CENNZnetWindow()) => {
+    const element = await page.$(selector);
     element.type(value);
   },
   getElements: async (selector, page = CENNZnetWindow()) => {
@@ -76,11 +81,14 @@ module.exports = {
         await input.type("Tester@1234");
       }
     }
+
+    return true;
   },
   clickByText: async (selector, page, string) => {
     const elements = await module.exports.getElements(selector, page);
     for (const el of elements) {
       const text = await page.evaluate((el) => el.textContent, el);
+      if (selector === "li") console.log("text", text);
       if (text.toLowerCase().includes(string)) {
         await el.click();
       }
@@ -100,16 +108,89 @@ module.exports = {
         await input.type("Tester@1234");
       }
     }
+
+    return true;
   },
   selectAccount: async () => {
     await localWindow().waitForSelector("button");
     await module.exports.clickByText("button", localWindow(), "testing");
-    await localWindow().waitForTimeout(300);
+    await localWindow().waitForSelector("button");
     await module.exports.clickByText("button", localWindow(), "close");
-    await module.exports.click("#metamask-button", localWindow());
+    await module.exports.click(
+      '[data-testid="metamask-button"]',
+      localWindow()
+    );
     await localWindow().waitForTimeout(1000);
     await module.exports.clickByText("button", localWindow(), "enter bridge");
+    await localWindow().waitForSelector('[data-testid="token-picker"]');
 
     return true;
+  },
+  depositETH: async (amount) => {
+    try {
+      //select ETH
+      let tokenPicker = await localWindow().$('[data-testid="token-picker"]');
+      await tokenPicker.click();
+      await localWindow().waitForSelector("li");
+      let list = await localWindow().$$("li");
+      for (const li of list) {
+        const text = await localWindow().evaluate((li) => li.textContent, li);
+        if (text === "ETH") {
+          await li.click();
+        }
+      }
+
+      await module.exports.type("#token-amount", amount, localWindow());
+
+      await localWindow().waitForTimeout(500);
+
+      //select CENNZnet account
+      let cennzAccountPicker = await localWindow().$(
+        "#cennznet-account-picker"
+      );
+      await cennzAccountPicker.type("T");
+      await localWindow().keyboard.press("ArrowDown");
+      await localWindow().keyboard.press("Enter");
+
+      await localWindow().waitForSelector('[data-testid="deposit-button"]');
+      let depositButton = await localWindow().$(
+        '[data-testid="deposit-button"]'
+      );
+      await localWindow().waitForTimeout("1000");
+      await depositButton.click();
+    } catch (err) {
+      console.log(err.message);
+    }
+
+    return true;
+  },
+  confirmDeposit: async () => {
+    await localWindow().waitForSelector('[data-testid="tx-close-button"]');
+    let closeButton = await localWindow().$('[data-testid="tx-close-button"]');
+    await closeButton.click();
+
+    return true;
+  },
+  checkTokenBalance: async (symbol) => {
+    let walletButton = await localWindow().$(
+      '[data-testid="cennznet-wallet-button"]'
+    );
+    await walletButton.click();
+
+    await localWindow().waitForSelector(`[data-testid="${symbol}-balance"]`);
+    let balanceDiv = await localWindow().$(`[data-testid="${symbol}-balance"]`);
+    const tokenBalanceString = await localWindow().evaluate(
+      (balanceDiv) => balanceDiv.textContent,
+      balanceDiv
+    );
+
+    let closeButton = await localWindow().$(
+      '[data-testid="wallet-close-button"]'
+    );
+    await closeButton.click();
+
+    let tokenBalance = tokenBalanceString.split(":")[1];
+
+    return tokenBalance;
   },
 };

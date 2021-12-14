@@ -25,6 +25,24 @@ declare namespace Cypress {
      */
     selectCENNZaccount(): Chainable<Subject>;
     /**
+     * Make Ethereum deposit
+     * @example
+     * cy.depositETH()
+     */
+    depositETH(amount: string): Chainable<Subject>;
+    /**
+     * Confirm CENNZ deposit
+     * @example
+     * cy.confirmCENNZnetDeposit()
+     */
+    confirmCENNZnetDeposit(): Chainable<Subject>;
+    /**
+     * Check Token Balance
+     * @example
+     * cy.checkTokenBalance()
+     */
+    checkTokenBalance(symbol: string): Chainable<Subject>;
+    /**
      * Switch to CENNZnet window
      * @example
      * cy.switchToCENNZnetWindow()

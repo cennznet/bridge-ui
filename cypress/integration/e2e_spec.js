@@ -10,13 +10,13 @@ describe("e2e", () => {
   });
   it("should accept connection request to metamask", () => {
     cy.visit("/");
-    cy.get("#metamask-button").click();
+    cy.get('[data-testid="metamask-button"]').click();
     cy.acceptMetamaskAccess().then((connected) => {
       expect(connected).to.be.true;
     });
 
-    cy.get("#metamask-button").should("contain", "METAMASK");
-    cy.get("#metamask-button").should("contain", "...");
+    cy.get('[data-testid="metamask-button"]').should("contain", "METAMASK");
+    cy.get('[data-testid="metamask-button"]').should("contain", "...");
   });
   it("should setup CENNZnet extension", () => {
     cy.switchToCENNZnetWindow();
@@ -33,6 +33,26 @@ describe("e2e", () => {
   it("should select CENNZnet account and enter bridge", () => {
     cy.selectCENNZaccount().then((selected) => {
       expect(selected).to.be.true;
+    });
+  });
+  it("should deposit ETH", async () => {
+    let depositAmount = "0.1";
+    cy.depositETH(depositAmount).then((depositSubmitted) => {
+      expect(depositSubmitted).to.be.true;
+    });
+
+    cy.confirmMetamaskTransaction().then((confirmed) => {
+      expect(confirmed).to.be.true;
+    });
+
+    cy.confirmCENNZnetDeposit().then((confirmed) => {
+      expect(confirmed).to.be.true;
+    });
+
+    cy.wait(25000);
+
+    cy.checkTokenBalance("ETH").then((balance) => {
+      expect(balance).to.equal(depositAmount);
     });
   });
 });

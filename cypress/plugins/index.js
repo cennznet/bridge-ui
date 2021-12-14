@@ -73,6 +73,18 @@ module.exports = (on, config) => {
       const select = await cennznet.selectAccount();
       return select;
     },
+    depositETH: async (amount) => {
+      const deposit = await cennznet.depositETH(amount);
+      return deposit;
+    },
+    confirmCENNZnetDeposit: async () => {
+      const confirmed = await cennznet.confirmDeposit();
+      return confirmed;
+    },
+    checkTokenBalance: async (symbol) => {
+      const balance = await cennznet.checkTokenBalance(symbol);
+      return balance;
+    },
     // puppeteer commands
     initPuppeteer: async () => {
       const connected = await puppeteer.init();

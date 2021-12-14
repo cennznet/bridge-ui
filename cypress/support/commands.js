@@ -19,6 +19,18 @@ Cypress.Commands.add("selectCENNZaccount", () => {
   return cy.task("selectCENNZaccount");
 });
 
+Cypress.Commands.add("depositETH", (amount) => {
+  return cy.task("depositETH", amount);
+});
+
+Cypress.Commands.add("confirmCENNZnetDeposit", () => {
+  return cy.task("confirmCENNZnetDeposit");
+});
+
+Cypress.Commands.add("checkTokenBalance", (symbol) => {
+  return cy.task("checkTokenBalance", symbol);
+});
+
 // puppeteer commands
 
 Cypress.Commands.add("initPuppeteer", () => {
