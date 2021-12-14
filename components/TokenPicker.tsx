@@ -65,6 +65,7 @@ const TokenPicker: React.FC<{ setToken: Function }> = ({ setToken }) => {
         input={<OutlinedInput label="Token" />}
         MenuProps={MenuProps}
         sx={{ fontSize: "18px" }}
+        data-testid="token-picker"
       >
         {tokens.map((token: any, i) => (
           <MenuItem

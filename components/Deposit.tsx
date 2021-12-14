@@ -127,6 +127,7 @@ const Deposit: React.FC<{}> = () => {
           label="Amount"
           variant="outlined"
           required
+          id="token-amount"
           sx={{
             width: "80%",
             m: "30px 0 30px",
@@ -212,6 +213,7 @@ const Deposit: React.FC<{}> = () => {
           size="large"
           variant="outlined"
           onClick={deposit}
+          data-testid="deposit-button"
         >
           Deposit
         </Button>

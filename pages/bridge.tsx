@@ -127,6 +127,7 @@ const Bridge: React.FC<{}> = () => {
           cursor: "pointer",
         }}
         onClick={walletClickHandler}
+        data-testid="cennznet-wallet-button"
       >
         <Heading
           sx={{
