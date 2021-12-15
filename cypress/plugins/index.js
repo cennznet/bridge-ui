@@ -77,6 +77,10 @@ module.exports = (on, config) => {
       const deposit = await cennznet.depositETH(amount);
       return deposit;
     },
+    depositDAI: async (amount) => {
+      const deposit = await cennznet.depositDAI(amount);
+      return deposit;
+    },
     confirmCENNZnetDeposit: async () => {
       const confirmed = await cennznet.confirmDeposit();
       return confirmed;
@@ -250,6 +254,10 @@ module.exports = (on, config) => {
         password,
       });
       return true;
+    },
+    metamaskAddTokenDAI: async () => {
+      const added = await metamask.addTokenDAI();
+      return added;
     },
     getNetwork: () => {
       const network = helpers.getNetwork();

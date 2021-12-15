@@ -31,6 +31,12 @@ declare namespace Cypress {
      */
     depositETH(amount: string): Chainable<Subject>;
     /**
+     * Make DAI deposit
+     * @example
+     * cy.depositDAI()
+     */
+    depositDAI(amount: string): Chainable<Subject>;
+    /**
      * Confirm CENNZ deposit
      * @example
      * cy.confirmCENNZnetDeposit()
@@ -259,6 +265,12 @@ declare namespace Cypress {
       network: string | object,
       password: string
     ): Chainable<Subject>;
+    /**
+     * Add DAI to MetaMask
+     * @example
+     * cy.metamaskAddTokenDAI()
+     */
+    metamaskAddTokenDAI(): Chainable<Subject>;
     /**
      * Get transaction status from Etherscan API
      * @example

@@ -98,6 +98,7 @@ const Bridge: React.FC<{}> = () => {
           setModalOpen(true);
           setModalState("networks");
         }}
+        data-testid="network-button"
       >
         <Heading
           sx={{

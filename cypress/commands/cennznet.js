@@ -88,7 +88,6 @@ module.exports = {
     const elements = await module.exports.getElements(selector, page);
     for (const el of elements) {
       const text = await page.evaluate((el) => el.textContent, el);
-      if (selector === "li") console.log("text", text);
       if (text.toLowerCase().includes(string)) {
         await el.click();
       }
@@ -126,41 +125,51 @@ module.exports = {
 
     return true;
   },
-  depositETH: async (amount) => {
-    try {
-      //select ETH
-      let tokenPicker = await localWindow().$('[data-testid="token-picker"]');
-      await tokenPicker.click();
-      await localWindow().waitForSelector("li");
-      let list = await localWindow().$$("li");
-      for (const li of list) {
-        const text = await localWindow().evaluate((li) => li.textContent, li);
-        if (text === "ETH") {
-          await li.click();
-        }
+  pickToken: async (symbol) => {
+    let tokenPicker = await localWindow().$('[data-testid="token-picker"]');
+    await tokenPicker.click();
+    await localWindow().waitForSelector("li");
+    let list = await localWindow().$$("li");
+    for (const li of list) {
+      let text = await localWindow().evaluate((li) => li.textContent, li);
+      if (text === symbol) {
+        await li.click();
+        break;
       }
-
-      await module.exports.type("#token-amount", amount, localWindow());
-
-      await localWindow().waitForTimeout(500);
-
-      //select CENNZnet account
-      let cennzAccountPicker = await localWindow().$(
-        "#cennznet-account-picker"
-      );
-      await cennzAccountPicker.type("T");
-      await localWindow().keyboard.press("ArrowDown");
-      await localWindow().keyboard.press("Enter");
-
-      await localWindow().waitForSelector('[data-testid="deposit-button"]');
-      let depositButton = await localWindow().$(
-        '[data-testid="deposit-button"]'
-      );
-      await localWindow().waitForTimeout("1000");
-      await depositButton.click();
-    } catch (err) {
-      console.log(err.message);
     }
+
+    return true;
+  },
+  pickAccount: async () => {
+    let cennzAccountPicker = await localWindow().$("#cennznet-account-picker");
+    await cennzAccountPicker.type("T");
+    await localWindow().keyboard.press("ArrowDown");
+    await localWindow().keyboard.press("Enter");
+
+    await localWindow().waitForSelector('[data-testid="deposit-button"]');
+    let depositButton = await localWindow().$('[data-testid="deposit-button"]');
+    await localWindow().waitForTimeout(3000);
+    await depositButton.click();
+
+    return true;
+  },
+  depositETH: async (amount) => {
+    await module.exports.pickToken("ETH");
+    await module.exports.type("#token-amount", amount, localWindow());
+    await localWindow().waitForTimeout(500);
+    await module.exports.pickAccount();
+
+    return true;
+  },
+  depositDAI: async (amount) => {
+    await module.exports.click('[data-testid="network-button"]', localWindow());
+    await module.exports.clickByText("button", localWindow(), "kovan/nikau");
+    await localWindow().waitForTimeout(1000);
+    await localWindow().waitForSelector('[data-testid="token-picker"]');
+    await module.exports.pickToken("DAI");
+    await module.exports.type("#token-amount", amount, localWindow());
+    await localWindow().waitForTimeout(500);
+    await module.exports.pickAccount();
 
     return true;
   },
@@ -172,24 +181,31 @@ module.exports = {
     return true;
   },
   checkTokenBalance: async (symbol) => {
-    let walletButton = await localWindow().$(
+    let tokenBalance;
+    const walletButton = await localWindow().$(
       '[data-testid="cennznet-wallet-button"]'
     );
     await walletButton.click();
 
-    await localWindow().waitForSelector(`[data-testid="${symbol}-balance"]`);
-    let balanceDiv = await localWindow().$(`[data-testid="${symbol}-balance"]`);
-    const tokenBalanceString = await localWindow().evaluate(
-      (balanceDiv) => balanceDiv.textContent,
-      balanceDiv
-    );
+    let pageContent = await localWindow().content();
+    if (pageContent.includes(`${symbol} Balance`)) {
+      await localWindow().waitForSelector(`[data-testid="${symbol}-balance"]`);
+      const balanceDiv = await localWindow().$(
+        `[data-testid="${symbol}-balance"]`
+      );
+      const tokenBalanceString = await localWindow().evaluate(
+        (balanceDiv) => balanceDiv.textContent,
+        balanceDiv
+      );
+      tokenBalance = tokenBalanceString.split(":")[1];
+    } else {
+      tokenBalance = "0";
+    }
 
-    let closeButton = await localWindow().$(
+    const closeButton = await localWindow().$(
       '[data-testid="wallet-close-button"]'
     );
     await closeButton.click();
-
-    let tokenBalance = tokenBalanceString.split(":")[1];
 
     return tokenBalance;
   },

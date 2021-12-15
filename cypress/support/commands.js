@@ -23,6 +23,10 @@ Cypress.Commands.add("depositETH", (amount) => {
   return cy.task("depositETH", amount);
 });
 
+Cypress.Commands.add("depositDAI", (amount) => {
+  return cy.task("depositDAI", amount);
+});
+
 Cypress.Commands.add("confirmCENNZnetDeposit", () => {
   return cy.task("confirmCENNZnetDeposit");
 });
@@ -184,6 +188,10 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("getNetwork", () => {
   return cy.task("getNetwork");
+});
+
+Cypress.Commands.add("metamaskAddTokenDAI", () => {
+  return cy.task("metamaskAddTokenDAI");
 });
 
 // etherscan commands
