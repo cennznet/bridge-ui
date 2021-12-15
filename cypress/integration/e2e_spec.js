@@ -105,4 +105,9 @@ describe("e2e", () => {
       });
     });
   });
+  it("should warn user if token balance too low", () => {
+    cy.CENNZnetTestAmountWarning().then((warning) => {
+      expect(warning).to.be.true;
+    });
+  });
 });

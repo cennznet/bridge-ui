@@ -49,6 +49,12 @@ declare namespace Cypress {
      */
     checkTokenBalance(symbol: string): Chainable<Subject>;
     /**
+     * Test 'Account balance too low' warning
+     * @example
+     * cy.CENNZnetTestAmountWarning()
+     */
+    CENNZnetTestAmountWarning(symbol: string): Chainable<Subject>;
+    /**
      * Switch to CENNZnet window
      * @example
      * cy.switchToCENNZnetWindow()

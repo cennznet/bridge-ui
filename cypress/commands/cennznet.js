@@ -209,4 +209,16 @@ module.exports = {
 
     return tokenBalance;
   },
+  testAmountWarning: async () => {
+    await module.exports.click('[data-testid="network-button"]', localWindow());
+    await module.exports.clickByText("button", localWindow(), "kovan/nikau");
+    await localWindow().waitForTimeout(1000);
+    await localWindow().waitForSelector('[data-testid="token-picker"]');
+    await module.exports.pickToken("ETH");
+    await module.exports.type("#token-amount", "1000", localWindow());
+    await localWindow().waitForTimeout(3000);
+
+    let pageContent = await localWindow().content();
+    return Boolean(pageContent.includes("Account balance too low"));
+  },
 };

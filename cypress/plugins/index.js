@@ -89,6 +89,10 @@ module.exports = (on, config) => {
       const balance = await cennznet.checkTokenBalance(symbol);
       return balance;
     },
+    CENNZnetTestAmountWarning: async () => {
+      const warning = await cennznet.testAmountWarning();
+      return warning;
+    },
     // puppeteer commands
     initPuppeteer: async () => {
       const connected = await puppeteer.init();

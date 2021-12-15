@@ -35,6 +35,10 @@ Cypress.Commands.add("checkTokenBalance", (symbol) => {
   return cy.task("checkTokenBalance", symbol);
 });
 
+Cypress.Commands.add("CENNZnetTestAmountWarning", () => {
+  return cy.task("CENNZnetTestAmountWarning");
+});
+
 // puppeteer commands
 
 Cypress.Commands.add("initPuppeteer", () => {
