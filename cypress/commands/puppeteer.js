@@ -61,7 +61,8 @@ module.exports = {
           if (
             target.url().includes("extension") &&
             target.type() === "background_page" &&
-            !target.url().includes(page.url().substring(0, 51))
+            !target.url().includes(page.url().substring(0, 51)) &&
+            !target.url().includes("caljajdfkjjjdehjdoimjkkakekklcck")
           ) {
             CENNZnetWindow = await puppeteerBrowser.newPage();
             CENNZnetWindow.goto(`${target.url().substring(0, 51)}/index.html#`);
@@ -117,6 +118,16 @@ module.exports = {
     // todo: get rid of waitForTimeout after fixing above
     // todo: all of the above are issues related to metamask notification of tx confirmation
     await module.exports.metamaskWindow().waitForTimeout(3000);
+    let pages = await puppeteerBrowser.pages();
+    for (const page of pages) {
+      if (page.url().includes("notification")) {
+        await page.bringToFront();
+        return page;
+      }
+    }
+  },
+  switchToCENNZnetNotification: async () => {
+    await module.exports.localWindow().waitForTimeout(3000);
     let pages = await puppeteerBrowser.pages();
     for (const page of pages) {
       if (page.url().includes("notification")) {
