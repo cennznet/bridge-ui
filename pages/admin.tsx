@@ -37,6 +37,9 @@ const signatures = {
     "activateWithdrawals()",
     "pauseWithdrawals()",
   ],
+    Timelock : [
+        "queueTransaction(address, uint, string, bytes, uint)",
+    ]
 };
 
 const dataParams = {
@@ -60,7 +63,7 @@ const Admin: React.FC<{}> = () => {
     timelock: {} as ethers.Contract,
   });
   const [state, updateState] = useState({
-    txType: "queue",
+    txType: signatures.Timelock[0],
     target: "",
     value: "",
     signature: "",
@@ -76,7 +79,6 @@ const Admin: React.FC<{}> = () => {
   const [pendingTransactions, setPendingTransactions] = useState([]);
   const { activateAdmin, Signer }: any = useBlockchain();
   const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
-
   useEffect(() => {
     (async () => {
       const { ethereum }: any = window;
@@ -156,22 +158,24 @@ const Admin: React.FC<{}> = () => {
     let eta = BigNumber.from(timestampAfter)
       .add(delay)
       .add(BigNumber.from(100));
-
     let dataHex;
+      // data for gnosis below: '0xa9059cbb00000000000000000000000012345678901234567890123456789012345678900000000000000000000000000000000000000000000000000de0b6b3a7640000'
+    if (state.target === "Bridge"){
+        switch (state.txType) {
+            case signatures.Timelock[0]:
+                let timeLockABI = [
+                    `function ${signatures.Timelock[0]}`
+                ];
+                let timelockInterface = new ethers.utils.Interface(timeLockABI);
+                dataHex = timelockInterface.encodeFunctionData(state.txType, [ contracts.bridge.address, state.value, state.signature, encodedParams, eta] )
+                console.info(dataHex);
+                break;
+            default:
+                break;
+        }
+    }
 
-    if (state.target === "Bridge")
-      dataHex = abi.encode(
-        ["string", "string", "uint", "string", "string", "uint"],
-        [
-          `timelock.${state.txType}Transaction()`,
-          contracts.bridge.address,
-          state.value,
-          state.signature,
-          encodedParams,
-          eta.toNumber(),
-        ]
-      );
-    else if (state.target === "ERC20Peg")
+  else if (state.target === "ERC20Peg")
       dataHex = abi.encode(
         ["string", "string", "uint", "string", "string", "uint"],
         [
@@ -183,14 +187,12 @@ const Admin: React.FC<{}> = () => {
           eta.toNumber(),
         ]
       );
-    console.log("dataHex", dataHex);
-    console.log(
-      "decoded dataHex",
-      abi.decode(
-        ["string", "string", "uint", "string", "string", "uint"],
-        dataHex
-      )
-    );
+    //   console.log(
+    //   "decoded dataHex",
+    //   abi.decode(
+    //     [ "address", "uint", "string", "bytes", "uint256"],
+    //   )
+    // );
   await createSafeTransaction(dataHex);
   };
 
@@ -339,10 +341,10 @@ const Admin: React.FC<{}> = () => {
           <AdminButton
             variant="outlined"
             sx={{
-              backgroundColor: state.txType === "queue" ? "#1130FF" : "#FFFFFF",
-              color: state.txType === "queue" ? "#FFFFFF" : "#1130FF",
+              backgroundColor: state.txType === signatures.Timelock[0] ? "#1130FF" : "#FFFFFF",
+              color: state.txType === signatures.Timelock[0] ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => updateState({ ...state, txType: "queue" })}
+            onClick={() => updateState({ ...state, txType: signatures.Timelock[0]  })}
           >
             QueueTx
           </AdminButton>
@@ -350,10 +352,10 @@ const Admin: React.FC<{}> = () => {
             variant="outlined"
             sx={{
               backgroundColor:
-                state.txType === "execute" ? "#1130FF" : "#FFFFFF",
-              color: state.txType === "execute" ? "#FFFFFF" : "#1130FF",
+                state.txType === "executeTransaction" ? "#1130FF" : "#FFFFFF",
+              color: state.txType === "executeTransaction" ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => updateState({ ...state, txType: "execute" })}
+            onClick={() => updateState({ ...state, txType: "executeTransaction" })}
           >
             ExecuteTx
           </AdminButton>
@@ -361,10 +363,10 @@ const Admin: React.FC<{}> = () => {
             variant="outlined"
             sx={{
               backgroundColor:
-                state.txType === "cancel" ? "#1130FF" : "#FFFFFF",
-              color: state.txType === "cancel" ? "#FFFFFF" : "#1130FF",
+                state.txType === "cancelTransaction" ? "#1130FF" : "#FFFFFF",
+              color: state.txType === "cancelTransaction" ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => updateState({ ...state, txType: "cancel" })}
+            onClick={() => updateState({ ...state, txType: "cancelTransaction" })}
           >
             CancelTx
           </AdminButton>
