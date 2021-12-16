@@ -60,6 +60,7 @@ module.exports = {
       downloadUrl,
     };
   },
+  // TODO - Get latest release 0.38
   getCENNZnetRelease: async () => {
     let filename;
     let downloadUrl;
@@ -68,8 +69,8 @@ module.exports = {
       "https://api.github.com/repos/cennznet/extension/releases"
     );
 
-    filename = response.data[0].assets[0].name;
-    downloadUrl = response.data[0].assets[0].browser_download_url;
+    filename = response.data[1].assets[0].name;
+    downloadUrl = response.data[1].assets[0].browser_download_url;
 
     return {
       filename,

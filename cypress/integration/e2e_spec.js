@@ -39,7 +39,7 @@ describe("e2e", () => {
       expect(selected).to.be.true;
     });
   });
-  it("should deposit ETH", async () => {
+  it("should deposit ETH", () => {
     const depositAmount = "0.1";
     let balance;
 
@@ -69,7 +69,7 @@ describe("e2e", () => {
       });
     });
   });
-  it("should deposit DAI", async () => {
+  it("should deposit DAI", () => {
     const depositAmount = "15";
     let balance;
 
@@ -108,6 +108,68 @@ describe("e2e", () => {
   it("should warn user if token balance too low", () => {
     cy.CENNZnetTestAmountWarning().then((warning) => {
       expect(warning).to.be.true;
+    });
+  });
+  it("should withdraw ETH", () => {
+    const withdrawAmount = "0.1";
+    let balance;
+
+    return new Promise((resolve, reject) => {
+      (async () => {
+        balance = await cy.checkTokenBalance("ETH");
+      })();
+
+      cy.withdrawToken("ETH", withdrawAmount).then((withdrawSubmitted) => {
+        expect(withdrawSubmitted).to.be.true;
+      });
+
+      cy.CENNZnetSignWithdrawal().then((signed) => {
+        expect(signed).to.be.true;
+      });
+
+      cy.wait(25000);
+
+      cy.confirmMetamaskTransaction().then((confirmed) => {
+        expect(confirmed).to.be.true;
+      });
+
+      cy.checkTokenBalance("ETH").then((newBalance) => {
+        expect(Number(newBalance)).to.equal(
+          Number(balance) - Number(depositAmount)
+        );
+        resolve();
+      });
+    });
+  });
+  it("should withdraw DAI", () => {
+    const withdrawAmount = "15";
+    let balance;
+
+    return new Promise((resolve, reject) => {
+      (async () => {
+        balance = await cy.checkTokenBalance("DAI");
+      })();
+
+      cy.withdrawToken("DAI", withdrawAmount).then((withdrawSubmitted) => {
+        expect(withdrawSubmitted).to.be.true;
+      });
+
+      cy.CENNZnetSignWithdrawal().then((signed) => {
+        expect(signed).to.be.true;
+      });
+
+      cy.wait(25000);
+
+      cy.confirmMetamaskTransaction().then((confirmed) => {
+        expect(confirmed).to.be.true;
+      });
+
+      cy.checkTokenBalance("DAI").then((newBalance) => {
+        expect(Number(newBalance)).to.equal(
+          Number(balance) - Number(depositAmount)
+        );
+        resolve();
+      });
     });
   });
 });

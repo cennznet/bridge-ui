@@ -1,8 +1,5 @@
 import "./commands";
 import { configure } from "@testing-library/cypress";
-import { WsProvider } from "@polkadot/api";
-import { web3Enable } from "@polkadot/extension-dapp";
-import { injectExtension } from "@polkadot/extension-inject";
 
 configure({ testIdAttribute: "data-testid" });
 
@@ -14,16 +11,6 @@ Cypress.on("uncaught:exception", () => {
 });
 
 Cypress.on("window:before:load", (win) => {
-  win.injectedWeb3 = {
-    "polkadot-js": {
-      name: "polkadot-js",
-      version: "0.37.3-12",
-      provider: new WsProvider("wss://nikau.centrality.me/public/ws"),
-      enable: web3Enable,
-    },
-  };
-  win.injectedWeb3["polkadot-js"].enable("Bridge");
-
   cy.stub(win.console, "error").callsFake((message) => {
     cy.now("task", "error", message);
     // fail test on browser console error

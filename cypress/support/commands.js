@@ -39,6 +39,14 @@ Cypress.Commands.add("CENNZnetTestAmountWarning", () => {
   return cy.task("CENNZnetTestAmountWarning");
 });
 
+Cypress.Commands.add("withdrawToken", (tokenSymbol, amount) => {
+  return cy.task("withdrawToken", { tokenSymbol, amount });
+});
+
+Cypress.Commands.add("CENNZnetSignWithdrawal", () => {
+  return cy.task("CENNZnetSignWithdrawal");
+});
+
 // puppeteer commands
 
 Cypress.Commands.add("initPuppeteer", () => {

@@ -93,6 +93,14 @@ module.exports = (on, config) => {
       const warning = await cennznet.testAmountWarning();
       return warning;
     },
+    withdrawToken: async ({ tokenSymbol, amount }) => {
+      const withdraw = await cennznet.withdrawToken({ tokenSymbol, amount });
+      return withdraw;
+    },
+    CENNZnetSignWithdrawal: async () => {
+      const signed = await cennznet.signWithdrawal();
+      return signed;
+    },
     // puppeteer commands
     initPuppeteer: async () => {
       const connected = await puppeteer.init();

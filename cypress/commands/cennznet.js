@@ -3,6 +3,7 @@ const {
   setupLocal,
   localWindow,
   switchToCENNZnetWindow,
+  switchToCENNZnetNotification,
 } = require("./puppeteer");
 
 module.exports = {
@@ -140,16 +141,16 @@ module.exports = {
 
     return true;
   },
-  pickAccount: async () => {
+  pickAccountAndDeposit: async () => {
     let cennzAccountPicker = await localWindow().$("#cennznet-account-picker");
     await cennzAccountPicker.type("T");
     await localWindow().keyboard.press("ArrowDown");
     await localWindow().keyboard.press("Enter");
 
     await localWindow().waitForSelector('[data-testid="deposit-button"]');
-    let depositButton = await localWindow().$('[data-testid="deposit-button"]');
+    let button = await localWindow().$('[data-testid="deposit-button"]');
     await localWindow().waitForTimeout(3000);
-    await depositButton.click();
+    await button.click();
 
     return true;
   },
@@ -157,7 +158,7 @@ module.exports = {
     await module.exports.pickToken("ETH");
     await module.exports.type("#token-amount", amount, localWindow());
     await localWindow().waitForTimeout(500);
-    await module.exports.pickAccount();
+    await module.exports.pickAccountAndDeposit();
 
     return true;
   },
@@ -169,7 +170,7 @@ module.exports = {
     await module.exports.pickToken("DAI");
     await module.exports.type("#token-amount", amount, localWindow());
     await localWindow().waitForTimeout(500);
-    await module.exports.pickAccount();
+    await module.exports.pickAccountAndDeposit();
 
     return true;
   },
@@ -220,5 +221,29 @@ module.exports = {
 
     let pageContent = await localWindow().content();
     return Boolean(pageContent.includes("Account balance too low"));
+  },
+  withdrawToken: async ({ tokenSymbol, amount }) => {
+    await module.exports.clickByText("button", localWindow(), "withdraw");
+    await localWindow().waitForSelector('[data-testid="token-picker"]');
+    await module.exports.pickToken(tokenSymbol);
+    await module.exports.type("#token-amount", amount, localWindow());
+
+    await localWindow().waitForSelector('[data-testid="withdraw-button"]');
+    let withdrawButton = await localWindow().$(
+      '[data-testid="withdraw-button"]'
+    );
+    await localWindow().waitForTimeout(3000);
+    await withdrawButton.click();
+
+    return true;
+  },
+  signWithdrawal: async () => {
+    const popup = await switchToCENNZnetNotification();
+
+    await module.exports.type("input", "Tester@1234", popup);
+
+    await popup.waitForTimeout(500);
+    debugger;
+    await module.exports.click("button", popup);
   },
 };

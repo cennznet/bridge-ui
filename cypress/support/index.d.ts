@@ -55,6 +55,18 @@ declare namespace Cypress {
      */
     CENNZnetTestAmountWarning(symbol: string): Chainable<Subject>;
     /**
+     * Make Ethereum withdrawal
+     * @example
+     * cy.withdrawETH()
+     */
+    withdrawToken(tokenSymbol: string, amount: string): Chainable<Subject>;
+    /**
+     * Sign Ethereum withdraw
+     * @example
+     * cy.CENNZnetSignWithdrawal()
+     */
+    CENNZnetSignWithdrawal(): Chainable<Subject>;
+    /**
      * Switch to CENNZnet window
      * @example
      * cy.switchToCENNZnetWindow()
