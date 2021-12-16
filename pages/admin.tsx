@@ -39,6 +39,7 @@ const signatures = {
   ],
     Timelock : [
         "queueTransaction(address, uint, string, bytes, uint)",
+        "executeTransaction(address, uint, string, bytes, uint)",
     ]
 };
 
@@ -159,14 +160,23 @@ const Admin: React.FC<{}> = () => {
       .add(delay)
       .add(BigNumber.from(100));
     let dataHex;
-      // data for gnosis below: '0xa9059cbb00000000000000000000000012345678901234567890123456789012345678900000000000000000000000000000000000000000000000000de0b6b3a7640000'
+    let timeLockABI;
+    let timelockInterface;
     if (state.target === "Bridge"){
         switch (state.txType) {
             case signatures.Timelock[0]:
-                let timeLockABI = [
+                timeLockABI = [
                     `function ${signatures.Timelock[0]}`
                 ];
-                let timelockInterface = new ethers.utils.Interface(timeLockABI);
+                timelockInterface = new ethers.utils.Interface(timeLockABI);
+                dataHex = timelockInterface.encodeFunctionData(state.txType, [ contracts.bridge.address, state.value, state.signature, encodedParams, eta] )
+                console.info(dataHex);
+                break;
+            case signatures.Timelock[1]:
+                timeLockABI = [
+                    `function ${signatures.Timelock[1]}`
+                ];
+                timelockInterface = new ethers.utils.Interface(timeLockABI);
                 dataHex = timelockInterface.encodeFunctionData(state.txType, [ contracts.bridge.address, state.value, state.signature, encodedParams, eta] )
                 console.info(dataHex);
                 break;
@@ -352,10 +362,10 @@ const Admin: React.FC<{}> = () => {
             variant="outlined"
             sx={{
               backgroundColor:
-                state.txType === "executeTransaction" ? "#1130FF" : "#FFFFFF",
-              color: state.txType === "executeTransaction" ? "#FFFFFF" : "#1130FF",
+                state.txType === signatures.Timelock[1] ? "#1130FF" : "#FFFFFF",
+              color: state.txType === signatures.Timelock[1] ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => updateState({ ...state, txType: "executeTransaction" })}
+            onClick={() => updateState({ ...state, txType: signatures.Timelock[1] })}
           >
             ExecuteTx
           </AdminButton>
