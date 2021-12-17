@@ -155,7 +155,6 @@ const Admin: React.FC<{}> = () => {
     let blockAfter = await provider.getBlock(blockNumAfter);
     let timestampAfter = blockAfter.timestamp;
     let delay = await contracts.timelock.delay();
-
     let eta = BigNumber.from(timestampAfter)
       .add(delay)
       .add(BigNumber.from(100));
@@ -170,15 +169,14 @@ const Admin: React.FC<{}> = () => {
                 ];
                 timelockInterface = new ethers.utils.Interface(timeLockABI);
                 dataHex = timelockInterface.encodeFunctionData(state.txType, [ contracts.bridge.address, state.value, state.signature, encodedParams, eta] )
-                console.info(dataHex);
                 break;
             case signatures.Timelock[1]:
                 timeLockABI = [
                     `function ${signatures.Timelock[1]}`
                 ];
                 timelockInterface = new ethers.utils.Interface(timeLockABI);
+                //TODO ensure eta is the same as pending transaction
                 dataHex = timelockInterface.encodeFunctionData(state.txType, [ contracts.bridge.address, state.value, state.signature, encodedParams, eta] )
-                console.info(dataHex);
                 break;
             default:
                 break;
@@ -203,7 +201,8 @@ const Admin: React.FC<{}> = () => {
     //     [ "address", "uint", "string", "bytes", "uint256"],
     //   )
     // );
-  await createSafeTransaction(dataHex);
+      console.info(dataHex);
+      await createSafeTransaction(dataHex);
   };
 
   const bridgeSignature = signatures.Bridge.find((signature) => {
@@ -216,10 +215,11 @@ const Admin: React.FC<{}> = () => {
         //TODO encode transaction data to hex for data section
         const transaction: MetaTransactionData[] = [{
             //ensure this is always lowercase
-            to: '0x551cf0a5719d37e1E6Bc947fD84FE76d204BeB4d', //rinkeby Timelock contract
+            to: '0x239f747454968aE53864D0Ef98c40c977b523cC3', //rinkeby Timelock contract
             value: '0',
             data: dataHex
         }];
+        //Get Gas estimates to send for transaction
         const res = await fetch("https://api-rinkeby.etherscan.io/api?module=gastracker&action=gasoracle&apikey=JNFAU892RF9TJWBU3EV7DJCPIWZY8KEMY1");
         const resJson = await res.json();
         const nextNonce = await getNextQueuedNonce(safeAddress);
