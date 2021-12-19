@@ -84,6 +84,7 @@ const Admin: React.FC<{}> = () => {
   const [signerAddress, setSignerAddress] = useState("");
   const [safeSdk, setSafeSdk] = useState<Safe>();
   const [pendingTransactions, setPendingTransactions] = useState([]);
+  const [txDataView, setTxDataView] = useState("safe");
   const { activateAdmin, Signer }: any = useBlockchain();
   const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
   useEffect(() => {
@@ -304,6 +305,7 @@ const Admin: React.FC<{}> = () => {
             ...tx,
             data: storedTx.data,
           });
+        else formattedTransactions.push(tx);
       }
     }
 
@@ -675,18 +677,31 @@ const Admin: React.FC<{}> = () => {
           <AdminButton
             variant="outlined"
             sx={{
-              backgroundColor: "#1130FF",
-              color: "#FFFFFF",
+              backgroundColor: txDataView === "safe" ? "#1130FF" : "#FFFFFF",
+              color: txDataView === "safe" ? "#FFFFFF" : "#1130FF",
             }}
+            onClick={() => setTxDataView("safe")}
           >
-            Queued
+            Queued - Safe
           </AdminButton>
           <AdminButton
             variant="outlined"
             sx={{
-              backgroundColor: "#FFFFFF",
-              color: "#1130FF",
+              backgroundColor:
+                txDataView === "timelock" ? "#1130FF" : "#FFFFFF",
+              color: txDataView === "timelock" ? "#FFFFFF" : "#1130FF",
             }}
+            onClick={() => setTxDataView("timelock")}
+          >
+            Queued - Timelock
+          </AdminButton>
+          <AdminButton
+            variant="outlined"
+            sx={{
+              backgroundColor: txDataView === "history" ? "#1130FF" : "#FFFFFF",
+              color: txDataView === "history" ? "#FFFFFF" : "#1130FF",
+            }}
+            onClick={() => setTxDataView("history")}
           >
             History
           </AdminButton>
@@ -705,56 +720,60 @@ const Admin: React.FC<{}> = () => {
             padding: "0px",
           }}
         >
-          {pendingTransactions?.map((trans, idx) => {
-            const nonce = trans.transaction.executionInfo.nonce;
-            const confirmed =
-              trans.transaction.executionInfo.confirmationsSubmitted;
-            const required =
-              trans.transaction.executionInfo.confirmationsRequired;
-            const txHashId: string = trans.transaction.id;
-            return (
-              <div
-                key={idx}
-                style={{
-                  // @ts-ignore
-                  "font-family": "Teko",
-                  "font-style": "bold",
-                  "font-weight": 400,
-                }}
-              >
-                {trans.data
-                  ? `Pending Transaction ${nonce}: ${trans.data.signature}`
-                  : `Pending Transaction ${nonce}`}
-                <Button onClick={() => signTransaction(txHashId)}>Sign</Button>
-                <Button>
-                  {confirmed}/{required} Confirmed
-                </Button>
-              </div>
-            );
-          })}
-          {!window.localStorage.getItem("stored-transactions") ? (
-            <Button>
-              <a
-                href={
-                  ethNetwork === "Mainnet"
-                    ? "todo: mainnet link"
-                    : "https://gnosis-safe.io/app/rin:0x97e5140985E5FFA487C51b2E390a40c34919936E/transactions/queue"
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  textDecoration: "none",
-                  color: "black",
-                  fontFamily: "teko",
-                  fontSize: "20px",
-                  letterSpacing: "0.5px",
-                  textTransform: "none",
-                }}
-              >
-                View on Gnosis Safe
-              </a>
-            </Button>
-          ) : null}
+          {txDataView === "safe" && (
+            <>
+              {pendingTransactions?.map((trans, idx) => {
+                const nonce = trans.transaction.executionInfo.nonce;
+                const confirmed =
+                  trans.transaction.executionInfo.confirmationsSubmitted;
+                const required =
+                  trans.transaction.executionInfo.confirmationsRequired;
+                const txHashId: string = trans.transaction.id;
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      // @ts-ignore
+                      "font-family": "Teko",
+                      "font-style": "bold",
+                      "font-weight": 400,
+                    }}
+                  >
+                    {trans.data
+                      ? `Pending Transaction ${nonce}: ${trans.data.signature}`
+                      : `Pending Transaction ${nonce}`}
+                    <Button onClick={() => signTransaction(txHashId)}>
+                      Sign
+                    </Button>
+                    <Button>
+                      {confirmed}/{required} Confirmed
+                    </Button>
+                  </div>
+                );
+              })}
+              <Button>
+                <a
+                  href={
+                    ethNetwork === "Mainnet"
+                      ? "todo: mainnet link"
+                      : "https://gnosis-safe.io/app/rin:0x97e5140985E5FFA487C51b2E390a40c34919936E/transactions/queue"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    textDecoration: "none",
+                    color: "black",
+                    fontFamily: "teko",
+                    fontSize: "20px",
+                    letterSpacing: "0.5px",
+                    textTransform: "none",
+                  }}
+                >
+                  View on Gnosis Safe
+                </a>
+              </Button>
+            </>
+          )}
         </Box>
       </Box>
     </>
