@@ -22,7 +22,6 @@ import {
 } from "@gnosis.pm/safe-core-sdk-types/dist/src/types";
 import { SafeTransaction } from "@gnosis.pm/safe-core-sdk-types";
 import EthSafeTransaction from "@gnosis.pm/safe-core-sdk/dist/src/utils/transactions/SafeTransaction";
-import { constants } from "os";
 
 const abi = new ethers.utils.AbiCoder();
 const targets: string[] = ["Bridge", "ERC20Peg"];
@@ -81,6 +80,7 @@ const Admin: React.FC<{}> = () => {
   });
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState("");
+  const [ethNetwork, setEthNetwork] = useState("");
   const [signerAddress, setSignerAddress] = useState("");
   const [safeSdk, setSafeSdk] = useState<Safe>();
   const [pendingTransactions, setPendingTransactions] = useState([]);
@@ -91,6 +91,7 @@ const Admin: React.FC<{}> = () => {
       const { ethereum }: any = window;
       let ethereumNetwork = window.localStorage.getItem("admin-ethereum-chain");
       if (ethereumNetwork === "Mainnet" || ethereumNetwork === "Rinkeby") {
+        setEthNetwork(ethereumNetwork);
         const { provider, timelock, bridge, peg }: any = await activateAdmin(
           ethereum,
           ethereumNetwork
@@ -108,9 +109,11 @@ const Admin: React.FC<{}> = () => {
         const storedTransactions = JSON.parse(
           window.localStorage.getItem("stored-transactions")
         );
-        if (queuedTransactions) {
+        if (queuedTransactions && storedTransactions) {
           let formattedTransactions = formatTransactions(queuedTransactions);
           setPendingTransactions(formattedTransactions);
+        } else if (queuedTransactions && !storedTransactions) {
+          setPendingTransactions(queuedTransactions);
         } else if (!queuedTransactions && storedTransactions) {
           window.localStorage.removeItem("stored-transactions");
         }
@@ -709,29 +712,49 @@ const Admin: React.FC<{}> = () => {
             const required =
               trans.transaction.executionInfo.confirmationsRequired;
             const txHashId: string = trans.transaction.id;
-            const txSignature = trans.data.signature;
             return (
-              <>
-                <div
-                  key={idx}
-                  style={{
-                    // @ts-ignore
-                    "font-family": "Teko",
-                    "font-style": "bold",
-                    "font-weight": 400,
-                  }}
-                >
-                  {`Pending Transaction ${nonce}: ${txSignature}`}
-                  <Button onClick={() => signTransaction(txHashId)}>
-                    Sign
-                  </Button>
-                  <Button>
-                    {confirmed}/{required} Confirmed
-                  </Button>
-                </div>
-              </>
+              <div
+                key={idx}
+                style={{
+                  // @ts-ignore
+                  "font-family": "Teko",
+                  "font-style": "bold",
+                  "font-weight": 400,
+                }}
+              >
+                {trans.data
+                  ? `Pending Transaction ${nonce}: ${trans.data.signature}`
+                  : `Pending Transaction ${nonce}`}
+                <Button onClick={() => signTransaction(txHashId)}>Sign</Button>
+                <Button>
+                  {confirmed}/{required} Confirmed
+                </Button>
+              </div>
             );
           })}
+          {!window.localStorage.getItem("stored-transactions") ? (
+            <Button>
+              <a
+                href={
+                  ethNetwork === "Mainnet"
+                    ? "todo: mainnet link"
+                    : "https://gnosis-safe.io/app/rin:0x97e5140985E5FFA487C51b2E390a40c34919936E/transactions/queue"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  textDecoration: "none",
+                  color: "black",
+                  fontFamily: "teko",
+                  fontSize: "20px",
+                  letterSpacing: "0.5px",
+                  textTransform: "none",
+                }}
+              >
+                View on Gnosis Safe
+              </a>
+            </Button>
+          ) : null}
         </Box>
       </Box>
     </>
