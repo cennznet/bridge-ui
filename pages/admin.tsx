@@ -107,16 +107,12 @@ const Admin: React.FC<{}> = () => {
           safeAddress,
         });
         const queuedTransactions = await getAllQueuedTransactions(safeAddress);
-        const storedTransactions = JSON.parse(
-          window.localStorage.getItem("stored-transactions")
-        );
-        if (queuedTransactions && storedTransactions) {
-          let formattedTransactions = formatTransactions(queuedTransactions);
+        if (queuedTransactions) {
+          let formattedTransactions = await formatTransactions(
+            queuedTransactions
+          );
+
           setPendingTransactions(formattedTransactions);
-        } else if (queuedTransactions && !storedTransactions) {
-          setPendingTransactions(queuedTransactions);
-        } else if (!queuedTransactions && storedTransactions) {
-          window.localStorage.removeItem("stored-transactions");
         }
 
         setProvider(provider);
@@ -263,50 +259,53 @@ const Admin: React.FC<{}> = () => {
     );
     await safeSdk.signTransaction(safeTransaction);
     //Send proposed transaction to gnosis safe for others to review
-    let txRes = await proposeTransaction(
+    await proposeTransaction(
       safeSdk,
       safeTransaction,
       signerAddress,
       safeAddress
     );
 
-    let storedTransactions = JSON.parse(
-      window.localStorage.getItem("stored-transactions")
-    );
-    let txData = {
-      data: state,
-      tx: txRes,
-    };
-    storedTransactions
-      ? window.localStorage.setItem(
-          "stored-transactions",
-          JSON.stringify([...storedTransactions, txData])
-        )
-      : window.localStorage.setItem(
-          "stored-transactions",
-          JSON.stringify([txData])
-        );
-
     const queuedTransactions = await getAllQueuedTransactions(safeAddress);
-    let formattedTransactions = formatTransactions(queuedTransactions);
+    let formattedTransactions = await formatTransactions(queuedTransactions);
     setPendingTransactions(formattedTransactions);
   };
 
-  const formatTransactions = (queuedTransactions: any[]) => {
-    let storedTransactions = JSON.parse(
-      window.localStorage.getItem("stored-transactions")
-    );
+  const formatTransactions = async (queuedTransactions: any[]) => {
     let formattedTransactions = [];
 
     for (const tx of queuedTransactions) {
-      for (const storedTx of storedTransactions) {
-        if (tx.transaction.id === storedTx.tx.txId)
-          formattedTransactions.push({
-            ...tx,
-            data: storedTx.data,
-          });
-        else formattedTransactions.push(tx);
+      let value: string;
+      let txSignature: string;
+      let { txData } = await getMultiSignatureTransaction(tx.transaction.id);
+      let signature = txData.dataDecoded.parameters[2].value;
+      switch (signature) {
+        default:
+        case signatures.Bridge[0]:
+        case signatures.Bridge[1]:
+          txSignature = signature;
+          break;
+        case signatures.Bridge[2]:
+        case signatures.Bridge[3]:
+        case signatures.Bridge[4]:
+        case signatures.Bridge[5]:
+          value = abi
+            .decode(["uint256"], txData.dataDecoded.parameters[3].value)
+            .toString();
+          txSignature = `${signature.split("(")[0]}(${value})`;
+          break;
+        case signatures.Bridge[6]:
+          value = abi
+            .decode(["bool"], txData.dataDecoded.parameters[3].value)
+            .toString();
+          txSignature = `${signature.split("(")[0]}(${value})`;
+          break;
       }
+
+      formattedTransactions.push({
+        ...tx,
+        txSignature,
+      });
     }
 
     return formattedTransactions;
@@ -739,9 +738,7 @@ const Admin: React.FC<{}> = () => {
                       "font-weight": 400,
                     }}
                   >
-                    {trans.data
-                      ? `Pending Transaction ${nonce}: ${trans.data.signature}`
-                      : `Pending Transaction ${nonce}`}
+                    {`Pending Transaction ${nonce}: ${trans.txSignature}`}
                     <Button onClick={() => signTransaction(txHashId)}>
                       Sign
                     </Button>
