@@ -73,6 +73,12 @@ declare namespace Cypress {
      */
     switchToCENNZnetWindow(): Chainable<Subject>;
     /**
+     * Switch networks
+     * @example
+     * cy.CENNZnetSwitchNetwork()
+     */
+    CENNZnetSwitchNetwork(networkString): Chainable<Subject>;
+    /**
      * Assign currently open tabs with puppeteer
      * @example
      * cy.assignWindows()

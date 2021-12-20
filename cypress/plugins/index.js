@@ -101,6 +101,10 @@ module.exports = (on, config) => {
       const signed = await cennznet.signWithdrawal();
       return signed;
     },
+    CENNZnetSwitchNetwork: async (networkString) => {
+      const switched = await cennznet.switchNetwork(networkString);
+      return switched;
+    },
     // puppeteer commands
     initPuppeteer: async () => {
       const connected = await puppeteer.init();

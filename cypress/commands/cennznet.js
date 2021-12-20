@@ -6,6 +6,8 @@ const {
   switchToCENNZnetNotification,
 } = require("./puppeteer");
 
+const metamask = require("./metamask");
+
 module.exports = {
   setupCENNZnet: async () => {
     await module.exports.click("button");
@@ -247,5 +249,19 @@ module.exports = {
     await module.exports.click("button", popup);
 
     return true;
+  },
+  switchNetwork: async (networkString) => {
+    await module.exports.click('[data-testid="network-button"]', localWindow());
+    await module.exports.clickByText("button", localWindow(), networkString);
+    await metamask.allowToSwitchNetwork();
+    await localWindow().waitForTimeout(5000);
+    await localWindow().waitForSelector('[data-testid="token-picker"]');
+
+    let networkDisplay = await localWindow().$eval(
+      '[data-testid="network-button"]',
+      (networkButton) => networkButton.textContent
+    );
+
+    return networkDisplay.toLowerCase().includes(networkString);
   },
 };

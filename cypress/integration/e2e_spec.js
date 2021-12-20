@@ -185,4 +185,9 @@ describe("e2e", () => {
       expect(warning).to.be.true;
     });
   });
+  it("should refresh page and update display on network switch", () => {
+    cy.CENNZnetSwitchNetwork("ropsten/rata").then((switched) => {
+      expect(switched).to.be.true;
+    });
+  });
 });

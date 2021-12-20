@@ -47,6 +47,10 @@ Cypress.Commands.add("CENNZnetSignWithdrawal", () => {
   return cy.task("CENNZnetSignWithdrawal");
 });
 
+Cypress.Commands.add("CENNZnetSwitchNetwork", (networkString) => {
+  return cy.task("CENNZnetSwitchNetwork", networkString);
+});
+
 // puppeteer commands
 
 Cypress.Commands.add("initPuppeteer", () => {
