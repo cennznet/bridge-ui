@@ -40,7 +40,7 @@ describe("e2e", () => {
     });
   });
   it("should deposit ETH", () => {
-    const depositAmount = "0.1";
+    const depositAmount = "0.5";
     let balance;
 
     return new Promise((resolve, reject) => {
@@ -111,7 +111,7 @@ describe("e2e", () => {
     });
   });
   it("should withdraw ETH", () => {
-    const withdrawAmount = "0.1";
+    const withdrawAmount = "0.5";
     let balance;
 
     return new Promise((resolve, reject) => {
