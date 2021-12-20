@@ -159,6 +159,24 @@ const Withdraw: React.FC<{}> = () => {
       s.push(sig.s);
     });
 
+    let gasEstimate = await Contracts.peg.estimateGas.withdraw(
+      tokenAddress,
+      withdrawAmount,
+      ethAddress,
+      {
+        eventId: eventProof.eventId,
+        validatorSetId: eventProof.validatorSetId,
+        v,
+        r,
+        s,
+      },
+      {
+        value: verificationFee,
+      }
+    );
+
+    let gasLimit = (gasEstimate.toNumber() * 1.02).toFixed(0);
+
     let tx: any = await Contracts.peg.withdraw(
       tokenAddress,
       withdrawAmount,
@@ -172,7 +190,7 @@ const Withdraw: React.FC<{}> = () => {
       },
       {
         value: verificationFee,
-        gasLimit: 150000,
+        gasLimit: gasLimit,
       }
     );
 
