@@ -143,7 +143,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
           case "Rinkeby":
             BridgeAddress = "0xA4Ce4fDF83CeB84d7a3B71d5c76328b6a375A476";
             ERC20PegAddress = "0x8236824EdaE713c9B55Ed7125Ee6103213859Bf8";
-            TimelockAddress = "0x1a7341b4DDC735Fe9f3F05bA2ad88C7648E7a2d1";
+            TimelockAddress = "0x239f747454968aE53864D0Ef98c40c977b523cC3";
             break;
           default:
             break;
