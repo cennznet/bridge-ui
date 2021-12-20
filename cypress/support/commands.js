@@ -27,16 +27,16 @@ Cypress.Commands.add("depositDAI", (amount) => {
   return cy.task("depositDAI", amount);
 });
 
-Cypress.Commands.add("confirmCENNZnetDeposit", () => {
-  return cy.task("confirmCENNZnetDeposit");
+Cypress.Commands.add("confirmCENNZnetTransaction", () => {
+  return cy.task("confirmCENNZnetTransaction");
 });
 
 Cypress.Commands.add("checkTokenBalance", (symbol) => {
   return cy.task("checkTokenBalance", symbol);
 });
 
-Cypress.Commands.add("CENNZnetTestAmountWarning", () => {
-  return cy.task("CENNZnetTestAmountWarning");
+Cypress.Commands.add("CENNZnetTestAmountWarning", (tab) => {
+  return cy.task("CENNZnetTestAmountWarning", tab);
 });
 
 Cypress.Commands.add("withdrawToken", (tokenSymbol, amount) => {

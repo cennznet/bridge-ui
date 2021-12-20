@@ -55,11 +55,11 @@ describe("e2e", () => {
         expect(confirmed).to.be.true;
       });
 
-      cy.confirmCENNZnetDeposit().then((confirmed) => {
+      cy.confirmCENNZnetTransaction().then((confirmed) => {
         expect(confirmed).to.be.true;
       });
 
-      cy.wait(25000);
+      cy.wait(40000);
 
       cy.checkTokenBalance("ETH").then((newBalance) => {
         expect(Number(newBalance)).to.equal(
@@ -85,17 +85,17 @@ describe("e2e", () => {
         expect(confirmed).to.be.true;
       });
 
-      cy.wait(20000);
+      cy.wait(40000);
 
       cy.confirmMetamaskTransaction().then((confirmed) => {
         expect(confirmed).to.be.true;
       });
 
-      cy.confirmCENNZnetDeposit().then((confirmed) => {
+      cy.confirmCENNZnetTransaction().then((confirmed) => {
         expect(confirmed).to.be.true;
       });
 
-      cy.wait(25000);
+      cy.wait(40000);
 
       cy.checkTokenBalance("DAI").then((newBalance) => {
         expect(Number(newBalance)).to.equal(
@@ -106,7 +106,7 @@ describe("e2e", () => {
     });
   });
   it("should warn user if token balance too low", () => {
-    cy.CENNZnetTestAmountWarning().then((warning) => {
+    cy.CENNZnetTestAmountWarning("deposit").then((warning) => {
       expect(warning).to.be.true;
     });
   });
@@ -127,15 +127,19 @@ describe("e2e", () => {
         expect(signed).to.be.true;
       });
 
-      cy.wait(25000);
+      cy.wait(20000);
 
       cy.confirmMetamaskTransaction().then((confirmed) => {
         expect(confirmed).to.be.true;
       });
 
+      cy.confirmCENNZnetTransaction().then((confirmed) => {
+        expect(confirmed).to.be.true;
+      });
+
       cy.checkTokenBalance("ETH").then((newBalance) => {
         expect(Number(newBalance)).to.equal(
-          Number(balance) - Number(depositAmount)
+          Number(balance) - Number(withdrawAmount)
         );
         resolve();
       });
@@ -158,18 +162,27 @@ describe("e2e", () => {
         expect(signed).to.be.true;
       });
 
-      cy.wait(25000);
+      cy.wait(20000);
 
       cy.confirmMetamaskTransaction().then((confirmed) => {
         expect(confirmed).to.be.true;
       });
 
+      cy.confirmCENNZnetTransaction().then((confirmed) => {
+        expect(confirmed).to.be.true;
+      });
+
       cy.checkTokenBalance("DAI").then((newBalance) => {
         expect(Number(newBalance)).to.equal(
-          Number(balance) - Number(depositAmount)
+          Number(balance) - Number(withdrawAmount)
         );
         resolve();
       });
+    });
+  });
+  it("should warn user if token balance too low", () => {
+    cy.CENNZnetTestAmountWarning("withdraw").then((warning) => {
+      expect(warning).to.be.true;
     });
   });
 });

@@ -81,16 +81,16 @@ module.exports = (on, config) => {
       const deposit = await cennznet.depositDAI(amount);
       return deposit;
     },
-    confirmCENNZnetDeposit: async () => {
-      const confirmed = await cennznet.confirmDeposit();
+    confirmCENNZnetTransaction: async () => {
+      const confirmed = await cennznet.confirmTransaction();
       return confirmed;
     },
     checkTokenBalance: async (symbol) => {
       const balance = await cennznet.checkTokenBalance(symbol);
       return balance;
     },
-    CENNZnetTestAmountWarning: async () => {
-      const warning = await cennznet.testAmountWarning();
+    CENNZnetTestAmountWarning: async (tab) => {
+      const warning = await cennznet.testAmountWarning(tab);
       return warning;
     },
     withdrawToken: async ({ tokenSymbol, amount }) => {

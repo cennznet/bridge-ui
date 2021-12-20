@@ -11,7 +11,7 @@ module.exports = {
     await module.exports.click("button");
     await module.exports.click("div.popupToggle");
 
-    await module.exports.clickToImportAccountPage();
+    await module.exports.clickByText("a", CENNZnetWindow(), "import account");
     await CENNZnetWindow().waitForTimeout(300);
 
     await module.exports.type(
@@ -26,7 +26,11 @@ module.exports = {
 
     await CENNZnetWindow().waitForTimeout(1000);
 
-    await module.exports.click("button.NextStepButton-sc-26dpu8-0");
+    await module.exports.clickByText(
+      "button",
+      CENNZnetWindow(),
+      "add the account"
+    );
 
     return true;
   },
@@ -56,20 +60,8 @@ module.exports = {
     const elements = await page.$$(selector);
     return elements;
   },
-  clickToImportAccountPage: async () => {
-    const aDivs = await module.exports.getElements("a.Link-sc-61h66h-0");
-    for (const a of aDivs) {
-      const text = await CENNZnetWindow().evaluate((a) => a.textContent, a);
-      if (text.toLowerCase().includes("import account")) {
-        await a.click();
-        break;
-      }
-    }
-  },
   fillAccountDetails: async () => {
-    const inputDivs = await module.exports.getElements(
-      "div.Label-sc-1m5io7b-0"
-    );
+    const inputDivs = await module.exports.getElements("div.Label-sc-732ypa-0");
     for (const div of inputDivs) {
       const text = await CENNZnetWindow().evaluate(
         (div) => div.textContent,
@@ -95,9 +87,7 @@ module.exports = {
     }
   },
   repeatPassword: async () => {
-    const inputDivs = await module.exports.getElements(
-      "div.Label-sc-1m5io7b-0"
-    );
+    const inputDivs = await module.exports.getElements("div.Label-sc-732ypa-0");
     for (const div of inputDivs) {
       const text = await CENNZnetWindow().evaluate(
         (div) => div.textContent,
@@ -174,7 +164,7 @@ module.exports = {
 
     return true;
   },
-  confirmDeposit: async () => {
+  confirmTransaction: async () => {
     await localWindow().waitForSelector('[data-testid="tx-close-button"]');
     let closeButton = await localWindow().$('[data-testid="tx-close-button"]');
     await closeButton.click();
@@ -210,10 +200,14 @@ module.exports = {
 
     return tokenBalance;
   },
-  testAmountWarning: async () => {
+  testAmountWarning: async (tab) => {
     await module.exports.click('[data-testid="network-button"]', localWindow());
     await module.exports.clickByText("button", localWindow(), "kovan/nikau");
     await localWindow().waitForTimeout(1000);
+    if (tab === "withdraw") {
+      await module.exports.clickByText("button", localWindow(), "withdraw");
+      await localWindow().waitForTimeout(5000);
+    }
     await localWindow().waitForSelector('[data-testid="token-picker"]');
     await module.exports.pickToken("ETH");
     await module.exports.type("#token-amount", "1000", localWindow());
@@ -223,9 +217,15 @@ module.exports = {
     return Boolean(pageContent.includes("Account balance too low"));
   },
   withdrawToken: async ({ tokenSymbol, amount }) => {
+    await module.exports.click('[data-testid="network-button"]', localWindow());
+    await module.exports.clickByText("button", localWindow(), "kovan/nikau");
+    await localWindow().waitForTimeout(5000);
+    await localWindow().waitForSelector('[data-testid="token-picker"]');
     await module.exports.clickByText("button", localWindow(), "withdraw");
+    await localWindow().waitForTimeout(5000);
     await localWindow().waitForSelector('[data-testid="token-picker"]');
     await module.exports.pickToken(tokenSymbol);
+    await localWindow().waitForTimeout(1000);
     await module.exports.type("#token-amount", amount, localWindow());
 
     await localWindow().waitForSelector('[data-testid="withdraw-button"]');
@@ -239,11 +239,13 @@ module.exports = {
   },
   signWithdrawal: async () => {
     const popup = await switchToCENNZnetNotification();
+    await popup.waitForSelector("input");
 
     await module.exports.type("input", "Tester@1234", popup);
 
     await popup.waitForTimeout(500);
-    debugger;
     await module.exports.click("button", popup);
+
+    return true;
   },
 };

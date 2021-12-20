@@ -39,9 +39,9 @@ declare namespace Cypress {
     /**
      * Confirm CENNZ deposit
      * @example
-     * cy.confirmCENNZnetDeposit()
+     * cy.confirmCENNZnetTransaction()
      */
-    confirmCENNZnetDeposit(): Chainable<Subject>;
+    confirmCENNZnetTransaction(): Chainable<Subject>;
     /**
      * Check Token Balance
      * @example
@@ -53,7 +53,7 @@ declare namespace Cypress {
      * @example
      * cy.CENNZnetTestAmountWarning()
      */
-    CENNZnetTestAmountWarning(symbol: string): Chainable<Subject>;
+    CENNZnetTestAmountWarning(tab: string): Chainable<Subject>;
     /**
      * Make Ethereum withdrawal
      * @example
