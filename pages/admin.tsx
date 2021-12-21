@@ -267,7 +267,6 @@ const Admin: React.FC<{}> = () => {
         else {
             await safeSdk.signTransaction(pendingTransaction);
             await proposeTransaction(safeSdk, pendingTransaction, signerAddress, safeAddress);
-            console.info("transaction Signed")
         }
     }
 
@@ -316,6 +315,35 @@ const Admin: React.FC<{}> = () => {
     const getMultiSignatureTransaction = async (multisignature: string) => {
         const res = await fetch(`https://safe-client.gnosis.io/v1/chains/4/transactions/${multisignature}`)
         return await res.json();
+    }
+
+
+    const getPendingTransactionsTimelock = async () => {
+        //TODO get events only certain date in past
+        const events = await contracts.timelock.queryFilter({});
+        // get all un-executed queued transactions
+        const unExecutedQueuedTransactionProms = events.map(async event => {
+            if(event.eventSignature.includes("QueueTransaction")){
+                const isQueued = await contracts.timelock.queuedTransactions(event.args.txHash);
+                if(isQueued){
+                    let decodeData = abi.decode(event.args.signature.split("(")[1].replace(")","").split(","), event.args.data);
+                    decodeData = decodeData.map(data => {
+                        if(BigNumber.isBigNumber(data)) return data.toNumber();
+                        else return data;
+                    })
+                    return {
+                        blockNumber: event.blockNumber,
+                        signature:event.args.signature,
+                        data:event.args.data,
+                        decodeData: decodeData,
+                        eta:event.args.eta.toNumber(),
+                    }
+                }
+            }
+        });
+        let unExecutedQueuedTransaction  = await Promise.all(unExecutedQueuedTransactionProms);
+        unExecutedQueuedTransaction = unExecutedQueuedTransaction.filter(trans => trans);
+        return unExecutedQueuedTransaction;
     }
 
     return (
