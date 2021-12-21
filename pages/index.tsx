@@ -60,6 +60,7 @@ const Home: React.FC<{}> = () => {
         setModalState("changeAccount");
         setModalOpen(true);
       }}
+      data-testid="cennznet-button"
     >
       {selectedAccount ? (
         <>
@@ -113,6 +114,7 @@ const Home: React.FC<{}> = () => {
         backgroundColor: "white",
       }}
       onClick={connectMetamask}
+      data-testid="metamask-button"
     >
       {Account ? (
         <>

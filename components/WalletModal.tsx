@@ -57,7 +57,7 @@ const WalletModal: React.FC<{
       {balances ? (
         <Box sx={{ mt: "3%", pl: "5%", display: "block" }}>
           {Object.values(balances).map((token: any, i) => (
-            <Box key={i}>
+            <Box key={i} data-testid={`${token.symbol}-balance`}>
               <SmallText
                 sx={{
                   color: "black",
@@ -206,6 +206,7 @@ const WalletModal: React.FC<{
             setModalState("");
             setModalOpen(false);
           }}
+          data-testid="wallet-close-button"
         >
           CLOSE
         </Button>

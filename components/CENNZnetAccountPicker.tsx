@@ -28,6 +28,7 @@ const CENNZnetAccountPicker: React.FC<{
     <Autocomplete
       disablePortal
       options={accountNames}
+      id="cennznet-account-picker"
       onSelect={(e: any) => updateAccount(e.target.value)}
       sx={{
         width: "80%",

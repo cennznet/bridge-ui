@@ -229,6 +229,7 @@ const Withdraw: React.FC<{}> = () => {
           label="Amount"
           variant="outlined"
           required
+          id="token-amount"
           sx={{
             width: "80%",
             m: "30px 0 30px",
@@ -249,6 +250,7 @@ const Withdraw: React.FC<{}> = () => {
           )}
         </Box>
         <Button
+          data-testid="withdraw-button"
           sx={{
             fontFamily: "Teko",
             fontWeight: "bold",

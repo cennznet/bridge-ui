@@ -112,6 +112,7 @@ const TxModal: React.FC<Props> = ({
                 margin: "50px auto 50px",
               }}
               onClick={() => setModalOpen(false)}
+              data-testid="tx-close-button"
             >
               <Heading sx={{ color: "#FFFFFF", fontSize: "24px" }}>
                 close

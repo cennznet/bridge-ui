@@ -98,6 +98,7 @@ const Bridge: React.FC<{}> = () => {
           setModalOpen(true);
           setModalState("networks");
         }}
+        data-testid="network-button"
       >
         <Heading
           sx={{
@@ -127,6 +128,7 @@ const Bridge: React.FC<{}> = () => {
           cursor: "pointer",
         }}
         onClick={walletClickHandler}
+        data-testid="cennznet-wallet-button"
       >
         <Heading
           sx={{
