@@ -2,7 +2,7 @@
   "baseUrl": "http://localhost:3000",
   "pluginsFile": "cypress/plugins/index.js",
   "supportFile": "cypress/support/index.js",
-  "retries": { "runMode": 0, "openMode": 0 },
+  "retries": { "runMode": 1, "openMode": 0 },
   "chromeWebSecurity": true,
   "viewportWidth": 1366,
   "viewportHeight": 768,
