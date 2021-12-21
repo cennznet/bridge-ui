@@ -79,7 +79,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
             apiUrl = "wss://kong2.centrality.me/public/rata/ws";
             break;
           case "Rinkeby":
-            BridgeAddress = "0xA4Ce4fDF83CeB84d7a3B71d5c76328b6a375A476";
+            BridgeAddress = "0x0D448D08677171FF611DD626cEd9Edd5f0d67155";
             ERC20PegAddress = "0xa3205266ebBd74298729e04a28b8Fa53B5319679";
             tokenChainId = 4;
             apiUrl = "wss://nikau.centrality.me/public/ws";
@@ -141,9 +141,9 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
             TimelockAddress = "";
             break;
           case "Rinkeby":
-            BridgeAddress = "0x0572ffCB68b1c7E7478900b034BFe925D5aC14B3";
+            BridgeAddress = "0x0D448D08677171FF611DD626cEd9Edd5f0d67155";
             ERC20PegAddress = "0x8236824EdaE713c9B55Ed7125Ee6103213859Bf8";
-            TimelockAddress = "0x1a7341b4DDC735Fe9f3F05bA2ad88C7648E7a2d1";
+            TimelockAddress = "0x239f747454968aE53864D0Ef98c40c977b523cC3";
             break;
           default:
             break;

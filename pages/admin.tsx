@@ -173,7 +173,6 @@ const Admin: React.FC<{}> = () => {
     let blockAfter = await provider.getBlock(blockNumAfter);
     let timestampAfter = blockAfter.timestamp;
     let delay = await contracts.timelock.delay();
-
     let eta = BigNumber.from(timestampAfter)
       .add(delay)
       .add(BigNumber.from(100));
@@ -192,11 +191,11 @@ const Admin: React.FC<{}> = () => {
             encodedParams,
             eta,
           ]);
-          console.info(dataHex);
           break;
         case signatures.Timelock[1]:
           timeLockABI = [`function ${signatures.Timelock[1]}`];
           timelockInterface = new ethers.utils.Interface(timeLockABI);
+          //TODO ensure eta is the same as pending transaction
           dataHex = timelockInterface.encodeFunctionData(state.txType, [
             contracts.bridge.address,
             state.value,
@@ -204,7 +203,6 @@ const Admin: React.FC<{}> = () => {
             encodedParams,
             eta,
           ]);
-          console.info(dataHex);
           break;
         default:
           break;
@@ -227,6 +225,7 @@ const Admin: React.FC<{}> = () => {
     //   [ "address", "uint", "string", "bytes", "uint256"],
     // )
     // );
+    console.info(dataHex);
     await createSafeTransaction(dataHex);
   };
 
@@ -433,6 +432,43 @@ const Admin: React.FC<{}> = () => {
       `https://safe-client.gnosis.io/v1/chains/4/transactions/${multisignature}`
     );
     return await res.json();
+  };
+
+  const getPendingTransactionsTimelock = async () => {
+    //TODO get events only certain date in past
+    const events = await contracts.timelock.queryFilter({});
+    // get all un-executed queued transactions
+    const unExecutedQueuedTransactionProms = events.map(async (event) => {
+      if (event.eventSignature.includes("QueueTransaction")) {
+        const isQueued = await contracts.timelock.queuedTransactions(
+          event.args.txHash
+        );
+        if (isQueued) {
+          let decodeData = abi.decode(
+            event.args.signature.split("(")[1].replace(")", "").split(","),
+            event.args.data
+          );
+          decodeData = decodeData.map((data) => {
+            if (BigNumber.isBigNumber(data)) return data.toNumber();
+            else return data;
+          });
+          return {
+            blockNumber: event.blockNumber,
+            signature: event.args.signature,
+            data: event.args.data,
+            decodeData: decodeData,
+            eta: event.args.eta.toNumber(),
+          };
+        }
+      }
+    });
+    let unExecutedQueuedTransaction = await Promise.all(
+      unExecutedQueuedTransactionProms
+    );
+    unExecutedQueuedTransaction = unExecutedQueuedTransaction.filter(
+      (trans) => trans
+    );
+    return unExecutedQueuedTransaction;
   };
 
   return (
