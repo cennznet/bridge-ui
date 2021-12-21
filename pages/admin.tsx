@@ -84,6 +84,8 @@ const Admin: React.FC<{}> = () => {
   const [signerAddress, setSignerAddress] = useState("");
   const [safeSdk, setSafeSdk] = useState<Safe>();
   const [pendingTransactions, setPendingTransactions] = useState([]);
+  const [pendingTransactionsTimelock, setPendingTransactionsTimelock] =
+    useState([]);
   const [txDataView, setTxDataView] = useState("safe");
   const { activateAdmin, Signer }: any = useBlockchain();
   const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
@@ -471,6 +473,54 @@ const Admin: React.FC<{}> = () => {
     return unExecutedQueuedTransaction;
   };
 
+  const formatPendingTransactionsTimelock = async () => {
+    let pendingTransactions = await getPendingTransactionsTimelock();
+
+    let formattedTransactions = [];
+
+    for (const tx of pendingTransactions) {
+      let txSignature: string,
+        value: string,
+        distance: number,
+        days: number,
+        hours: number,
+        minutes: number,
+        seconds: number,
+        countdownString: string;
+
+      switch (tx.signature) {
+        default:
+        case signatures.Bridge[0]:
+        case signatures.Bridge[1]:
+          txSignature = tx.signature;
+          break;
+        case signatures.Bridge[2]:
+        case signatures.Bridge[3]:
+        case signatures.Bridge[4]:
+        case signatures.Bridge[5]:
+        case signatures.Bridge[6]:
+          value = tx.decodeData[0];
+          txSignature = `${tx.signature.split("(")[0]}(${value})`;
+          break;
+      }
+
+      distance = new Date(tx.eta * 1000).getTime() - new Date().getTime();
+      days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      if (distance > 0)
+        countdownString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      formattedTransactions.push({
+        ...tx,
+        countdown: countdownString,
+        txSignature: txSignature,
+      });
+    }
+    setPendingTransactionsTimelock(formattedTransactions);
+  };
+
   return (
     <>
       {modalOpen && (
@@ -726,7 +776,10 @@ const Admin: React.FC<{}> = () => {
                 txDataView === "timelock" ? "#1130FF" : "#FFFFFF",
               color: txDataView === "timelock" ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => setTxDataView("timelock")}
+            onClick={() => {
+              setTxDataView("timelock");
+              formatPendingTransactionsTimelock();
+            }}
           >
             Queued - Timelock
           </AdminButton>
@@ -805,6 +858,27 @@ const Admin: React.FC<{}> = () => {
                   View on Gnosis Safe
                 </a>
               </Button>
+            </>
+          )}
+          {txDataView === "timelock" && (
+            <>
+              {pendingTransactionsTimelock?.map((trans, idx) => {
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      fontFamily: "Roboto",
+                    }}
+                  >
+                    <span>{trans.txSignature}</span>
+                    {trans.countdown ? (
+                      <span>: Executable in: {trans.countdown}</span>
+                    ) : (
+                      <span>: Executable</span>
+                    )}
+                  </div>
+                );
+              })}
             </>
           )}
         </Box>
