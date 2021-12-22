@@ -25,6 +25,7 @@ const Deposit: React.FC<{}> = () => {
     hash: "",
   });
   const [tokenBalance, setTokenBalance] = useState<Number>();
+  const [helperText, setHelperText] = useState(null);
   const { Contracts, Signer, Account }: any = useBlockchain();
   const { decodeAddress, api }: any = useWeb3();
 
@@ -37,6 +38,41 @@ const Deposit: React.FC<{}> = () => {
         setTokenBalance(balance);
       })();
   }, [token]);
+
+  //Format helper text
+  useEffect(() => {
+    if (amount !== "") {
+      let decimals, amountInWei;
+      if (token !== "" && token !== ETH) {
+        (async () => {
+          const tokenContract = new ethers.Contract(
+            token,
+            GenericERC20TokenAbi,
+            Signer
+          );
+
+          decimals = await tokenContract.decimals();
+        })();
+        amountInWei = ethers.utils.parseUnits(amount, decimals);
+        if (Number(amountInWei.toString()) < 2) {
+          setHelperText("Deposit amount too low");
+        } else if (tokenBalance < Number(amount)) {
+          setHelperText("Account balance too low");
+        } else {
+          setHelperText(null);
+        }
+      } else if (token === ETH) {
+        amountInWei = ethers.utils.parseEther(amount);
+        if (Number(amountInWei.toString()) < 2) {
+          setHelperText("Deposit amount too low");
+        } else if (tokenBalance <= Number(amount)) {
+          setHelperText("Account balance too low");
+        } else {
+          setHelperText(null);
+        }
+      }
+    }
+  }, [amount]);
 
   const depositEth = async () => {
     let tx: any = await Contracts.peg.deposit(
@@ -133,10 +169,8 @@ const Deposit: React.FC<{}> = () => {
             width: "80%",
             m: "30px 0 30px",
           }}
-          onChange={(e) => setAmount(e.target.value)}
-          helperText={
-            tokenBalance < Number(amount) ? "Account balance too low" : ""
-          }
+          onChange={(e) => setAmount(e.target.value.substring(0, 20))}
+          helperText={helperText}
         />
         {customAddress ? (
           <>
