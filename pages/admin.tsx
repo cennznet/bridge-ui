@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { ethers, BigNumber } from "ethers";
 import {
-    Button,
-    Box,
-    ButtonGroup,
-    TextField,
-    Autocomplete,
+  Button,
+  Box,
+  ButtonGroup,
+  TextField,
+  Autocomplete,
 } from "@mui/material";
 import { AdminButton, Heading } from "../components/StyledComponents";
 import { useBlockchain } from "../context/BlockchainContext";
 import AdminModal from "../components/AdminModal";
 import { useWeb3 } from "../context/Web3Context";
 
-import Safe, {EthersAdapter, EthSignSignature} from '@gnosis.pm/safe-core-sdk'
-import {MetaTransactionData, SafeTransactionData} from "@gnosis.pm/safe-core-sdk-types/dist/src/types";
-import {SafeTransaction} from "@gnosis.pm/safe-core-sdk-types";
+import Safe, {
+  EthersAdapter,
+  EthSignSignature,
+} from "@gnosis.pm/safe-core-sdk";
+import {
+  MetaTransactionData,
+  SafeTransactionData,
+} from "@gnosis.pm/safe-core-sdk-types/dist/src/types";
+import { SafeTransaction } from "@gnosis.pm/safe-core-sdk-types";
 import EthSafeTransaction from "@gnosis.pm/safe-core-sdk/dist/src/utils/transactions/SafeTransaction";
-
 
 const abi = new ethers.utils.AbiCoder();
 const targets: string[] = ["Bridge", "ERC20Peg"];
@@ -37,10 +42,10 @@ const signatures = {
     "activateWithdrawals()",
     "pauseWithdrawals()",
   ],
-    Timelock : [
-        "queueTransaction(address, uint, string, bytes, uint)",
-        "executeTransaction(address, uint, string, bytes, uint)",
-    ]
+  Timelock: [
+    "queueTransaction(address, uint, string, bytes, uint)",
+    "executeTransaction(address, uint, string, bytes, uint)",
+  ],
 };
 
 const dataParams = {
@@ -75,9 +80,14 @@ const Admin: React.FC<{}> = () => {
   });
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState("");
+  const [ethNetwork, setEthNetwork] = useState("");
   const [signerAddress, setSignerAddress] = useState("");
   const [safeSdk, setSafeSdk] = useState<Safe>();
   const [pendingTransactions, setPendingTransactions] = useState([]);
+  const [pendingTransactionsTimelock, setPendingTransactionsTimelock] =
+    useState([]);
+  const [historicalTransactions, setHistoricalTransactions] = useState([]);
+  const [txDataView, setTxDataView] = useState("safe");
   const { activateAdmin, Signer }: any = useBlockchain();
   const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
   useEffect(() => {
@@ -85,20 +95,31 @@ const Admin: React.FC<{}> = () => {
       const { ethereum }: any = window;
       let ethereumNetwork = window.localStorage.getItem("admin-ethereum-chain");
       if (ethereumNetwork === "Mainnet" || ethereumNetwork === "Rinkeby") {
+        setEthNetwork(ethereumNetwork);
         const { provider, timelock, bridge, peg }: any = await activateAdmin(
           ethereum,
           ethereumNetwork
         );
-          const ethAdapterOwner = new EthersAdapter({
-              ethers,
-              signer: Signer
-          })
-          let signerAddress = await Signer.getAddress();
-          const safeSdk: Safe = await Safe.create({ ethAdapter: ethAdapterOwner, safeAddress });
+        const ethAdapterOwner = new EthersAdapter({
+          ethers,
+          signer: Signer,
+        });
+        let signerAddress = await Signer.getAddress();
+        const safeSdk: Safe = await Safe.create({
+          ethAdapter: ethAdapterOwner,
+          safeAddress,
+        });
         const queuedTransactions = await getAllQueuedTransactions(safeAddress);
+        if (queuedTransactions) {
+          let formattedTransactions = await formatTransactions(
+            queuedTransactions
+          );
+
+          setPendingTransactions(formattedTransactions);
+        }
+
         setProvider(provider);
         setContracts({ timelock, bridge, peg });
-        setPendingTransactions(queuedTransactions);
         setSignerAddress(signerAddress);
         setSafeSdk(safeSdk);
       } else {
@@ -161,29 +182,35 @@ const Admin: React.FC<{}> = () => {
     let dataHex;
     let timeLockABI;
     let timelockInterface;
-    if (state.target === "Bridge"){
-        switch (state.txType) {
-            case signatures.Timelock[0]:
-                timeLockABI = [
-                    `function ${signatures.Timelock[0]}`
-                ];
-                timelockInterface = new ethers.utils.Interface(timeLockABI);
-                dataHex = timelockInterface.encodeFunctionData(state.txType, [ contracts.bridge.address, state.value, state.signature, encodedParams, eta] )
-                break;
-            case signatures.Timelock[1]:
-                timeLockABI = [
-                    `function ${signatures.Timelock[1]}`
-                ];
-                timelockInterface = new ethers.utils.Interface(timeLockABI);
-                //TODO ensure eta is the same as pending transaction
-                dataHex = timelockInterface.encodeFunctionData(state.txType, [ contracts.bridge.address, state.value, state.signature, encodedParams, eta] )
-                break;
-            default:
-                break;
-        }
-    }
-
-  else if (state.target === "ERC20Peg")
+    if (state.target === "Bridge") {
+      switch (state.txType) {
+        case signatures.Timelock[0]:
+          timeLockABI = [`function ${signatures.Timelock[0]}`];
+          timelockInterface = new ethers.utils.Interface(timeLockABI);
+          dataHex = timelockInterface.encodeFunctionData(state.txType, [
+            contracts.bridge.address,
+            state.value,
+            state.signature,
+            encodedParams,
+            eta,
+          ]);
+          break;
+        case signatures.Timelock[1]:
+          timeLockABI = [`function ${signatures.Timelock[1]}`];
+          timelockInterface = new ethers.utils.Interface(timeLockABI);
+          //TODO ensure eta is the same as pending transaction
+          dataHex = timelockInterface.encodeFunctionData(state.txType, [
+            contracts.bridge.address,
+            state.value,
+            state.signature,
+            encodedParams,
+            eta,
+          ]);
+          break;
+        default:
+          break;
+      }
+    } else if (state.target === "ERC20Peg")
       dataHex = abi.encode(
         ["string", "string", "uint", "string", "string", "uint"],
         [
@@ -197,12 +224,12 @@ const Admin: React.FC<{}> = () => {
       );
     //   console.log(
     //   "decoded dataHex",
-    //   abi.decode(
-    //     [ "address", "uint", "string", "bytes", "uint256"],
-    //   )
+    // abi.decode(
+    //   [ "address", "uint", "string", "bytes", "uint256"],
+    // )
     // );
-      console.info(dataHex);
-      await createSafeTransaction(dataHex);
+    console.info(dataHex);
+    await createSafeTransaction(dataHex);
   };
 
   const bridgeSignature = signatures.Bridge.find((signature) => {
@@ -211,142 +238,309 @@ const Admin: React.FC<{}> = () => {
     }
   });
 
-    const createSafeTransaction = async (dataHex:any) => {
-        //TODO encode transaction data to hex for data section
-        const transaction: MetaTransactionData[] = [{
-            //ensure this is always lowercase
-            to: '0x239f747454968aE53864D0Ef98c40c977b523cC3', //rinkeby Timelock contract
-            value: '0',
-            data: dataHex
-        }];
-        //Get Gas estimates to send for transaction
-        const res = await fetch("https://api-rinkeby.etherscan.io/api?module=gastracker&action=gasoracle&apikey=JNFAU892RF9TJWBU3EV7DJCPIWZY8KEMY1");
-        const resJson = await res.json();
-        const nextNonce = await getNextQueuedNonce(safeAddress);
-        let options: any = {safeTxGas: resJson.result.SafeGasPrice};
-        if(nextNonce) options = {nonce: nextNonce, ...options};
-        const safeTransaction: SafeTransaction = await safeSdk.createTransaction(transaction, options);
-        await safeSdk.signTransaction(safeTransaction);
-        //Send proposed transaction to gnosis safe for others to review
-        await proposeTransaction(safeSdk, safeTransaction, signerAddress, safeAddress);
-        const queuedTransactions = await getAllQueuedTransactions(safeAddress);
-        setPendingTransactions(queuedTransactions);
+  const createSafeTransaction = async (dataHex: any) => {
+    //TODO encode transaction data to hex for data section
+    const transaction: MetaTransactionData[] = [
+      {
+        //ensure this is always lowercase
+        to: "0x551cf0a5719d37e1E6Bc947fD84FE76d204BeB4d", //rinkeby Timelock contract
+        value: "0",
+        data: dataHex,
+      },
+    ];
+    const res = await fetch(
+      "https://api-rinkeby.etherscan.io/api?module=gastracker&action=gasoracle&apikey=JNFAU892RF9TJWBU3EV7DJCPIWZY8KEMY1"
+    );
+    const resJson = await res.json();
+    const nextNonce = await getNextQueuedNonce(safeAddress);
+    let options: any = { safeTxGas: resJson.result.SafeGasPrice };
+    if (nextNonce) options = { nonce: nextNonce, ...options };
+    const safeTransaction: SafeTransaction = await safeSdk.createTransaction(
+      transaction,
+      options
+    );
+    await safeSdk.signTransaction(safeTransaction);
+    //Send proposed transaction to gnosis safe for others to review
+    await proposeTransaction(
+      safeSdk,
+      safeTransaction,
+      signerAddress,
+      safeAddress
+    );
+
+    const queuedTransactions = await getAllQueuedTransactions(safeAddress);
+    let formattedTransactions = await formatTransactions(queuedTransactions);
+    setPendingTransactions(formattedTransactions);
+  };
+
+  const formatTransactions = async (transactions: any[]) => {
+    let formattedTransactions = [];
+
+    for (const tx of transactions) {
+      let value: string;
+      let txSignature: string;
+      let { txData } = await getMultiSignatureTransaction(tx.transaction.id);
+      if (!txData.dataDecoded) continue;
+      let signature = txData.dataDecoded.parameters[2].value;
+      switch (signature) {
+        default:
+        case signatures.Bridge[0]:
+        case signatures.Bridge[1]:
+          txSignature = signature;
+          break;
+        case signatures.Bridge[2]:
+        case signatures.Bridge[3]:
+        case signatures.Bridge[4]:
+        case signatures.Bridge[5]:
+          value = abi
+            .decode(["uint256"], txData.dataDecoded.parameters[3].value)
+            .toString();
+          txSignature = `${signature.split("(")[0]}(${value})`;
+          break;
+        case signatures.Bridge[6]:
+          value = abi
+            .decode(["bool"], txData.dataDecoded.parameters[3].value)
+            .toString();
+          txSignature = `${signature.split("(")[0]}(${value})`;
+          break;
+      }
+
+      formattedTransactions.push({
+        ...tx,
+        txSignature,
+      });
+    }
+
+    return formattedTransactions;
+  };
+
+  const signTransaction = async (transactionID: string) => {
+    //Get all queued transactions and find the multisig_TX_hash
+    const multiSigTransaction = await getMultiSignatureTransaction(
+      transactionID
+    );
+    const transactionData = multiSigTransaction.txData.hexData
+      ? multiSigTransaction.txData.hexData
+      : "0x";
+
+    const safeTransactionData: SafeTransactionData = {
+      //ensure this is always lowercase
+      to: multiSigTransaction.txData.to.value,
+      value: multiSigTransaction.txData.value,
+      data: transactionData,
+      operation: multiSigTransaction.txData.operation,
+      nonce: multiSigTransaction.detailedExecutionInfo.nonce.toString(),
+      safeTxGas: multiSigTransaction.detailedExecutionInfo.safeTxGas,
+      baseGas: multiSigTransaction.detailedExecutionInfo.baseGas,
+      gasPrice: multiSigTransaction.detailedExecutionInfo.gasPrice,
+      gasToken: multiSigTransaction.detailedExecutionInfo.gasToken,
+      refundReceiver:
+        multiSigTransaction.detailedExecutionInfo.refundReceiver.value,
     };
-
-    const signTransaction = async (transactionID: string) => {
-        //Get all queued transactions and find the multisig_TX_hash
-        const multiSigTransaction = await getMultiSignatureTransaction(transactionID);
-        const transactionData = multiSigTransaction.txData.hexData ? multiSigTransaction.txData.hexData : "0x";
-
-        const safeTransactionData: SafeTransactionData = {
-            //ensure this is always lowercase
-            to: multiSigTransaction.txData.to.value,
-            value: multiSigTransaction.txData.value,
-            data: transactionData,
-            operation: multiSigTransaction.txData.operation,
-            nonce: multiSigTransaction.detailedExecutionInfo.nonce.toString(),
-            safeTxGas: multiSigTransaction.detailedExecutionInfo.safeTxGas,
-            baseGas: multiSigTransaction.detailedExecutionInfo.baseGas,
-            gasPrice: multiSigTransaction.detailedExecutionInfo.gasPrice,
-            gasToken: multiSigTransaction.detailedExecutionInfo.gasToken,
-            refundReceiver: multiSigTransaction.detailedExecutionInfo.refundReceiver.value
-        }
-        const pendingTransaction = new EthSafeTransaction(safeTransactionData);
-        //add all confirmation signatures to the pending transaction
-        multiSigTransaction.detailedExecutionInfo.confirmations.map(confirmation => {
-            const confirmSig = new EthSignSignature(confirmation.signer.value, confirmation.signature);
-            pendingTransaction.addSignature(confirmSig);
-        });
-        //check if last confirmation if so then execute
-        if(multiSigTransaction.detailedExecutionInfo.confirmationsRequired === multiSigTransaction.detailedExecutionInfo.confirmations.length + 1){
-            const executeTxResponse = await safeSdk.executeTransaction(pendingTransaction);
-            const transRes = await executeTxResponse.transactionResponse.wait();
-            console.info(transRes);
-        }
-        //else sign add to the proposed transaction
-        else {
-            await safeSdk.signTransaction(pendingTransaction);
-            await proposeTransaction(safeSdk, pendingTransaction, signerAddress, safeAddress);
-        }
+    const pendingTransaction = new EthSafeTransaction(safeTransactionData);
+    //add all confirmation signatures to the pending transaction
+    multiSigTransaction.detailedExecutionInfo.confirmations.map(
+      (confirmation) => {
+        const confirmSig = new EthSignSignature(
+          confirmation.signer.value,
+          confirmation.signature
+        );
+        pendingTransaction.addSignature(confirmSig);
+      }
+    );
+    //check if last confirmation if so then execute
+    if (
+      multiSigTransaction.detailedExecutionInfo.confirmationsRequired ===
+      multiSigTransaction.detailedExecutionInfo.confirmations.length + 1
+    ) {
+      const executeTxResponse = await safeSdk.executeTransaction(
+        pendingTransaction
+      );
+      const transRes = await executeTxResponse.transactionResponse.wait();
+      console.info(transRes);
     }
+    //else sign add to the proposed transaction
+    else {
+      await safeSdk.signTransaction(pendingTransaction);
+      await proposeTransaction(
+        safeSdk,
+        pendingTransaction,
+        signerAddress,
+        safeAddress
+      );
+      console.info("transaction Signed");
+    }
+  };
 
-    const getNextQueuedNonce = async (safeAddress: string) => {
-        const res = await fetch(`https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/queued`);
-        const resJson = await res.json();
-        if(resJson.results.length === 0){
-            return null;
+  const getNextQueuedNonce = async (safeAddress: string) => {
+    const res = await fetch(
+      `https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/queued`
+    );
+    const resJson = await res.json();
+    if (resJson.results.length === 0) {
+      return null;
+    }
+    const queuedTransactions = resJson.results.filter(
+      (trans) => trans.type === "TRANSACTION"
+    );
+    const allNonces = queuedTransactions.map(
+      (trans) => trans.transaction.executionInfo.nonce
+    );
+    const maxNonce = Math.max(...allNonces);
+    return maxNonce + 1;
+  };
+
+  const getAllQueuedTransactions = async (safeAddress: string) => {
+    const res = await fetch(
+      `https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/queued`
+    );
+    const resJson = await res.json();
+    if (resJson.results.length === 0) {
+      return null;
+    }
+    return resJson.results.filter((trans) => trans.type === "TRANSACTION");
+  };
+
+  const getHistoricalTransactions = async (safeAddress: string) => {
+    const res = await fetch(
+      `https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/history`
+    );
+    const resJson = await res.json();
+    if (resJson.results.length === 0) {
+      return null;
+    }
+    return resJson.results.filter((trans) => trans.type === "TRANSACTION");
+  };
+
+  const proposeTransaction = async (
+    safeSdk: Safe,
+    safeTransaction: SafeTransaction,
+    signerAddress: string,
+    safeAddress: string
+  ) => {
+    const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+    const proposedSafeTx = {
+      ...safeTransaction.data,
+      baseGas: safeTransaction.data.baseGas.toString(),
+      gasPrice: safeTransaction.data.gasPrice.toString(),
+      nonce: safeTransaction.data.nonce.toString(),
+      origin: null,
+      safeTxHash: safeTxHash,
+      sender: signerAddress,
+      signature: safeTransaction.signatures.get(
+        signerAddress.toString().toLowerCase()
+      )["data"],
+    };
+    const proposeRes = await fetch(
+      `https://safe-client.gnosis.io/v1/chains/4/transactions/${safeAddress}/propose`,
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+        body: JSON.stringify(proposedSafeTx),
+      }
+    );
+    return await proposeRes.json();
+  };
+
+  const getMultiSignatureTransaction = async (multisignature: string) => {
+    const res = await fetch(
+      `https://safe-client.gnosis.io/v1/chains/4/transactions/${multisignature}`
+    );
+    return await res.json();
+  };
+
+  const getPendingTransactionsTimelock = async () => {
+    //TODO get events only certain date in past
+    const events = await contracts.timelock.queryFilter({});
+    // get all un-executed queued transactions
+    const unExecutedQueuedTransactionProms = events.map(async (event) => {
+      if (event.eventSignature.includes("QueueTransaction")) {
+        const isQueued = await contracts.timelock.queuedTransactions(
+          event.args.txHash
+        );
+        if (isQueued) {
+          let decodeData = abi.decode(
+            event.args.signature.split("(")[1].replace(")", "").split(","),
+            event.args.data
+          );
+          decodeData = decodeData.map((data) => {
+            if (BigNumber.isBigNumber(data)) return data.toNumber();
+            else return data;
+          });
+          return {
+            blockNumber: event.blockNumber,
+            signature: event.args.signature,
+            data: event.args.data,
+            decodeData: decodeData,
+            eta: event.args.eta.toNumber(),
+          };
         }
-        const queuedTransactions = resJson.results.filter(trans => trans.type === "TRANSACTION");
-        const allNonces = queuedTransactions.map(trans => trans.transaction.executionInfo.nonce);
-        const maxNonce = Math.max(...allNonces);
-        return maxNonce + 1;
+      }
+    });
+    let unExecutedQueuedTransaction = await Promise.all(
+      unExecutedQueuedTransactionProms
+    );
+    unExecutedQueuedTransaction = unExecutedQueuedTransaction.filter(
+      (trans) => trans
+    );
+    return unExecutedQueuedTransaction;
+  };
+
+  const formatPendingTransactionsTimelock = async () => {
+    let pendingTransactions = await getPendingTransactionsTimelock();
+
+    let formattedTransactions = [];
+
+    for (const tx of pendingTransactions) {
+      let txSignature: string,
+        value: string,
+        distance: number,
+        days: number,
+        hours: number,
+        minutes: number,
+        seconds: number,
+        countdownString: string;
+
+      switch (tx.signature) {
+        default:
+        case signatures.Bridge[0]:
+        case signatures.Bridge[1]:
+          txSignature = tx.signature;
+          break;
+        case signatures.Bridge[2]:
+        case signatures.Bridge[3]:
+        case signatures.Bridge[4]:
+        case signatures.Bridge[5]:
+        case signatures.Bridge[6]:
+          value = tx.decodeData[0];
+          txSignature = `${tx.signature.split("(")[0]}(${value})`;
+          break;
+      }
+
+      distance = new Date(tx.eta * 1000).getTime() - new Date().getTime();
+      days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      if (distance > 0)
+        countdownString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      formattedTransactions.push({
+        ...tx,
+        countdown: countdownString,
+        txSignature: txSignature,
+      });
     }
+    setPendingTransactionsTimelock(formattedTransactions);
+  };
 
-    const getAllQueuedTransactions = async (safeAddress: string) => {
-        const res = await fetch(`https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/queued`);
-        const resJson = await res.json();
-        if(resJson.results.length === 0){
-            return null;
-        }
-        return resJson.results.filter(trans => trans.type === "TRANSACTION");
-    }
+  const viewHistoricalTransactions = async () => {
+    const transactions = await getHistoricalTransactions(safeAddress);
+    const formattedTransactions = await formatTransactions(transactions);
+    setHistoricalTransactions(formattedTransactions);
+  };
 
-    const proposeTransaction = async (safeSdk: Safe,safeTransaction: SafeTransaction, signerAddress: string, safeAddress: string) => {
-        const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
-        const proposedSafeTx = {
-            ...safeTransaction.data,
-            baseGas: safeTransaction.data.baseGas.toString(),
-            gasPrice: safeTransaction.data.gasPrice.toString(),
-            nonce: safeTransaction.data.nonce.toString(),
-            origin: null,
-            safeTxHash: safeTxHash,
-            sender: signerAddress,
-            signature: safeTransaction.signatures.get(signerAddress.toString().toLowerCase())['data']
-        }
-        const proposeRes = await fetch(`https://safe-client.gnosis.io/v1/chains/4/transactions/${safeAddress}/propose`,
-            {
-                headers: {'Content-Type':'application/json'},
-                method: "POST",
-                body: JSON.stringify(proposedSafeTx)
-            })
-        return await proposeRes.json();
-    }
-
-    const getMultiSignatureTransaction = async (multisignature: string) => {
-        const res = await fetch(`https://safe-client.gnosis.io/v1/chains/4/transactions/${multisignature}`)
-        return await res.json();
-    }
-
-
-    const getPendingTransactionsTimelock = async () => {
-        //TODO get events only certain date in past
-        const events = await contracts.timelock.queryFilter({});
-        // get all un-executed queued transactions
-        const unExecutedQueuedTransactionProms = events.map(async event => {
-            if(event.eventSignature.includes("QueueTransaction")){
-                const isQueued = await contracts.timelock.queuedTransactions(event.args.txHash);
-                if(isQueued){
-                    let decodeData = abi.decode(event.args.signature.split("(")[1].replace(")","").split(","), event.args.data);
-                    decodeData = decodeData.map(data => {
-                        if(BigNumber.isBigNumber(data)) return data.toNumber();
-                        else return data;
-                    })
-                    return {
-                        blockNumber: event.blockNumber,
-                        signature:event.args.signature,
-                        data:event.args.data,
-                        decodeData: decodeData,
-                        eta:event.args.eta.toNumber(),
-                    }
-                }
-            }
-        });
-        let unExecutedQueuedTransaction  = await Promise.all(unExecutedQueuedTransactionProms);
-        unExecutedQueuedTransaction = unExecutedQueuedTransaction.filter(trans => trans);
-        return unExecutedQueuedTransaction;
-    }
-
-    return (
+  return (
     <>
       {modalOpen && (
         <AdminModal
@@ -379,10 +573,14 @@ const Admin: React.FC<{}> = () => {
           <AdminButton
             variant="outlined"
             sx={{
-              backgroundColor: state.txType === signatures.Timelock[0] ? "#1130FF" : "#FFFFFF",
-              color: state.txType === signatures.Timelock[0] ? "#FFFFFF" : "#1130FF",
+              backgroundColor:
+                state.txType === signatures.Timelock[0] ? "#1130FF" : "#FFFFFF",
+              color:
+                state.txType === signatures.Timelock[0] ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => updateState({ ...state, txType: signatures.Timelock[0]  })}
+            onClick={() =>
+              updateState({ ...state, txType: signatures.Timelock[0] })
+            }
           >
             QueueTx
           </AdminButton>
@@ -391,9 +589,12 @@ const Admin: React.FC<{}> = () => {
             sx={{
               backgroundColor:
                 state.txType === signatures.Timelock[1] ? "#1130FF" : "#FFFFFF",
-              color: state.txType === signatures.Timelock[1] ? "#FFFFFF" : "#1130FF",
+              color:
+                state.txType === signatures.Timelock[1] ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => updateState({ ...state, txType: signatures.Timelock[1] })}
+            onClick={() =>
+              updateState({ ...state, txType: signatures.Timelock[1] })
+            }
           >
             ExecuteTx
           </AdminButton>
@@ -402,9 +603,12 @@ const Admin: React.FC<{}> = () => {
             sx={{
               backgroundColor:
                 state.txType === "cancelTransaction" ? "#1130FF" : "#FFFFFF",
-              color: state.txType === "cancelTransaction" ? "#FFFFFF" : "#1130FF",
+              color:
+                state.txType === "cancelTransaction" ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => updateState({ ...state, txType: "cancelTransaction" })}
+            onClick={() =>
+              updateState({ ...state, txType: "cancelTransaction" })
+            }
           >
             CancelTx
           </AdminButton>
@@ -556,82 +760,196 @@ const Admin: React.FC<{}> = () => {
           </Button>
         </Box>
       </Box>
-        <Box
-            sx={{
-                m: "6% auto 0",
-                width: "40%",
-                textAlign: "center",
-            }}
+      <Box
+        sx={{
+          m: "6% auto 0",
+          width: "40%",
+          textAlign: "center",
+        }}
+      >
+        <ButtonGroup
+          sx={{
+            display: "flex",
+            m: "auto",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            border: "4px solid #1130FF",
+            borderBottom: 0,
+          }}
         >
-            <ButtonGroup
-                sx={{
-                    display: "flex",
-                    m: "auto",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    border: "4px solid #1130FF",
-                    borderBottom: 0,
-                }}
-            >
-                <AdminButton
-                    variant="outlined"
-                    sx={{
-                        backgroundColor: "#1130FF",
-                        color: "#FFFFFF",
+          <AdminButton
+            variant="outlined"
+            sx={{
+              backgroundColor: txDataView === "safe" ? "#1130FF" : "#FFFFFF",
+              color: txDataView === "safe" ? "#FFFFFF" : "#1130FF",
+            }}
+            onClick={() => setTxDataView("safe")}
+          >
+            Queued - Safe
+          </AdminButton>
+          <AdminButton
+            variant="outlined"
+            sx={{
+              backgroundColor:
+                txDataView === "timelock" ? "#1130FF" : "#FFFFFF",
+              color: txDataView === "timelock" ? "#FFFFFF" : "#1130FF",
+            }}
+            onClick={() => {
+              setTxDataView("timelock");
+              formatPendingTransactionsTimelock();
+            }}
+          >
+            Queued - Timelock
+          </AdminButton>
+          <AdminButton
+            variant="outlined"
+            sx={{
+              backgroundColor: txDataView === "history" ? "#1130FF" : "#FFFFFF",
+              color: txDataView === "history" ? "#FFFFFF" : "#1130FF",
+            }}
+            onClick={() => {
+              setTxDataView("history");
+              viewHistoricalTransactions();
+            }}
+          >
+            History
+          </AdminButton>
+        </ButtonGroup>
+        <Box
+          component="form"
+          sx={{
+            height: "auto",
+            m: "0 auto",
+            background: "#FFFFFF",
+            border: "4px solid #1130FF",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "0px",
+          }}
+        >
+          {txDataView === "safe" && (
+            <>
+              {pendingTransactions?.map((trans, idx) => {
+                const nonce = trans.transaction.executionInfo.nonce;
+                const confirmed =
+                  trans.transaction.executionInfo.confirmationsSubmitted;
+                const required =
+                  trans.transaction.executionInfo.confirmationsRequired;
+                const txHashId: string = trans.transaction.id;
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      // @ts-ignore
+                      "font-family": "Teko",
+                      "font-style": "bold",
+                      "font-weight": 400,
                     }}
+                  >
+                    {`Pending Transaction ${nonce}: ${trans.txSignature}`}
+                    <Button onClick={() => signTransaction(txHashId)}>
+                      Sign
+                    </Button>
+                    <Button>
+                      {confirmed}/{required} Confirmed
+                    </Button>
+                  </div>
+                );
+              })}
+              <Button>
+                <a
+                  href={
+                    ethNetwork === "Mainnet"
+                      ? "todo: mainnet link"
+                      : "https://gnosis-safe.io/app/rin:0x97e5140985E5FFA487C51b2E390a40c34919936E/transactions/queue"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    textDecoration: "none",
+                    color: "black",
+                    fontFamily: "teko",
+                    fontSize: "20px",
+                    letterSpacing: "0.5px",
+                    textTransform: "none",
+                  }}
                 >
-                    Queued
-                </AdminButton>
-                <AdminButton
-                    variant="outlined"
-                    sx={{
-                        backgroundColor: "#FFFFFF",
-                        color:"#1130FF",
+                  View on Gnosis Safe
+                </a>
+              </Button>
+            </>
+          )}
+          {txDataView === "timelock" && (
+            <>
+              {pendingTransactionsTimelock?.map((trans, idx) => {
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      fontFamily: "Roboto",
                     }}
+                  >
+                    <span>{trans.txSignature}</span>
+                    {trans.countdown ? (
+                      <span>: Executable in: {trans.countdown}</span>
+                    ) : (
+                      <span>: Executable</span>
+                    )}
+                  </div>
+                );
+              })}
+            </>
+          )}
+          {txDataView === "history" && (
+            <>
+              {historicalTransactions?.map((trans, idx) => {
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      fontFamily: "roboto",
+                    }}
+                  >
+                    {trans.txSignature && (
+                      <span>Signature: {trans.txSignature}, </span>
+                    )}
+                    <span>
+                      Date:{" "}
+                      {new Date(trans.transaction.timestamp).toDateString()}{" "}
+                      NZDT
+                    </span>
+                    <span>, Status: {trans.transaction.txStatus}</span>
+                  </div>
+                );
+              })}
+              <Button>
+                <a
+                  href={
+                    ethNetwork === "Mainnet"
+                      ? "todo: mainnet link"
+                      : "https://gnosis-safe.io/app/rin:0x97e5140985E5FFA487C51b2E390a40c34919936E/transactions/history"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    textDecoration: "none",
+                    color: "black",
+                    fontFamily: "teko",
+                    fontSize: "20px",
+                    letterSpacing: "0.5px",
+                    textTransform: "none",
+                  }}
                 >
-                    History
-                </AdminButton>
-            </ButtonGroup>
-            <Box
-                component="form"
-                sx={{
-                    height: "auto",
-                    m: "0 auto",
-                    background: "#FFFFFF",
-                    border: "4px solid #1130FF",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    padding: "0px",
-                }}
-            >
-                {pendingTransactions?.map((trans, idx) => {
-                    const nonce = trans.transaction.executionInfo.nonce;
-                    const confirmed = trans.transaction.executionInfo.confirmationsSubmitted;
-                    const required = trans.transaction.executionInfo.confirmationsRequired;
-                    const txHashId: string = trans.transaction.id;
-                    return(
-                        <>
-                        <div
-                            key={idx}
-                            style={{
-                            // @ts-ignore
-                            "font-family": "Teko",
-                            "font-style": "bold",
-                            "font-weight": 400}}>
-                            {`Pending Transaction ${nonce}`}
-                            <Button onClick={() => signTransaction(txHashId)}>Sign</Button>
-                            <Button>
-                                {confirmed}/{required} Confirmed
-                            </Button>
-                        </div>
-                    </>
-                )
-                })}
-            </Box>
+                  View on Gnosis Safe
+                </a>
+              </Button>
+            </>
+          )}
         </Box>
+      </Box>
     </>
   );
 };
