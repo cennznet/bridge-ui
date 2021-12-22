@@ -41,10 +41,10 @@ const Deposit: React.FC<{}> = () => {
   const depositEth = async () => {
     let tx: any = await Contracts.peg.deposit(
       ETH,
-      ethers.utils.parseUnits(amount),
+      ethers.utils.parseEther(amount),
       decodeAddress(selectedAccount.address),
       {
-        value: ethers.utils.parseUnits(amount),
+        value: ethers.utils.parseEther(amount),
       }
     );
 
@@ -60,9 +60,11 @@ const Deposit: React.FC<{}> = () => {
       Signer
     );
 
+    const decimals = await tokenContract.decimals();
+
     let tx: any = await tokenContract.approve(
       Contracts.peg.address,
-      ethers.utils.parseEther(amount)
+      ethers.utils.parseUnits(amount, decimals)
     );
     setModal(defineTxModal("approve", tx.hash, setModalOpen));
     await tx.wait();
@@ -205,7 +207,11 @@ const Deposit: React.FC<{}> = () => {
             mb: "50px",
           }}
           disabled={
-            amount && token && selectedAccount && Number(amount) <= tokenBalance
+            amount &&
+            token &&
+            selectedAccount &&
+            Number(amount) <= tokenBalance &&
+            ethers.utils.parseUnits(amount)
               ? false
               : true
           }
