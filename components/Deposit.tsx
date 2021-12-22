@@ -241,11 +241,7 @@ const Deposit: React.FC<{}> = () => {
             mb: "50px",
           }}
           disabled={
-            amount &&
-            token &&
-            selectedAccount &&
-            Number(amount) <= tokenBalance &&
-            ethers.utils.parseUnits(amount)
+            amount && token && selectedAccount && Number(amount) <= tokenBalance
               ? false
               : true
           }
