@@ -86,6 +86,7 @@ const Admin: React.FC<{}> = () => {
   const [pendingTransactions, setPendingTransactions] = useState([]);
   const [pendingTransactionsTimelock, setPendingTransactionsTimelock] =
     useState([]);
+  const [historicalTransactions, setHistoricalTransactions] = useState([]);
   const [txDataView, setTxDataView] = useState("safe");
   const { activateAdmin, Signer }: any = useBlockchain();
   const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
@@ -272,13 +273,14 @@ const Admin: React.FC<{}> = () => {
     setPendingTransactions(formattedTransactions);
   };
 
-  const formatTransactions = async (queuedTransactions: any[]) => {
+  const formatTransactions = async (transactions: any[]) => {
     let formattedTransactions = [];
 
-    for (const tx of queuedTransactions) {
+    for (const tx of transactions) {
       let value: string;
       let txSignature: string;
       let { txData } = await getMultiSignatureTransaction(tx.transaction.id);
+      if (!txData.dataDecoded) continue;
       let signature = txData.dataDecoded.parameters[2].value;
       switch (signature) {
         default:
@@ -391,6 +393,17 @@ const Admin: React.FC<{}> = () => {
   const getAllQueuedTransactions = async (safeAddress: string) => {
     const res = await fetch(
       `https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/queued`
+    );
+    const resJson = await res.json();
+    if (resJson.results.length === 0) {
+      return null;
+    }
+    return resJson.results.filter((trans) => trans.type === "TRANSACTION");
+  };
+
+  const getHistoricalTransactions = async (safeAddress: string) => {
+    const res = await fetch(
+      `https://safe-client.gnosis.io/v1/chains/4/safes/${safeAddress}/transactions/history`
     );
     const resJson = await res.json();
     if (resJson.results.length === 0) {
@@ -519,6 +532,12 @@ const Admin: React.FC<{}> = () => {
       });
     }
     setPendingTransactionsTimelock(formattedTransactions);
+  };
+
+  const viewHistoricalTransactions = async () => {
+    const transactions = await getHistoricalTransactions(safeAddress);
+    const formattedTransactions = await formatTransactions(transactions);
+    setHistoricalTransactions(formattedTransactions);
   };
 
   return (
@@ -789,7 +808,10 @@ const Admin: React.FC<{}> = () => {
               backgroundColor: txDataView === "history" ? "#1130FF" : "#FFFFFF",
               color: txDataView === "history" ? "#FFFFFF" : "#1130FF",
             }}
-            onClick={() => setTxDataView("history")}
+            onClick={() => {
+              setTxDataView("history");
+              viewHistoricalTransactions();
+            }}
           >
             History
           </AdminButton>
@@ -879,6 +901,51 @@ const Admin: React.FC<{}> = () => {
                   </div>
                 );
               })}
+            </>
+          )}
+          {txDataView === "history" && (
+            <>
+              {historicalTransactions?.map((trans, idx) => {
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      fontFamily: "roboto",
+                    }}
+                  >
+                    {trans.txSignature && (
+                      <span>Signature: {trans.txSignature}, </span>
+                    )}
+                    <span>
+                      Date:{" "}
+                      {new Date(trans.transaction.timestamp).toDateString()}{" "}
+                      NZDT
+                    </span>
+                    <span>, Status: {trans.transaction.txStatus}</span>
+                  </div>
+                );
+              })}
+              <Button>
+                <a
+                  href={
+                    ethNetwork === "Mainnet"
+                      ? "todo: mainnet link"
+                      : "https://gnosis-safe.io/app/rin:0x97e5140985E5FFA487C51b2E390a40c34919936E/transactions/history"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    textDecoration: "none",
+                    color: "black",
+                    fontFamily: "teko",
+                    fontSize: "20px",
+                    letterSpacing: "0.5px",
+                    textTransform: "none",
+                  }}
+                >
+                  View on Gnosis Safe
+                </a>
+              </Button>
             </>
           )}
         </Box>
