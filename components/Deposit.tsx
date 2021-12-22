@@ -241,9 +241,7 @@ const Deposit: React.FC<{}> = () => {
             mb: "50px",
           }}
           disabled={
-            amount && token && selectedAccount && Number(amount) <= tokenBalance
-              ? false
-              : true
+            amount && token && selectedAccount && !helperText ? false : true
           }
           size="large"
           variant="outlined"
