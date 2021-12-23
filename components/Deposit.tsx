@@ -38,6 +38,11 @@ const Deposit: React.FC<{}> = () => {
       })();
   }, [token]);
 
+  const resetModal = () => {
+    setModal({ state: "", text: "", hash: "" });
+    setModalOpen(false);
+  };
+
   const depositEth = async () => {
     let tx: any = await Contracts.peg.deposit(
       ETH,
@@ -50,7 +55,7 @@ const Deposit: React.FC<{}> = () => {
 
     setModal(defineTxModal("deposit", tx.hash, setModalOpen));
     await tx.wait();
-    setModal(defineTxModal("relayer", "", setModalOpen));
+    setModal(defineTxModal("relayer", tx.hash, setModalOpen));
   };
 
   const depositERC20 = async () => {
@@ -73,7 +78,7 @@ const Deposit: React.FC<{}> = () => {
     );
     setModal(defineTxModal("deposit", tx.hash, setModalOpen));
     await tx.wait();
-    setModal(defineTxModal("relayer", "", setModalOpen));
+    setModal(defineTxModal("relayer", tx.hash, setModalOpen));
   };
 
   const deposit = async () => {
@@ -103,7 +108,7 @@ const Deposit: React.FC<{}> = () => {
           modalState={modal.state}
           modalText={modal.text}
           etherscanHash={modal.hash}
-          setModalOpen={setModalOpen}
+          resetModal={resetModal}
         />
       )}
       <Box
