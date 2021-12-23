@@ -29,6 +29,11 @@ const Deposit: React.FC<{}> = () => {
   const { Contracts, Signer, Account }: any = useBlockchain();
   const { decodeAddress, api }: any = useWeb3();
 
+  const resetModal = () => {
+    setModal({ state: "", text: "", hash: "" });
+    setModalOpen(false);
+  };
+
   //Check MetaMask account has enough tokens to deposit
   useEffect(() => {
     const { ethereum }: any = window;
@@ -86,7 +91,7 @@ const Deposit: React.FC<{}> = () => {
 
     setModal(defineTxModal("deposit", tx.hash, setModalOpen));
     await tx.wait();
-    setModal(defineTxModal("relayer", "", setModalOpen));
+    setModal(defineTxModal("relayer", tx.hash, setModalOpen));
   };
 
   const depositERC20 = async () => {
@@ -111,7 +116,7 @@ const Deposit: React.FC<{}> = () => {
     );
     setModal(defineTxModal("deposit", tx.hash, setModalOpen));
     await tx.wait();
-    setModal(defineTxModal("relayer", "", setModalOpen));
+    setModal(defineTxModal("relayer", tx.hash, setModalOpen));
   };
 
   const deposit = async () => {
@@ -141,7 +146,7 @@ const Deposit: React.FC<{}> = () => {
           modalState={modal.state}
           modalText={modal.text}
           etherscanHash={modal.hash}
-          setModalOpen={setModalOpen}
+          resetModal={resetModal}
         />
       )}
       <Box

@@ -13,7 +13,7 @@ function defineTxModal(state: string, hash: string, setModalOpen: Function) {
       modal.text = "DEPOSITING YOUR TOKENS...";
       break;
     case "relayer":
-      modal.text = "YOUR TOKENS WILL APPEAR ON CENNZnet SOON!";
+      modal.text = "CLAIMING YOUR TOKENS ON CENNZnet. PLEASE WAIT...";
       break;
     case "withdrawCENNZside":
       modal.text =
@@ -67,4 +67,4 @@ function defineWeb3Modal(state: string, setModalOpen: Function) {
   return modal;
 }
 
-export { defineTxModal, defineWeb3Modal };
+export { defineTxModal };
