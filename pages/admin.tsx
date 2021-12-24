@@ -199,7 +199,6 @@ const Admin: React.FC<{}> = () => {
         case signatures.Timelock[1]:
           timeLockABI = [`function ${signatures.Timelock[1]}`];
           timelockInterface = new ethers.utils.Interface(timeLockABI);
-          //TODO ensure eta is the same as pending transaction
           dataHex = timelockInterface.encodeFunctionData(state.txType, [
             contracts.bridge.address,
             state.value,
@@ -260,11 +259,9 @@ const Admin: React.FC<{}> = () => {
   }
 
   const createSafeTransaction = async (dataHex: any) => {
-    //TODO encode transaction data to hex for data section
     const transaction: MetaTransactionData[] = [
       {
-        //ensure this is always lowercase
-        to: contracts.timelock.address, //rinkeby Timelock contract
+        to: contracts.timelock.address,
         value: "0",
         data: dataHex,
       },
@@ -577,7 +574,7 @@ const Admin: React.FC<{}> = () => {
         }}
       >
         <Heading sx={{ margin: "0 auto", fontSize: "30px" }}>
-          ADMIN UNF*CK THE BRIDGE
+          ADMIN CONSOLE
         </Heading>
         <ButtonGroup
           sx={{

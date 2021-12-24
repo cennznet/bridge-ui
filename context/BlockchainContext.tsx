@@ -6,11 +6,14 @@ import Timelock from "../artifacts/Timelock.json";
 import store from "store";
 import { useWeb3 } from "./Web3Context";
 import {JsonRpcSigner} from "@ethersproject/providers/src.ts/json-rpc-provider";
+import Safe, {EthersAdapter} from "@gnosis.pm/safe-core-sdk";
+import {bool} from "@cennznet/types";
 
 type blockchainContextType = {
   Contracts: object;
   Account: string;
   Signer: JsonRpcSigner;
+  SafeOwner: boolean;
   updateNetwork: Function;
   activateAdmin: Function;
 };
@@ -19,6 +22,7 @@ const blockchainContextDefaultValues: blockchainContextType = {
   Contracts: {},
   Account: "",
   Signer: {} as JsonRpcSigner,
+  SafeOwner: false,
   activateAdmin: (ethereum: any, ethereumNetwork: string) => {},
   updateNetwork: (ethereum: any, ethereumNetwork: string) => {}
 };
@@ -39,6 +43,8 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }: Props) => {
   const { updateApi } = useWeb3();
+  const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
+
   const [value, setValue] = useState({
     Contracts: {
       bridge: {} as ethers.Contract,
@@ -46,6 +52,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     },
     Account: "",
     Signer: {} as ethers.providers.JsonRpcSigner,
+    SafeOwner:false
   });
 
   const updateNetwork = (ethereum: any, ethereumNetwork: string) => {
@@ -109,6 +116,18 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
         });
+        const ethAdapterOwner = new EthersAdapter({
+          ethers,
+          signer: signer,
+        });
+        const safeSdk: Safe = await Safe.create({
+          ethAdapter: ethAdapterOwner,
+          safeAddress,
+        });
+        const safeOwners = await safeSdk.getOwners();
+        const signerAddress = await signer.getAddress();
+        let isSafeOwner = false;
+        if(safeOwners.includes(signerAddress)) isSafeOwner = true;
 
         setValue({
           Contracts: {
@@ -117,6 +136,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
           },
           Account: accounts[0],
           Signer: signer,
+          SafeOwner: isSafeOwner
         });
 
         resolve({ bridge, peg, accounts, signer });

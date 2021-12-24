@@ -10,7 +10,7 @@ import WalletModal from "../components/WalletModal";
 
 const Home: React.FC<{}> = () => {
   const router = useRouter();
-  const { Account } = useBlockchain();
+  const { Account, SafeOwner } = useBlockchain();
   const { updateNetwork }: any = useBlockchain();
   const { connectWallet, selectedAccount }: any = useWeb3();
   const [modalOpen, setModalOpen] = useState(false);
@@ -197,10 +197,27 @@ const Home: React.FC<{}> = () => {
                 m: "45% 0 30px",
                 border: "2.5px solid #1130FF",
               }}
-              onClick={() => router.push("/admin")}
+              onClick={() => router.push("/bridge")}
             >
               <Heading sx={{ fontSize: "20px" }}>enter bridge</Heading>
             </Button>
+          {SafeOwner &&
+              <Button
+                  variant="outlined"
+                  size="large"
+                  disabled={Account ? false : true}
+                  sx={{
+                      width: "50%",
+                      backgroundColor: "#FFFFFF",
+                      color: "primary.main",
+                      m: "0% 0 30px",
+                      border: "2.5px solid #1130FF",
+                  }}
+                  onClick={() => router.push("/admin")}
+              >
+                  <Heading sx={{fontSize: "20px"}}>enter admin</Heading>
+              </Button>
+          }
           </>
         </Box>
       </>
