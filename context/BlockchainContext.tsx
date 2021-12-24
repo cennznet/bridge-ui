@@ -56,6 +56,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         window.localStorage.setItem("ethereum-network", ethereumNetwork);
         let BridgeAddress: string,
           ERC20PegAddress: string,
+          TimelockAddress: string,
           tokenChainId: number,
           apiUrl: string;
 
@@ -81,6 +82,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
           case "Rinkeby":
             BridgeAddress = "0x0D448D08677171FF611DD626cEd9Edd5f0d67155";
             ERC20PegAddress = "0xa3205266ebBd74298729e04a28b8Fa53B5319679";
+            TimelockAddress = "0x239f747454968aE53864D0Ef98c40c977b523cC3";
             tokenChainId = 4;
             apiUrl = "wss://nikau.centrality.me/public/ws";
             break;

@@ -45,6 +45,7 @@ const signatures = {
   Timelock: [
     "queueTransaction(address, uint, string, bytes, uint)",
     "executeTransaction(address, uint, string, bytes, uint)",
+    "cancelTransaction(address, uint, string, bytes, uint)",
   ],
 };
 
@@ -222,12 +223,6 @@ const Admin: React.FC<{}> = () => {
           eta.toNumber(),
         ]
       );
-    //   console.log(
-    //   "decoded dataHex",
-    // abi.decode(
-    //   [ "address", "uint", "string", "bytes", "uint256"],
-    // )
-    // );
     console.info(dataHex);
     await createSafeTransaction(dataHex);
   };
@@ -238,12 +233,38 @@ const Admin: React.FC<{}> = () => {
     }
   });
 
+  const createExecuteTransaction = async (transaction: any) => {
+    const timeLockABI = [`function ${signatures.Timelock[1]}`];
+    const timelockInterface = new ethers.utils.Interface(timeLockABI);
+    const dataHex = timelockInterface.encodeFunctionData(signatures.Timelock[1], [
+      contracts.bridge.address,
+      0,
+      transaction.signature,
+      transaction.data,
+      transaction.eta,
+    ]);
+    await createSafeTransaction(dataHex);
+  }
+
+  const createCancelTransaction = async (transaction: any) => {
+    const timeLockABI = [`function ${signatures.Timelock[2]}`];
+    const timelockInterface = new ethers.utils.Interface(timeLockABI);
+    const dataHex = timelockInterface.encodeFunctionData(signatures.Timelock[2], [
+      contracts.bridge.address,
+      0,
+      transaction.signature,
+      transaction.data,
+      transaction.eta,
+    ]);
+    await createSafeTransaction(dataHex);
+  }
+
   const createSafeTransaction = async (dataHex: any) => {
     //TODO encode transaction data to hex for data section
     const transaction: MetaTransactionData[] = [
       {
         //ensure this is always lowercase
-        to: "0x551cf0a5719d37e1E6Bc947fD84FE76d204BeB4d", //rinkeby Timelock contract
+        to: contracts.timelock.address, //rinkeby Timelock contract
         value: "0",
         data: dataHex,
       },
@@ -310,7 +331,6 @@ const Admin: React.FC<{}> = () => {
         txSignature,
       });
     }
-
     return formattedTransactions;
   };
 
@@ -368,7 +388,6 @@ const Admin: React.FC<{}> = () => {
         signerAddress,
         safeAddress
       );
-      console.info("transaction Signed");
     }
   };
 
@@ -451,44 +470,45 @@ const Admin: React.FC<{}> = () => {
 
   const getPendingTransactionsTimelock = async () => {
     //TODO get events only certain date in past
-    const events = await contracts.timelock.queryFilter({});
-    // get all un-executed queued transactions
-    const unExecutedQueuedTransactionProms = events.map(async (event) => {
-      if (event.eventSignature.includes("QueueTransaction")) {
-        const isQueued = await contracts.timelock.queuedTransactions(
-          event.args.txHash
-        );
-        if (isQueued) {
-          let decodeData = abi.decode(
-            event.args.signature.split("(")[1].replace(")", "").split(","),
-            event.args.data
+    if(Object.keys(contracts.timelock).length > 0){
+      const events = await contracts.timelock.queryFilter({});
+      // get all un-executed queued transactions
+      const unExecutedQueuedTransactionProms = events.map(async (event) => {
+        if (event.eventSignature.includes("QueueTransaction")) {
+          const isQueued = await contracts.timelock.queuedTransactions(
+              event.args.txHash
           );
-          decodeData = decodeData.map((data) => {
-            if (BigNumber.isBigNumber(data)) return data.toNumber();
-            else return data;
-          });
-          return {
-            blockNumber: event.blockNumber,
-            signature: event.args.signature,
-            data: event.args.data,
-            decodeData: decodeData,
-            eta: event.args.eta.toNumber(),
-          };
+          if (isQueued) {
+            let decodeData = abi.decode(
+                event.args.signature.split("(")[1].replace(")", "").split(","),
+                event.args.data
+            );
+            decodeData = decodeData.map((data) => {
+              if (BigNumber.isBigNumber(data)) return data.toNumber();
+              else return data;
+            });
+            return {
+              blockNumber: event.blockNumber,
+              signature: event.args.signature,
+              data: event.args.data,
+              decodeData: decodeData,
+              eta: event.args.eta.toNumber(),
+            };
+          }
         }
-      }
-    });
-    let unExecutedQueuedTransaction = await Promise.all(
-      unExecutedQueuedTransactionProms
-    );
-    unExecutedQueuedTransaction = unExecutedQueuedTransaction.filter(
-      (trans) => trans
-    );
-    return unExecutedQueuedTransaction;
+      });
+      let unExecutedQueuedTransaction = await Promise.all(
+          unExecutedQueuedTransactionProms
+      );
+      unExecutedQueuedTransaction = unExecutedQueuedTransaction.filter(
+          (trans) => trans
+      );
+      return unExecutedQueuedTransaction;
+    }
   };
 
   const formatPendingTransactionsTimelock = async () => {
     let pendingTransactions = await getPendingTransactionsTimelock();
-
     let formattedTransactions = [];
 
     for (const tx of pendingTransactions) {
@@ -557,7 +577,7 @@ const Admin: React.FC<{}> = () => {
         }}
       >
         <Heading sx={{ margin: "0 auto", fontSize: "30px" }}>
-          UNF*CK THE BRIDGE
+          ADMIN UNF*CK THE BRIDGE
         </Heading>
         <ButtonGroup
           sx={{
@@ -583,34 +603,6 @@ const Admin: React.FC<{}> = () => {
             }
           >
             QueueTx
-          </AdminButton>
-          <AdminButton
-            variant="outlined"
-            sx={{
-              backgroundColor:
-                state.txType === signatures.Timelock[1] ? "#1130FF" : "#FFFFFF",
-              color:
-                state.txType === signatures.Timelock[1] ? "#FFFFFF" : "#1130FF",
-            }}
-            onClick={() =>
-              updateState({ ...state, txType: signatures.Timelock[1] })
-            }
-          >
-            ExecuteTx
-          </AdminButton>
-          <AdminButton
-            variant="outlined"
-            sx={{
-              backgroundColor:
-                state.txType === "cancelTransaction" ? "#1130FF" : "#FFFFFF",
-              color:
-                state.txType === "cancelTransaction" ? "#FFFFFF" : "#1130FF",
-            }}
-            onClick={() =>
-              updateState({ ...state, txType: "cancelTransaction" })
-            }
-          >
-            CancelTx
           </AdminButton>
         </ButtonGroup>
         <Box
@@ -839,6 +831,10 @@ const Admin: React.FC<{}> = () => {
                 const required =
                   trans.transaction.executionInfo.confirmationsRequired;
                 const txHashId: string = trans.transaction.id;
+                const methodName: string = trans.transaction.txInfo.methodName;
+                const missingSigners = trans.transaction.executionInfo.missingSigners;
+                const foundCurrentSigner = missingSigners.filter(signer => signer.value === signerAddress);
+                const alreadySigned = foundCurrentSigner.length === 0;
                 return (
                   <div
                     key={idx}
@@ -849,13 +845,19 @@ const Admin: React.FC<{}> = () => {
                       "font-weight": 400,
                     }}
                   >
-                    {`Pending Transaction ${nonce}: ${trans.txSignature}`}
-                    <Button onClick={() => signTransaction(txHashId)}>
-                      Sign
-                    </Button>
-                    <Button>
-                      {confirmed}/{required} Confirmed
-                    </Button>
+                    {`${methodName} ${nonce}: ${trans.txSignature}`}
+                    {alreadySigned ?
+                        <Button>Signed</Button>
+                        :
+                        <>
+                          <Button onClick={() => signTransaction(txHashId)}>
+                            Sign
+                          </Button>
+                          <Button>
+                             {confirmed}/{required} Confirmed
+                          </Button>
+                        </>
+                    }
                   </div>
                 );
               })}
@@ -884,6 +886,7 @@ const Admin: React.FC<{}> = () => {
           )}
           {txDataView === "timelock" && (
             <>
+
               {pendingTransactionsTimelock?.map((trans, idx) => {
                 return (
                   <div
@@ -896,11 +899,39 @@ const Admin: React.FC<{}> = () => {
                     {trans.countdown ? (
                       <span>: Executable in: {trans.countdown}</span>
                     ) : (
-                      <span>: Executable</span>
+                      <>
+                        <Button onClick={() => createExecuteTransaction(trans)}>
+                        Execute
+                        </Button>
+                        <Button onClick={() => createCancelTransaction(trans)}>
+                        Cancel
+                        </Button>
+                      </>
                     )}
                   </div>
                 );
               })}
+              <Button>
+                <a
+                    href={
+                      ethNetwork === "Mainnet"
+                          ? "todo: mainnet link"
+                          : `https://rinkeby.etherscan.io/address/${contracts.timelock.address}#events`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      textDecoration: "none",
+                      color: "black",
+                      fontFamily: "teko",
+                      fontSize: "20px",
+                      letterSpacing: "0.5px",
+                      textTransform: "none",
+                    }}
+                >
+                  View on Etherscan
+                </a>
+              </Button>
             </>
           )}
           {txDataView === "history" && (
@@ -954,4 +985,5 @@ const Admin: React.FC<{}> = () => {
   );
 };
 
-export default Admin;
+export default Admin
+
