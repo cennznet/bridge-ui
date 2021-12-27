@@ -71,7 +71,6 @@ const Admin: React.FC<{}> = () => {
     timelock: {} as ethers.Contract,
   });
   const [state, updateState] = useState({
-    txType: signatures.Timelock[0],
     target: "",
     value: "",
     signature: "",
@@ -136,7 +135,6 @@ const Admin: React.FC<{}> = () => {
 
   const updateTarget = (target) => {
     updateState({
-      txType: state.txType,
       target,
       value: "",
       signature: "",
@@ -187,37 +185,20 @@ const Admin: React.FC<{}> = () => {
     let timeLockABI;
     let timelockInterface;
     if (state.target === "Bridge") {
-      switch (state.txType) {
-        case signatures.Timelock[0]:
-          timeLockABI = [`function ${signatures.Timelock[0]}`];
-          timelockInterface = new ethers.utils.Interface(timeLockABI);
-          dataHex = timelockInterface.encodeFunctionData(state.txType, [
-            contracts.bridge.address,
-            state.value,
-            state.signature,
-            encodedParams,
-            eta,
-          ]);
-          break;
-        case signatures.Timelock[1]:
-          timeLockABI = [`function ${signatures.Timelock[1]}`];
-          timelockInterface = new ethers.utils.Interface(timeLockABI);
-          dataHex = timelockInterface.encodeFunctionData(state.txType, [
-            contracts.bridge.address,
-            state.value,
-            state.signature,
-            encodedParams,
-            eta,
-          ]);
-          break;
-        default:
-          break;
-      }
+      timeLockABI = [`function ${signatures.Timelock[0]}`];
+      timelockInterface = new ethers.utils.Interface(timeLockABI);
+      dataHex = timelockInterface.encodeFunctionData(signatures.Timelock[0], [
+        contracts.bridge.address,
+        state.value,
+        state.signature,
+        encodedParams,
+        eta,
+      ]);
     } else if (state.target === "ERC20Peg")
       dataHex = abi.encode(
         ["string", "string", "uint", "string", "string", "uint"],
         [
-          `timelock.${state.txType}Transaction()`,
+          `timelock.${signatures.Timelock[0]}Transaction()`,
           contracts.peg.address,
           BigNumber.from(0),
           state.signature,
@@ -597,14 +578,9 @@ const Admin: React.FC<{}> = () => {
           <AdminButton
             variant="outlined"
             sx={{
-              backgroundColor:
-                state.txType === signatures.Timelock[0] ? "#1130FF" : "#FFFFFF",
-              color:
-                state.txType === signatures.Timelock[0] ? "#FFFFFF" : "#1130FF",
+              backgroundColor: "#1130FF",
+              color:"#FFFFFF",
             }}
-            onClick={() =>
-              updateState({ ...state, txType: signatures.Timelock[0] })
-            }
           >
             QueueTx
           </AdminButton>
