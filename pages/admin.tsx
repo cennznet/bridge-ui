@@ -836,13 +836,15 @@ const Admin: React.FC<{}> = () => {
                   <div
                     key={idx}
                     style={{
-                      // @ts-ignore
-                      "font-family": "Teko",
-                      "font-style": "bold",
-                      "font-weight": 400,
+                      fontFamily: "Teko",
+                      fontStyle: "bold",
+                      fontWeight: 400,
+                      width: "100%",
+                      borderBottom: "4px solid rgb(17, 48, 255)"
                     }}
                   >
-                    {`${methodName} ${nonce}: ${trans.txSignature}`}
+                    {`${methodName} ${nonce}:`}
+                    <b> {trans.txSignature}</b>
                     {alreadySigned ?
                         <Button>Signed</Button>
                         :
@@ -883,16 +885,19 @@ const Admin: React.FC<{}> = () => {
           )}
           {txDataView === "timelock" && (
             <>
-
               {pendingTransactionsTimelock?.map((trans, idx) => {
                 return (
                   <div
                     key={idx}
                     style={{
-                      fontFamily: "Roboto",
+                      fontFamily: "Teko",
+                      fontStyle: "bold",
+                      fontWeight: 400,
+                      width: "100%",
+                      borderBottom: "4px solid rgb(17, 48, 255)",
                     }}
                   >
-                    <span>{trans.txSignature}</span>
+                    <span><b>{trans.txSignature}</b></span>
                     {trans.countdown ? (
                       <span>: Executable in: {trans.countdown}</span>
                     ) : (
@@ -934,22 +939,29 @@ const Admin: React.FC<{}> = () => {
           {txDataView === "history" && (
             <>
               {historicalTransactions?.map((trans, idx) => {
+                const methodName = trans.transaction.txInfo.methodName;
+                const transColor = trans.transaction.txStatus === "SUCCESS" ? "green" : "red";
                 return (
                   <div
                     key={idx}
                     style={{
-                      fontFamily: "roboto",
+                      fontFamily: "Teko",
+                      fontStyle: "bold",
+                      fontWeight: 400,
+                      width: "100%",
+                      borderBottom: "4px solid #1130FF"
                     }}
                   >
                     {trans.txSignature && (
-                      <span>Signature: {trans.txSignature}, </span>
+                        <span>{methodName} <b>{trans.txSignature}</b> </span>
                     )}
+                    <br></br>
+                    <span>Status: <b style={{color: transColor}}>{trans.transaction.txStatus}</b> </span>
                     <span>
                       Date:{" "}
                       {new Date(trans.transaction.timestamp).toDateString()}{" "}
                       NZDT
                     </span>
-                    <span>, Status: {trans.transaction.txStatus}</span>
                   </div>
                 );
               })}
