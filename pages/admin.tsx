@@ -22,6 +22,7 @@ import {
 } from "@gnosis.pm/safe-core-sdk-types/dist/src/types";
 import { SafeTransaction } from "@gnosis.pm/safe-core-sdk-types";
 import EthSafeTransaction from "@gnosis.pm/safe-core-sdk/dist/src/utils/transactions/SafeTransaction";
+import Spinner from "../components/Spinner";
 
 const abi = new ethers.utils.AbiCoder();
 const targets: string[] = ["Bridge", "ERC20Peg"];
@@ -79,6 +80,7 @@ const Admin: React.FC<{}> = () => {
     uint256: "",
     bool: "",
   });
+  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalState, setModalState] = useState("");
   const [ethNetwork, setEthNetwork] = useState("");
@@ -127,6 +129,7 @@ const Admin: React.FC<{}> = () => {
         setModalState("wrongNetwork");
         setModalOpen(true);
       }
+      setLoading(false);
     })();
     //eslint-disable-next-line
   }, []);
@@ -505,6 +508,7 @@ const Admin: React.FC<{}> = () => {
   };
 
   const formatPendingTransactionsTimelock = async () => {
+    setLoading(true);
     let pendingTransactions = await getPendingTransactionsTimelock();
     let formattedTransactions = [];
 
@@ -549,12 +553,15 @@ const Admin: React.FC<{}> = () => {
       });
     }
     setPendingTransactionsTimelock(formattedTransactions);
+    setLoading(false);
   };
 
   const viewHistoricalTransactions = async () => {
+    setLoading(true);
     const transactions = await getHistoricalTransactions(safeAddress);
     const formattedTransactions = await formatTransactions(transactions);
     setHistoricalTransactions(formattedTransactions);
+    setLoading(false);
   };
 
   return (
@@ -821,45 +828,48 @@ const Admin: React.FC<{}> = () => {
         >
           {txDataView === "safe" && (
             <>
-              {pendingTransactions?.map((trans, idx) => {
-                const nonce = trans.transaction.executionInfo.nonce;
-                const confirmed =
-                  trans.transaction.executionInfo.confirmationsSubmitted;
-                const required =
-                  trans.transaction.executionInfo.confirmationsRequired;
-                const txHashId: string = trans.transaction.id;
-                const methodName: string = trans.transaction.txInfo.methodName;
-                const missingSigners = trans.transaction.executionInfo.missingSigners;
-                const foundCurrentSigner = missingSigners.filter(signer => signer.value === signerAddress);
-                const alreadySigned = foundCurrentSigner.length === 0;
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      fontFamily: "Teko",
-                      fontStyle: "bold",
-                      fontWeight: 400,
-                      width: "100%",
-                      borderBottom: "4px solid rgb(17, 48, 255)"
-                    }}
-                  >
-                    {`${methodName} ${nonce}:`}
-                    <b> {trans.txSignature}</b>
-                    {alreadySigned ?
-                        <Button>Signed</Button>
-                        :
-                        <>
-                          <Button onClick={() => signTransaction(txHashId)}>
-                            Sign
-                          </Button>
-                          <Button>
-                             {confirmed}/{required} Confirmed
-                          </Button>
-                        </>
-                    }
-                  </div>
-                );
-              })}
+              {loading ? <Spinner/>
+                  :
+                  pendingTransactions?.map((trans, idx) => {
+                    const nonce = trans.transaction.executionInfo.nonce;
+                    const confirmed =
+                        trans.transaction.executionInfo.confirmationsSubmitted;
+                    const required =
+                        trans.transaction.executionInfo.confirmationsRequired;
+                    const txHashId: string = trans.transaction.id;
+                    const methodName: string = trans.transaction.txInfo.methodName;
+                    const missingSigners = trans.transaction.executionInfo.missingSigners;
+                    const foundCurrentSigner = missingSigners.filter(signer => signer.value === signerAddress);
+                    const alreadySigned = foundCurrentSigner.length === 0;
+                    return (
+                        <div
+                            key={idx}
+                            style={{
+                              fontFamily: "Teko",
+                              fontStyle: "bold",
+                              fontWeight: 400,
+                              width: "100%",
+                              borderBottom: "4px solid rgb(17, 48, 255)"
+                            }}
+                        >
+                          {`${methodName} ${nonce}:`}
+                          <b> {trans.txSignature}</b>
+                          {alreadySigned ?
+                              <Button>Signed</Button>
+                              :
+                              <>
+                                <Button onClick={() => signTransaction(txHashId)}>
+                                  Sign
+                                </Button>
+                                <Button>
+                                  {confirmed}/{required} Confirmed
+                                </Button>
+                              </>
+                          }
+                        </div>
+                    );
+                  })
+              }
               <Button>
                 <a
                   href={
@@ -885,7 +895,7 @@ const Admin: React.FC<{}> = () => {
           )}
           {txDataView === "timelock" && (
             <>
-              {pendingTransactionsTimelock?.map((trans, idx) => {
+              {loading ? <Spinner/> : pendingTransactionsTimelock?.map((trans, idx) => {
                 return (
                   <div
                     key={idx}
@@ -938,7 +948,7 @@ const Admin: React.FC<{}> = () => {
           )}
           {txDataView === "history" && (
             <>
-              {historicalTransactions?.map((trans, idx) => {
+              {loading ? <Spinner/> : historicalTransactions?.map((trans, idx) => {
                 const methodName = trans.transaction.txInfo.methodName;
                 const transColor = trans.transaction.txStatus === "SUCCESS" ? "green" : "red";
                 return (
