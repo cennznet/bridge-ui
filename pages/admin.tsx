@@ -104,6 +104,9 @@ const Admin: React.FC<{}> = () => {
           );
           setPendingTransactions(formattedTransactions);
         }
+        else{
+          setPendingTransactions([]);
+        }
         setLoading(false);
       })();
     }
@@ -883,7 +886,7 @@ const Admin: React.FC<{}> = () => {
                                 </Button>
                               </>
                           }
-                          { !trans.isCancellation && <Button onClick={() => {rejectTransaction(nonce)}}> Reject </Button>}
+                          { !trans.isCancellation && <Button style={{color: "red"}} onClick={() => {rejectTransaction(nonce)}}> Reject</Button>}
                         </div>
                     );
                   })
@@ -933,7 +936,7 @@ const Admin: React.FC<{}> = () => {
                         <Button onClick={() => createExecuteTransaction(trans)}>
                         Execute
                         </Button>
-                        <Button onClick={() => createCancelTransaction(trans)}>
+                        <Button style={{color: "red"}} onClick={() => createCancelTransaction(trans)}>
                         Cancel
                         </Button>
                       </>
