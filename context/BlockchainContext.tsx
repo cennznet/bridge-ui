@@ -89,7 +89,6 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
           case "Rinkeby":
             BridgeAddress = "0x0D448D08677171FF611DD626cEd9Edd5f0d67155";
             ERC20PegAddress = "0xa3205266ebBd74298729e04a28b8Fa53B5319679";
-            TimelockAddress = "0x239f747454968aE53864D0Ef98c40c977b523cC3";
             tokenChainId = 4;
             apiUrl = "wss://nikau.centrality.me/public/ws";
             break;
@@ -116,19 +115,21 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
         });
-        const ethAdapterOwner = new EthersAdapter({
-          ethers,
-          signer: signer,
-        });
-        const safeSdk: Safe = await Safe.create({
-          ethAdapter: ethAdapterOwner,
-          safeAddress,
-        });
-        const safeOwners = await safeSdk.getOwners();
-        const signerAddress = await signer.getAddress();
         let isSafeOwner = false;
-        if(safeOwners.includes(signerAddress)) isSafeOwner = true;
-
+        //TODO also add mainnet when contracts are deployed there
+        if(ethereumNetwork === "Rinkeby"){
+          const ethAdapterOwner = new EthersAdapter({
+            ethers,
+            signer: signer,
+          });
+          const safeSdk: Safe = await Safe.create({
+            ethAdapter: ethAdapterOwner,
+            safeAddress,
+          });
+          const safeOwners = await safeSdk.getOwners();
+          const signerAddress = await signer.getAddress();
+          if(safeOwners.includes(signerAddress)) isSafeOwner = true;
+        }
         setValue({
           Contracts: {
             bridge,
