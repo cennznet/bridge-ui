@@ -19,7 +19,7 @@ const Home: React.FC<{}> = () => {
   const connectMetamask = async () => {
     const { ethereum } = window as any;
     try {
-      await ethereum.request({ method: "eth_requestAccounts" });
+      await ethereum.request({ method: "eth_accounts" });
       const ethChainId = await ethereum.request({ method: "eth_chainId" });
       let ethereumNetwork;
       switch (ethChainId) {
@@ -128,10 +128,7 @@ const Home: React.FC<{}> = () => {
             METAMASK
           </Heading>
           <SmallText sx={{ color: "black", fontSize: "16px" }}>
-            {Account.substr(0, 6).concat(
-              "...",
-              Account.substr(Account.length - 4, 4)
-            )}
+            {Account.substring(0, 6)}...{Account.substring(Account.length - 4)}
           </SmallText>
         </>
       ) : (
