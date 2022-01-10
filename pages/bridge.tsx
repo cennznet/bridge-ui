@@ -18,7 +18,7 @@ const Bridge: React.FC<{}> = () => {
   const [modalState, setModalState] = useState<string>("");
   const [isWalletConnected, setIsWalletConnected] = useState<boolean>(false);
   const { selectedAccount, connectWallet }: any = useWeb3();
-  const { updateNetwork }: any = useBlockchain();
+  const { updateNetwork, Account }: any = useBlockchain();
 
   useEffect(() => {
     const { ethereum }: any = window;
@@ -159,6 +159,43 @@ const Bridge: React.FC<{}> = () => {
             {selectedAccount.name}
           </SmallText>
         )}
+      </Frame>
+      <Frame
+        sx={{
+          top: "12%",
+          right: "5%",
+          backgroundColor:
+            modalState === "showWallet" || modalState === "changeAccount"
+              ? "#1130FF"
+              : "#FFFFFF",
+        }}
+      >
+        <Heading
+          sx={{
+            ml: "10px",
+            mt: "3px",
+            fontSize: "17px",
+            color:
+              modalState === "showWallet" || modalState === "changeAccount"
+                ? "#FFFFFF"
+                : "#1130FF",
+            flexGrow: 1,
+            whiteSpace: "nowrap",
+          }}
+        >
+          METAMASK
+        </Heading>
+        <SmallText
+          sx={{
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            ml: "1.5px",
+            fontSize: "15px",
+            color: "black",
+          }}
+        >
+          {Account.substring(0, 6)}...{Account.substring(Account.length - 4)}
+        </SmallText>
       </Frame>
       {currentNetwork === "" ? (
         <Box
