@@ -92,6 +92,23 @@ const Admin: React.FC<{}> = () => {
   const [txDataView, setTxDataView] = useState("safe");
   const { activateAdmin, Signer }: any = useBlockchain();
   const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
+
+  useEffect( () => {
+    if(txDataView === "safe"){
+      (async () => {
+        setLoading(true);
+        const queuedTransactions = await getAllQueuedTransactions(safeAddress);
+        if (queuedTransactions) {
+          let formattedTransactions = await formatTransactions(
+              queuedTransactions
+          );
+          setPendingTransactions(formattedTransactions);
+        }
+        setLoading(false);
+      })();
+    }
+  },[txDataView]);
+
   useEffect(() => {
     (async () => {
       const { ethereum }: any = window;
@@ -206,7 +223,6 @@ const Admin: React.FC<{}> = () => {
           eta.toNumber(),
         ]
       );
-    console.info(dataHex);
     await createSafeTransaction(dataHex);
   };
 
@@ -277,39 +293,40 @@ const Admin: React.FC<{}> = () => {
 
   const formatTransactions = async (transactions: any[]) => {
     let formattedTransactions = [];
-
     for (const tx of transactions) {
       let value: string;
       let txSignature: string;
-      let { txData } = await getMultiSignatureTransaction(tx.transaction.id);
-      if (!txData.dataDecoded) continue;
-      let signature = txData.dataDecoded.parameters[2].value;
-      switch (signature) {
-        default:
-        case signatures.Bridge[0]:
-        case signatures.Bridge[1]:
-          txSignature = signature;
-          break;
-        case signatures.Bridge[2]:
-        case signatures.Bridge[3]:
-        case signatures.Bridge[4]:
-        case signatures.Bridge[5]:
-          value = abi
-            .decode(["uint256"], txData.dataDecoded.parameters[3].value)
-            .toString();
-          txSignature = `${signature.split("(")[0]}(${value})`;
-          break;
-        case signatures.Bridge[6]:
-          value = abi
-            .decode(["bool"], txData.dataDecoded.parameters[3].value)
-            .toString();
-          txSignature = `${signature.split("(")[0]}(${value})`;
-          break;
+      let { txData, txInfo } = await getMultiSignatureTransaction(tx.transaction.id);
+      const isCancellation = txInfo.isCancellation;
+      if (!isCancellation){
+        let signature = txData.dataDecoded.parameters[2].value;
+        switch (signature) {
+          default:
+          case signatures.Bridge[0]:
+          case signatures.Bridge[1]:
+            txSignature = signature;
+            break;
+          case signatures.Bridge[2]:
+          case signatures.Bridge[3]:
+          case signatures.Bridge[4]:
+          case signatures.Bridge[5]:
+            value = abi
+                .decode(["uint256"], txData.dataDecoded.parameters[3].value)
+                .toString();
+            txSignature = `${signature.split("(")[0]}(${value})`;
+            break;
+          case signatures.Bridge[6]:
+            value = abi
+                .decode(["bool"], txData.dataDecoded.parameters[3].value)
+                .toString();
+            txSignature = `${signature.split("(")[0]}(${value})`;
+            break;
+        }
       }
-
       formattedTransactions.push({
         ...tx,
         txSignature,
+        isCancellation
       });
     }
     return formattedTransactions;
@@ -441,6 +458,30 @@ const Admin: React.FC<{}> = () => {
     );
     return await proposeRes.json();
   };
+
+  const rejectTransaction = async (nonce: number) => {
+    const transaction: MetaTransactionData[] = [
+      {
+        to: safeAddress,
+        value: "0",
+        data: "0x"
+      },
+    ];
+    let options: any = {
+      safeTxGas: "0",
+      baseGas: "0",
+      gasPrice: "0",
+      gasToken: "0x0000000000000000000000000000000000000000",
+      refundReceiver: "0x0000000000000000000000000000000000000000",
+      nonce: nonce
+    };
+    const safeTransaction: SafeTransaction = await safeSdk.createTransaction(
+        transaction,
+        options
+    );
+    await safeSdk.signTransaction(safeTransaction);
+    await proposeTransaction(safeSdk, safeTransaction, signerAddress, safeAddress);
+  }
 
   const getMultiSignatureTransaction = async (multisignature: string) => {
     const res = await fetch(
@@ -828,7 +869,7 @@ const Admin: React.FC<{}> = () => {
                               borderBottom: "4px solid rgb(17, 48, 255)"
                             }}
                         >
-                          {`${methodName} ${nonce}:`}
+                          {trans.isCancellation ? `Reject Transaction ${nonce}` : `${methodName} ${nonce}:`}
                           <b> {trans.txSignature}</b>
                           {alreadySigned ?
                               <Button>Signed</Button>
@@ -842,6 +883,7 @@ const Admin: React.FC<{}> = () => {
                                 </Button>
                               </>
                           }
+                          { !trans.isCancellation && <Button onClick={() => {rejectTransaction(nonce)}}> Reject </Button>}
                         </div>
                     );
                   })
@@ -851,7 +893,7 @@ const Admin: React.FC<{}> = () => {
                   href={
                     ethNetwork === "Mainnet"
                       ? "todo: mainnet link"
-                      : "https://gnosis-safe.io/app/rin:0x97e5140985E5FFA487C51b2E390a40c34919936E/transactions/queue"
+                      : `https://gnosis-safe.io/app/rin:${safeAddress}/transactions/queue`
                   }
                   target="_blank"
                   rel="noopener noreferrer"
@@ -956,7 +998,7 @@ const Admin: React.FC<{}> = () => {
                   href={
                     ethNetwork === "Mainnet"
                       ? "todo: mainnet link"
-                      : "https://gnosis-safe.io/app/rin:0x97e5140985E5FFA487C51b2E390a40c34919936E/transactions/history"
+                      : `https://gnosis-safe.io/app/rin:${safeAddress}/transactions/history`
                   }
                   target="_blank"
                   rel="noopener noreferrer"
