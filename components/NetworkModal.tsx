@@ -9,7 +9,7 @@ import {
 import { updateNetworks } from "../utils/networks";
 import { useWeb3 } from "../context/Web3Context";
 
-const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
+const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau", "Rinkeby/Nikau"];
 
 const NetworkModal: React.FC<{
   setModalOpen: Function;

@@ -25,10 +25,10 @@ function MyApp({ Component, pageProps }: AppProps) {
         />
         <link rel="icon" href="/favicon.svg" />
       </Head>
-      <ThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
         <CssBaseline />
         <Web3>
-          <BlockchainProvider>
+            <BlockchainProvider>
             <AppBar position="static">
               <Box onClick={() => router.push("/")} sx={{ cursor: "pointer" }}>
                 <img
@@ -57,10 +57,10 @@ function MyApp({ Component, pageProps }: AppProps) {
                 }}
               >
                 ETHEREUM BRIDGE
-              </Typography>
-            </AppBar>
-            <Component {...pageProps} />
-          </BlockchainProvider>
+          </Typography>
+        </AppBar>
+        <Component {...pageProps} />
+        </BlockchainProvider>
         </Web3>
       </ThemeProvider>
     </>

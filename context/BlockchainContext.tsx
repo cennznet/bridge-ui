@@ -1,20 +1,30 @@
 import React, { createContext, useContext, ReactNode, useState } from "react";
-import { ethers } from "ethers";
+import {ethers, Signer} from "ethers";
 import CENNZnetBridge from "../artifacts/CENNZnetBridge.json";
 import ERC20Peg from "../artifacts/ERC20Peg.json";
+import Timelock from "../artifacts/Timelock.json";
 import store from "store";
 import { useWeb3 } from "./Web3Context";
+import {JsonRpcSigner} from "@ethersproject/providers/src.ts/json-rpc-provider";
+import Safe, {EthersAdapter} from "@gnosis.pm/safe-core-sdk";
+import {bool} from "@cennznet/types";
 
 type blockchainContextType = {
   Contracts: object;
   Account: string;
+  Signer: JsonRpcSigner;
+  SafeOwner: boolean;
   updateNetwork: Function;
+  activateAdmin: Function;
 };
 
 const blockchainContextDefaultValues: blockchainContextType = {
   Contracts: {},
   Account: "",
-  updateNetwork: (ethereum: any, ethereumNetwork: string) => {},
+  Signer: {} as JsonRpcSigner,
+  SafeOwner: false,
+  activateAdmin: (ethereum: any, ethereumNetwork: string) => {},
+  updateNetwork: (ethereum: any, ethereumNetwork: string) => {}
 };
 
 const BlockchainContext = createContext<blockchainContextType>(
@@ -33,6 +43,8 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }: Props) => {
   const { updateApi } = useWeb3();
+  const safeAddress = "0x97e5140985E5FFA487C51b2E390a40c34919936E"; //rinkeby safe
+
   const [value, setValue] = useState({
     Contracts: {
       bridge: {} as ethers.Contract,
@@ -40,6 +52,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     },
     Account: "",
     Signer: {} as ethers.providers.JsonRpcSigner,
+    SafeOwner:false
   });
 
   const updateNetwork = (ethereum: any, ethereumNetwork: string) => {
@@ -50,6 +63,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         window.localStorage.setItem("ethereum-network", ethereumNetwork);
         let BridgeAddress: string,
           ERC20PegAddress: string,
+          TimelockAddress: string,
           tokenChainId: number,
           apiUrl: string;
 
@@ -71,6 +85,12 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
             ERC20PegAddress = "0x927a710681B63b0899E28480114Bf50c899a5c27";
             tokenChainId = 3;
             apiUrl = "wss://kong2.centrality.me/public/rata/ws";
+            break;
+          case "Rinkeby":
+            BridgeAddress = "0x0D448D08677171FF611DD626cEd9Edd5f0d67155";
+            ERC20PegAddress = "0xa3205266ebBd74298729e04a28b8Fa53B5319679";
+            tokenChainId = 4;
+            apiUrl = "wss://nikau.centrality.me/public/ws";
             break;
           default:
             reject();
@@ -95,7 +115,21 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
         const accounts = await ethereum.request({
           method: "eth_requestAccounts",
         });
-
+        let isSafeOwner = false;
+        //TODO also add mainnet when contracts are deployed there
+        if(ethereumNetwork === "Rinkeby"){
+          const ethAdapterOwner = new EthersAdapter({
+            ethers,
+            signer: signer,
+          });
+          const safeSdk: Safe = await Safe.create({
+            ethAdapter: ethAdapterOwner,
+            safeAddress,
+          });
+          const safeOwners = await safeSdk.getOwners();
+          const signerAddress = await signer.getAddress();
+          if(safeOwners.includes(signerAddress)) isSafeOwner = true;
+        }
         setValue({
           Contracts: {
             bridge,
@@ -103,6 +137,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
           },
           Account: accounts[0],
           Signer: signer,
+          SafeOwner: isSafeOwner
         });
 
         resolve({ bridge, peg, accounts, signer });
@@ -112,9 +147,61 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
     });
   };
 
+  const activateAdmin = async (ethereum: any, ethereumNetwork: string) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+
+        let BridgeAddress: string,
+          ERC20PegAddress: string,
+          TimelockAddress: string;
+
+        switch (ethereumNetwork) {
+          case "Mainnet":
+            BridgeAddress = "";
+            ERC20PegAddress = "";
+            TimelockAddress = "";
+            break;
+          case "Rinkeby":
+            BridgeAddress = "0x0D448D08677171FF611DD626cEd9Edd5f0d67155";
+            ERC20PegAddress = "0x8236824EdaE713c9B55Ed7125Ee6103213859Bf8";
+            TimelockAddress = "0x239f747454968aE53864D0Ef98c40c977b523cC3";
+            break;
+          default:
+            break;
+        }
+
+        const bridge: ethers.Contract = new ethers.Contract(
+          BridgeAddress,
+          CENNZnetBridge,
+          signer
+        );
+
+        const peg: ethers.Contract = new ethers.Contract(
+          ERC20PegAddress,
+          ERC20Peg,
+          signer
+        );
+
+        const timelock: ethers.Contract = new ethers.Contract(
+          TimelockAddress,
+          Timelock.abi,
+          signer
+        );
+
+        resolve({ provider, timelock, bridge, peg });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
   return (
     <>
-      <BlockchainContext.Provider value={{ ...value, updateNetwork }}>
+      <BlockchainContext.Provider
+        value={{ ...value, updateNetwork, activateAdmin }}
+      >
         {children}
       </BlockchainContext.Provider>
     </>

@@ -12,6 +12,8 @@
     "@cennznet/types": "^1.5.0-alpha.5",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
+    "@gnosis.pm/safe-core-sdk": "^1.1.1",
+    "@gnosis.pm/safe-service-client": "^1.0.1",
     "@mui/material": "^5.0.6",
     "@polkadot/extension-dapp": "^0.41.1",
     "@polkadot/keyring": "5.9.2",

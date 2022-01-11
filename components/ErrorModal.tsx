@@ -4,7 +4,7 @@ import { StyledModal, Heading, SmallText, Option } from "./StyledComponents";
 import { Box } from "@mui/material";
 import { updateNetworks } from "../utils/networks";
 
-const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau"];
+const networks = ["Mainnet/Mainnet", "Ropsten/Rata", "Kovan/Nikau", "Rinkeby/Nikau"];
 
 const ErrorModal: React.FC<{
   setModalOpen: Function;
