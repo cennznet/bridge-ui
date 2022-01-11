@@ -24,24 +24,25 @@ const Withdraw: React.FC<{}> = () => {
 
   //Estimate fee
   useEffect(() => {
-    (async () => {
-      let gasPrice = (await Signer.getGasPrice()).toString();
-      gasPrice = ethers.utils.formatUnits(gasPrice);
+    if (selectedAccount)
+      (async () => {
+        let gasPrice = (await Signer.getGasPrice()).toString();
+        gasPrice = ethers.utils.formatUnits(gasPrice);
 
-      const gasEstimate = Number(gasPrice) * 150000;
+        const gasEstimate = Number(gasPrice) * 150000;
 
-      let verificationFee = await Contracts.bridge.verificationFee();
-      verificationFee = ethers.utils.formatUnits(verificationFee);
+        let verificationFee = await Contracts.bridge.verificationFee();
+        verificationFee = ethers.utils.formatUnits(verificationFee);
 
-      const totalFeeEstimate = gasEstimate + Number(verificationFee);
+        const totalFeeEstimate = gasEstimate + Number(verificationFee);
 
-      setEstimatedFee(Number(totalFeeEstimate.toFixed(6)));
-    })();
-  }, []);
+        setEstimatedFee(Number(totalFeeEstimate.toFixed(6)));
+      })();
+  }, [selectedAccount]);
 
   //Check CENNZnet account has enough tokens to withdraw
   useEffect(() => {
-    if (token !== "")
+    if (token !== "" && balances)
       (async () => {
         const tokenExist = await api.query.erc20Peg.erc20ToAssetId(token);
         const tokenId = tokenExist.isSome
@@ -54,7 +55,7 @@ const Withdraw: React.FC<{}> = () => {
           }
         });
       })();
-  }, [token]);
+  }, [token, balances]);
 
   const resetModal = () => {
     setModal({ state: "", text: "", hash: "" });
