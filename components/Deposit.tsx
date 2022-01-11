@@ -164,7 +164,7 @@ const Deposit: React.FC<{}> = () => {
               sx={{
                 fontFamily: "Teko",
                 fontWeight: "bold",
-                fontSize: "21px",
+                fontSize: "19px",
                 lineHeight: "124%",
                 color: "#1130FF",
                 width: "80%",
@@ -187,7 +187,7 @@ const Deposit: React.FC<{}> = () => {
               sx={{
                 fontFamily: "Teko",
                 fontWeight: "bold",
-                fontSize: "21px",
+                fontSize: "19px",
                 lineHeight: "124%",
                 color: "#1130FF",
                 width: "80%",
