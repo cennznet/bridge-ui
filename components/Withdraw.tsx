@@ -75,7 +75,6 @@ const Withdraw: React.FC<{}> = () => {
       if (token !== "") {
         setModal(defineTxModal("withdrawCENNZside", "", setModalOpen));
         let withdrawAmount = ethers.utils.parseUnits(amount).toString();
-
         const eventProof = await withdrawCENNZside(
           withdrawAmount,
           Account,
@@ -233,12 +232,13 @@ const Withdraw: React.FC<{}> = () => {
         <TextField
           label="Amount"
           variant="outlined"
+          type="number"
           required
           sx={{
             width: "80%",
             m: "30px 0 30px",
           }}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => setAmount(String(e.target.value))}
           helperText={
             tokenBalance < Number(amount) ? "Account balance too low" : ""
           }

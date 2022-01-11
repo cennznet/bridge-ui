@@ -164,10 +164,7 @@ const Bridge: React.FC<{}> = () => {
         sx={{
           top: "12%",
           right: "5%",
-          backgroundColor:
-            modalState === "showWallet" || modalState === "changeAccount"
-              ? "#1130FF"
-              : "#FFFFFF",
+          backgroundColor: "#FFFFFF",
         }}
       >
         <Heading
@@ -175,10 +172,7 @@ const Bridge: React.FC<{}> = () => {
             ml: "10px",
             mt: "3px",
             fontSize: "17px",
-            color:
-              modalState === "showWallet" || modalState === "changeAccount"
-                ? "#FFFFFF"
-                : "#1130FF",
+            color: "#1130FF",
             flexGrow: 1,
             whiteSpace: "nowrap",
           }}

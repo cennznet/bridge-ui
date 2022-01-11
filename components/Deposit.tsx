@@ -131,12 +131,13 @@ const Deposit: React.FC<{}> = () => {
         <TextField
           label="Amount"
           variant="outlined"
+          type="number"
           required
           sx={{
             width: "80%",
             m: "30px 0 30px",
           }}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => setAmount(String(e.target.value))}
           helperText={
             tokenBalance < Number(amount) ? "Account balance too low" : ""
           }
@@ -206,7 +207,7 @@ const Deposit: React.FC<{}> = () => {
             fontSize: "21px",
             lineHeight: "124%",
             color: "#1130FF",
-            mt: "30px",
+            mt: "15px",
             mb: "50px",
           }}
           disabled={
