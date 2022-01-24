@@ -25,6 +25,7 @@ const TxModal: React.FC<Props> = ({
 }) => {
   const [open] = useState(true);
   const [etherscanLink, setEtherscanLink] = useState("");
+  const [intervalId, setIntervalId] = useState<NodeJS.Timer>(null);
   const [relayerStatus, updateRelayerStatus] = useState("");
   const [eventConfirmations, setEventConfirmations] = useState(0);
   const [confirms, updateConfirms] = useState(0);
@@ -72,10 +73,11 @@ const TxModal: React.FC<Props> = ({
     if (modalState === "relayer") {
       switch (relayerStatus) {
         default:
-          const intervalId = setInterval(
+          const interval = setInterval(
             () => checkRelayerStatus(relayerLink),
             10000
           );
+          setIntervalId(interval);
           break;
         case "EthereumConfirming":
           updateConfirms(Math.round(0.33 * eventConfirmations));
