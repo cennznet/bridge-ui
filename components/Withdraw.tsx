@@ -133,7 +133,7 @@ const Withdraw: React.FC<{}> = () => {
           await api.rpc.ethy.getEventProof(eventProofId)
         ).toJSON();
         if (versionedEventProof !== null) {
-          eventProof = versionedEventProof.EventProof;
+          eventProof = versionedEventProof.eventProof;
           console.log("Event proof found;::", eventProof);
           unsubHeads();
           resolve(eventProof);
