@@ -890,38 +890,12 @@
     "@polkadot/util" "^5.2.3"
     "@polkadot/util-crypto" "^5.2.3"
 
-"@polkadot/extension-dapp@^0.41.1":
-  version "0.41.2"
-  resolved "https://registry.yarnpkg.com/@polkadot/extension-dapp/-/extension-dapp-0.41.2.tgz#4ce6a9bfc5a5c3899fc09bd2955dc7ca9e3f9724"
-  integrity sha512-OM14h6GkHiWy2aZBb4vG/6AS85F+dpEurqZxrF2eLNnWV7wkcmQCQpYUyWgoC2yKvXUF/SImKN3CJodr7zbltA==
-  dependencies:
-    "@babel/runtime" "^7.16.3"
-    "@polkadot/extension-inject" "^0.41.2"
-    "@polkadot/util" "^8.0.4"
-    "@polkadot/util-crypto" "^8.0.4"
-
 "@polkadot/extension-inject@^0.36.1":
   version "0.36.1"
   resolved "https://registry.yarnpkg.com/@polkadot/extension-inject/-/extension-inject-0.36.1.tgz#33a9484a39eb5ed4ed019e9df69f7523a8469a44"
   integrity sha512-4jmnOgHrNeOkJ//GEXkmutzqzK4Rw123qhVC0tbuT39S4cVhjtpiuNQIJ2JcgtuhdUfWJtiHFokFJKortgy2Kg==
   dependencies:
     "@babel/runtime" "^7.12.5"
-
-"@polkadot/extension-inject@^0.41.2":
-  version "0.41.2"
-  resolved "https://registry.yarnpkg.com/@polkadot/extension-inject/-/extension-inject-0.41.2.tgz#2ff17c475f6b281f3a323b2de888de05dcc03547"
-  integrity sha512-8NDq/C0u/SK755XcReg4Bhmb+KiK+dPt0n/0UEOURJnV7fNTOjQXpzIsIm+mKMFPi/uBuinbzaNID74xVqzRJg==
-  dependencies:
-    "@babel/runtime" "^7.16.3"
-
-"@polkadot/keyring@5.9.2":
-  version "5.9.2"
-  resolved "https://registry.yarnpkg.com/@polkadot/keyring/-/keyring-5.9.2.tgz#f8011a524767bb8f000bec3e26178fc5feffae5b"
-  integrity sha512-h9AhrzyUmludbmo0ixRFLEyRJvUc7GTl5koSBrG0uv+9Yn0I/7YRgAKn3zKcUVZyvgoLvzZnBFwekGbdFcl9Yg==
-  dependencies:
-    "@babel/runtime" "^7.13.8"
-    "@polkadot/util" "5.9.2"
-    "@polkadot/util-crypto" "5.9.2"
 
 "@polkadot/keyring@^8.2.2", "@polkadot/keyring@^8.4.1":
   version "8.4.1"
@@ -1050,7 +1024,24 @@
     "@polkadot/util-crypto" "^8.4.1"
     rxjs "^7.5.4"
 
-"@polkadot/util-crypto@5.9.2", "@polkadot/util-crypto@^5.2.3":
+"@polkadot/util-crypto@8.4.1", "@polkadot/util-crypto@^8.2.2", "@polkadot/util-crypto@^8.4.1":
+  version "8.4.1"
+  resolved "https://registry.yarnpkg.com/@polkadot/util-crypto/-/util-crypto-8.4.1.tgz#41ff754dc995b681913fc0a484bb0d309221a703"
+  integrity sha512-mWjp83aIWw+EhKN9RkUDmubXibo25q5yHJl4BGm2gT71yTZcABB7q1SGfpDqLH9AB3eXJiutqhC4L3SH7YZ+6Q==
+  dependencies:
+    "@babel/runtime" "^7.17.2"
+    "@noble/hashes" "1.0.0"
+    "@noble/secp256k1" "1.5.2"
+    "@polkadot/networks" "8.4.1"
+    "@polkadot/util" "8.4.1"
+    "@polkadot/wasm-crypto" "^4.5.1"
+    "@polkadot/x-bigint" "8.4.1"
+    "@polkadot/x-randomvalues" "8.4.1"
+    "@scure/base" "1.0.0"
+    ed2curve "^0.3.0"
+    tweetnacl "^1.0.3"
+
+"@polkadot/util-crypto@^5.2.3":
   version "5.9.2"
   resolved "https://registry.yarnpkg.com/@polkadot/util-crypto/-/util-crypto-5.9.2.tgz#3858cfffe7732458b4a2b38ece01eaf52a3746c2"
   integrity sha512-d8CW2grI3gWi6d/brmcZQWaMPHqQq5z7VcM74/v8D2KZ+hPYL3B0Jn8zGL1vtgMz2qdpWrZdAe89LBC8BvM9bw==
@@ -1072,23 +1063,6 @@
     tweetnacl "^1.0.3"
     xxhashjs "^0.2.2"
 
-"@polkadot/util-crypto@8.4.1", "@polkadot/util-crypto@^8.0.4", "@polkadot/util-crypto@^8.2.2", "@polkadot/util-crypto@^8.4.1":
-  version "8.4.1"
-  resolved "https://registry.yarnpkg.com/@polkadot/util-crypto/-/util-crypto-8.4.1.tgz#41ff754dc995b681913fc0a484bb0d309221a703"
-  integrity sha512-mWjp83aIWw+EhKN9RkUDmubXibo25q5yHJl4BGm2gT71yTZcABB7q1SGfpDqLH9AB3eXJiutqhC4L3SH7YZ+6Q==
-  dependencies:
-    "@babel/runtime" "^7.17.2"
-    "@noble/hashes" "1.0.0"
-    "@noble/secp256k1" "1.5.2"
-    "@polkadot/networks" "8.4.1"
-    "@polkadot/util" "8.4.1"
-    "@polkadot/wasm-crypto" "^4.5.1"
-    "@polkadot/x-bigint" "8.4.1"
-    "@polkadot/x-randomvalues" "8.4.1"
-    "@scure/base" "1.0.0"
-    ed2curve "^0.3.0"
-    tweetnacl "^1.0.3"
-
 "@polkadot/util@5.9.2", "@polkadot/util@^5.2.3":
   version "5.9.2"
   resolved "https://registry.yarnpkg.com/@polkadot/util/-/util-5.9.2.tgz#ad2494e78ca6c3aadd6fb394a6be55020dc9b2a8"
@@ -1102,7 +1076,7 @@
     camelcase "^5.3.1"
     ip-regex "^4.3.0"
 
-"@polkadot/util@8.4.1", "@polkadot/util@^8.0.4", "@polkadot/util@^8.2.2", "@polkadot/util@^8.4.1":
+"@polkadot/util@8.4.1", "@polkadot/util@^8.2.2", "@polkadot/util@^8.4.1":
   version "8.4.1"
   resolved "https://registry.yarnpkg.com/@polkadot/util/-/util-8.4.1.tgz#b84835c55585c8b5fc5608a99aa62ac815292ae7"
   integrity sha512-8+wqHgFbFWI5TfrvtcL888w0nWvFpbTTYIcbpEw+zYGp3n1YZTAMMP26bXWAaQX5AttxynJRij7JP3ySxYY1fg==
