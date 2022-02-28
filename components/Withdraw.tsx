@@ -164,6 +164,10 @@ const Withdraw: React.FC<{}> = () => {
       r.push(sig.r);
       s.push(sig.s);
     });
+    const validators = (await api.query.ethBridge.notaryKeys()).map(
+      (validator: ethers.utils.BytesLike) =>
+        ethers.utils.computeAddress(validator)
+    );
 
     let gasEstimate = await Contracts.peg.estimateGas.withdraw(
       tokenAddress,
@@ -175,6 +179,7 @@ const Withdraw: React.FC<{}> = () => {
         v,
         r,
         s,
+        validators,
       },
       {
         value: verificationFee,
@@ -193,6 +198,7 @@ const Withdraw: React.FC<{}> = () => {
         v,
         r,
         s,
+        validators,
       },
       {
         value: verificationFee,
