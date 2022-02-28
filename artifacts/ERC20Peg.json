@@ -1,7 +1,11 @@
 [
   {
     "inputs": [
-      { "internalType": "address", "name": "_bridge", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "_bridge",
+        "type": "address"
+      }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -35,6 +39,19 @@
       }
     ],
     "name": "Deposit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Endow",
     "type": "event"
   },
   {
@@ -84,14 +101,26 @@
   {
     "inputs": [],
     "name": "CENNZ_TOKEN_ADDRESS",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "ETH_RESERVED_TOKEN_ADDRESS",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -132,14 +161,28 @@
   {
     "inputs": [],
     "name": "cennzDepositsActive",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "tokenType", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
+      {
+        "internalType": "address",
+        "name": "tokenType",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
       {
         "internalType": "bytes32",
         "name": "cennznetAddress",
@@ -154,14 +197,33 @@
   {
     "inputs": [],
     "name": "depositsActive",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
+    "name": "endow",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -188,7 +250,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -197,20 +263,53 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "tokenType", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "address", "name": "recipient", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "tokenType",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
       {
         "components": [
-          { "internalType": "uint256", "name": "eventId", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "eventId",
+            "type": "uint256"
+          },
           {
             "internalType": "uint32",
             "name": "validatorSetId",
             "type": "uint32"
           },
-          { "internalType": "uint8[]", "name": "v", "type": "uint8[]" },
-          { "internalType": "bytes32[]", "name": "r", "type": "bytes32[]" },
-          { "internalType": "bytes32[]", "name": "s", "type": "bytes32[]" }
+          {
+            "internalType": "uint8[]",
+            "name": "v",
+            "type": "uint8[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "r",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "s",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "validators",
+            "type": "address[]"
+          }
         ],
         "internalType": "struct CENNZnetEventProof",
         "name": "proof",
@@ -225,7 +324,13 @@
   {
     "inputs": [],
     "name": "withdrawalsActive",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   }
