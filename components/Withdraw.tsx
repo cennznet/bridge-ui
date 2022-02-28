@@ -133,7 +133,7 @@ const Withdraw: React.FC<{}> = () => {
           await api.rpc.ethy.getEventProof(eventProofId)
         ).toJSON();
         if (versionedEventProof !== null) {
-          eventProof = versionedEventProof.EventProof;
+          eventProof = versionedEventProof.eventProof;
           console.log("Event proof found;::", eventProof);
           unsubHeads();
           resolve(eventProof);
@@ -164,7 +164,10 @@ const Withdraw: React.FC<{}> = () => {
       r.push(sig.r);
       s.push(sig.s);
     });
-    const validators = await api.query.ethBridge.notaryKeys();
+    const validators = (await api.query.ethBridge.notaryKeys()).map(
+      (validator: ethers.utils.BytesLike) =>
+        ethers.utils.computeAddress(validator)
+    );
 
     let gasEstimate = await Contracts.peg.estimateGas.withdraw(
       tokenAddress,
