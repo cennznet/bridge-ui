@@ -129,11 +129,8 @@ const Withdraw: React.FC<{}> = () => {
     await new Promise(async (resolve) => {
       const unsubHeads = await api.rpc.chain.subscribeNewHeads(async () => {
         console.log(`Waiting till event proof is fetched....`);
-        const versionedEventProof = (
-          await api.rpc.ethy.getEventProof(eventProofId)
-        ).toJSON();
-        if (versionedEventProof !== null) {
-          eventProof = versionedEventProof.eventProof;
+        eventProof = await api.derive.ethBridge.eventProof(eventProofId);
+        if (!!eventProof) {
           console.log("Event proof found;::", eventProof);
           unsubHeads();
           resolve(eventProof);
@@ -153,21 +150,15 @@ const Withdraw: React.FC<{}> = () => {
     setModalOpen(false);
 
     let verificationFee = await Contracts.bridge.verificationFee();
-    const signatures = eventProof.signatures;
-    let v: any = [],
-      r: any = [],
-      s: any = []; // signature params
-    signatures.forEach((signature: any) => {
-      const hexifySignature = ethers.utils.hexlify(signature);
-      const sig = ethers.utils.splitSignature(hexifySignature);
-      v.push(sig.v);
-      r.push(sig.r);
-      s.push(sig.s);
-    });
     const validators = (await api.query.ethBridge.notaryKeys()).map(
       (validator: ethers.utils.BytesLike) => {
         // session key is not set
-        if(ethers.utils.hexlify(validator) === ethers.utils.hexlify("0x000000000000000000000000000000000000000000000000000000000000000000")) {
+        if (
+          ethers.utils.hexlify(validator) ===
+          ethers.utils.hexlify(
+            "0x000000000000000000000000000000000000000000000000000000000000000000"
+          )
+        ) {
           return ethers.constants.AddressZero;
         } else {
           return ethers.utils.computeAddress(validator);
@@ -182,9 +173,9 @@ const Withdraw: React.FC<{}> = () => {
       {
         eventId: eventProof.eventId,
         validatorSetId: eventProof.validatorSetId,
-        v,
-        r,
-        s,
+        v: eventProof.v,
+        r: eventProof.r,
+        s: eventProof.s,
         validators,
       },
       {
@@ -201,9 +192,9 @@ const Withdraw: React.FC<{}> = () => {
       {
         eventId: eventProof.eventId,
         validatorSetId: eventProof.validatorSetId,
-        v,
-        r,
-        s,
+        v: eventProof.v,
+        r: eventProof.r,
+        s: eventProof.s,
         validators,
       },
       {
