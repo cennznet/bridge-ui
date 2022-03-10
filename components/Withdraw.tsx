@@ -66,7 +66,7 @@ const Withdraw: React.FC<{}> = () => {
   const withdraw = async () => {
     setModalOpen(false);
     const ETHBalance = await getMetamaskBalance(global.ethereum, ETH, Account);
-    if (ETHBalance > estimatedFee * 1.05) {
+    if (ETHBalance < estimatedFee * 1.05) {
       return setModal(defineTxModal("error", "balanceTooLow", setModalOpen));
     }
 
