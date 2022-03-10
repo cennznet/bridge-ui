@@ -30,10 +30,9 @@ const Deposit: React.FC<{}> = () => {
 
   //Check MetaMask account has enough tokens to deposit
   useEffect(() => {
-    const { ethereum }: any = window;
     if (token !== "")
       (async () => {
-        let balance = await getMetamaskBalance(ethereum, token, Account);
+        let balance = await getMetamaskBalance(global.ethereum, token, Account);
         setTokenBalance(balance);
       })();
   }, [token]);

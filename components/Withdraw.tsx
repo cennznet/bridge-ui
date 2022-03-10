@@ -7,6 +7,7 @@ import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import { useWeb3 } from "../context/Web3Context";
 import { Heading, SmallText } from "./StyledComponents";
+import { getMetamaskBalance, ETH } from "../utils/helpers";
 
 const Withdraw: React.FC<{}> = () => {
   const [token, setToken] = useState("");
@@ -64,6 +65,11 @@ const Withdraw: React.FC<{}> = () => {
 
   const withdraw = async () => {
     setModalOpen(false);
+    const ETHBalance = await getMetamaskBalance(global.ethereum, ETH, Account);
+    if (ETHBalance > estimatedFee * 1.05) {
+      return setModal(defineTxModal("error", "balanceTooLow", setModalOpen));
+    }
+
     const bridgePaused = await api.query.ethBridge.bridgePaused();
     const CENNZwithdrawalsActive = await api.query.erc20Peg.withdrawalsActive();
     const ETHwithdrawalsActive = await Contracts.peg.withdrawalsActive();
