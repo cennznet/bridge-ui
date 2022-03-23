@@ -284,7 +284,7 @@ const Withdraw: VFC = () => {
                 width: "80%",
                 m: "30px 0 0",
               }}
-              onChange={(e) => setHistoricalEventProofId(e.target.value)}
+              onChange={(e) => setHistoricalEventProofId(Number(e.target.value))}
             />
             <TextField
               label="Block Hash"
