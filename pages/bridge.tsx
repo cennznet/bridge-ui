@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { VFC, useEffect, useState } from "react";
 import Switch from "@/components/Switch";
 import Deposit from "@/components/Deposit";
 import Withdraw from "@/components/Withdraw";
@@ -10,7 +10,7 @@ import { useBlockchain } from "@/context/BlockchainContext";
 import { useRouter } from "next/router";
 import { Box, CircularProgress } from "@mui/material";
 
-const Bridge: React.FC<{}> = () => {
+const Bridge: VFC = () => {
 	const router = useRouter();
 	const [isDeposit, toggleIsDeposit] = useState<boolean>(true);
 	const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -21,7 +21,6 @@ const Bridge: React.FC<{}> = () => {
 	const { updateNetwork }: any = useBlockchain();
 
 	useEffect(() => {
-		const { ethereum }: any = window;
 		const ethereumNetwork = window.localStorage.getItem("ethereum-network");
 
 		let network: string;
@@ -36,12 +35,12 @@ const Bridge: React.FC<{}> = () => {
 				network = "Kovan/Nikau";
 				break;
 			default:
-				router.push("/");
+				void router.push("/");
 				break;
 		}
 
 		if (ethereumNetwork) {
-			updateNetwork(ethereum, ethereumNetwork);
+			updateNetwork(ethereumNetwork);
 			setCurrentNetwork(network);
 			if (!isWalletConnected) connectWallet();
 		}

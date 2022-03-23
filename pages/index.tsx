@@ -17,10 +17,11 @@ const Home: VFC = () => {
 	const [modalState, setModalState] = useState("");
 
 	const connectMetamask = async () => {
-		const { ethereum } = window as any;
 		try {
-			await ethereum.request({ method: "eth_requestAccounts" });
-			const ethChainId = await ethereum.request({ method: "eth_chainId" });
+			await global.ethereum.request({ method: "eth_requestAccounts" });
+			const ethChainId = await global.ethereum.request({
+				method: "eth_chainId",
+			});
 			let ethereumNetwork;
 			switch (ethChainId) {
 				case "0x1":
@@ -39,7 +40,7 @@ const Home: VFC = () => {
 			}
 
 			window.localStorage.setItem("ethereum-network", ethereumNetwork);
-			updateNetwork(ethereum, ethereumNetwork);
+			updateNetwork(ethereumNetwork);
 		} catch (err) {
 			setModalState("noMetamask");
 			setModalOpen(true);

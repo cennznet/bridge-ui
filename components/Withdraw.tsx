@@ -69,7 +69,7 @@ const Withdraw: VFC = () => {
 
 	const withdraw = async () => {
 		setModalOpen(false);
-		const ETHBalance = await getMetamaskBalance(global.ethereum, ETH, Account);
+		const ETHBalance = await getMetamaskBalance(ETH, Account);
 		if (ETHBalance < estimatedFee * 1.05) {
 			return setModal(defineTxModal("error", "balanceTooLow", setModalOpen));
 		}
@@ -88,7 +88,7 @@ const Withdraw: VFC = () => {
 				const withdrawAmount =
 					token === ETH
 						? ethers.utils.parseUnits(amount).toString()
-						: await parseERC20Amount(global.ethereum, token, amount);
+						: await parseERC20Amount(token, amount);
 
 				let eventProof;
 				if (!!historicalEventProofId && !!blockHash) {

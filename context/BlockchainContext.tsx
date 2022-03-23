@@ -14,7 +14,7 @@ type blockchainContextType = {
 const blockchainContextDefaultValues: blockchainContextType = {
 	Contracts: {},
 	Account: "",
-	updateNetwork: (ethereum: any, ethereumNetwork: string) => {},
+	updateNetwork: (ethereumNetwork: string) => {},
 };
 
 const BlockchainContext = createContext<blockchainContextType>(
@@ -42,10 +42,10 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
 		Signer: {} as ethers.providers.JsonRpcSigner,
 	});
 
-	const updateNetwork = (ethereum: any, ethereumNetwork: string) => {
+	const updateNetwork = (ethereumNetwork: string) => {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const provider = new ethers.providers.Web3Provider(ethereum);
+				const provider = new ethers.providers.Web3Provider(global.ethereum);
 				const signer = provider.getSigner();
 				window.localStorage.setItem("ethereum-network", ethereumNetwork);
 				let BridgeAddress: string,
@@ -92,7 +92,7 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
 					signer
 				);
 
-				const accounts = await ethereum.request({
+				const accounts = await global.ethereum.request({
 					method: "eth_requestAccounts",
 				});
 

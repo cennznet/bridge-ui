@@ -3,8 +3,8 @@ import GenericERC20TokenAbi from "@/artifacts/GenericERC20Token.json";
 
 export const ETH = "0x0000000000000000000000000000000000000000";
 
-export const getMetamaskBalance = async (ethereum, tokenAddress, account) => {
-	const provider = new ethers.providers.Web3Provider(ethereum);
+export const getMetamaskBalance = async (tokenAddress, account) => {
+	const provider = new ethers.providers.Web3Provider(global.ethereum);
 	const signer = provider.getSigner();
 	let balance, decimals;
 
@@ -26,11 +26,10 @@ export const getMetamaskBalance = async (ethereum, tokenAddress, account) => {
 };
 
 export const parseERC20Amount = async (
-	ethereum,
 	tokenAddress: string,
 	amount: string
 ) => {
-	const provider = new ethers.providers.Web3Provider(ethereum);
+	const provider = new ethers.providers.Web3Provider(global.ethereum);
 	const signer = provider.getSigner();
 
 	const token: ethers.Contract = new ethers.Contract(

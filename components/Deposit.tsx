@@ -33,7 +33,7 @@ const Deposit: VFC = () => {
 	useEffect(() => {
 		if (!token || !Account) return;
 		(async () => {
-			let balance = await getMetamaskBalance(global.ethereum, token, Account);
+			let balance = await getMetamaskBalance(token, Account);
 			setTokenBalance(balance);
 		})();
 	}, [token, Account]);
@@ -61,11 +61,7 @@ const Deposit: VFC = () => {
 	useEffect(() => {
 		if (!amount || token === ETH) return;
 		(async () => {
-			const amountInWei: string = await parseERC20Amount(
-				global.ethereum,
-				token,
-				amount
-			);
+			const amountInWei: string = await parseERC20Amount(token, amount);
 
 			if (Number(amountInWei) < 2) {
 				setHelperText("Deposit amount too low");
@@ -98,7 +94,7 @@ const Deposit: VFC = () => {
 			GenericERC20TokenAbi,
 			Signer
 		);
-		const amountInWei = await parseERC20Amount(global.ethereum, token, amount);
+		const amountInWei = await parseERC20Amount(token, amount);
 
 		let tx: any = await tokenContract.approve(
 			Contracts.peg.address,
@@ -240,9 +236,7 @@ const Deposit: VFC = () => {
 						mt: "30px",
 						mb: "50px",
 					}}
-					disabled={
-						!(amount && token && selectedAccount && !helperText)
-					}
+					disabled={!(amount && token && selectedAccount && !helperText)}
 					size="large"
 					variant="outlined"
 					onClick={deposit}
