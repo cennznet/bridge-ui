@@ -1,4 +1,4 @@
-import { VFC, useEffect, useState } from "react";
+import { useEffect, useState, VFC } from "react";
 import { ethers } from "ethers";
 import { useWeb3 } from "@/context/Web3Context";
 import { Box, Button, TextField } from "@mui/material";
@@ -8,7 +8,7 @@ import { defineTxModal } from "@/utils/modal";
 import { useBlockchain } from "@/context/BlockchainContext";
 import GenericERC20TokenAbi from "@/artifacts/GenericERC20Token.json";
 import CENNZnetAccountPicker from "@/components/CENNZnetAccountPicker";
-import { getMetamaskBalance, ETH } from "@/utils/helpers";
+import { ETH, getMetamaskBalance, parseERC20Amount } from "@/utils/helpers";
 
 const Deposit: VFC = () => {
 	const [customAddress, setCustomAddress] = useState(false);
@@ -25,30 +25,65 @@ const Deposit: VFC = () => {
 		hash: "",
 	});
 	const [tokenBalance, setTokenBalance] = useState<Number>();
+	const [helperText, setHelperText] = useState<string>();
 	const { Contracts, Signer, Account }: any = useBlockchain();
 	const { decodeAddress, api }: any = useWeb3();
 
 	//Check MetaMask account has enough tokens to deposit
 	useEffect(() => {
-		if (token !== "")
-			(async () => {
-				let balance = await getMetamaskBalance(global.ethereum, token, Account);
-				setTokenBalance(balance);
-			})();
-	}, [token]);
+		if (!token || !Account) return;
+		(async () => {
+			let balance = await getMetamaskBalance(global.ethereum, token, Account);
+			setTokenBalance(balance);
+		})();
+	}, [token, Account]);
 
 	const resetModal = () => {
 		setModal({ state: "", text: "", hash: "" });
 		setModalOpen(false);
 	};
 
+	// Format helper text ETH
+	useEffect(() => {
+		if (!amount || !(token === ETH)) return;
+
+		const amountInWei: ethers.BigNumber = ethers.utils.parseEther(amount);
+		if (Number(amountInWei.toString()) < 2) {
+			setHelperText("Deposit amount too low");
+		} else if (tokenBalance <= Number(amount)) {
+			setHelperText("Account balance too low");
+		} else {
+			setHelperText(null);
+		}
+	}, [amount, token, tokenBalance]);
+
+	// Format helper text ERC20
+	useEffect(() => {
+		if (!amount || token === ETH) return;
+		(async () => {
+			const amountInWei: string = await parseERC20Amount(
+				global.ethereum,
+				token,
+				amount
+			);
+
+			if (Number(amountInWei) < 2) {
+				setHelperText("Deposit amount too low");
+			} else if (tokenBalance < Number(amount)) {
+				setHelperText("Account balance too low");
+			} else {
+				setHelperText(null);
+			}
+		})();
+	}, [amount, token, tokenBalance]);
+
 	const depositEth = async () => {
 		let tx: any = await Contracts.peg.deposit(
 			ETH,
-			ethers.utils.parseUnits(amount),
+			ethers.utils.parseEther(amount),
 			decodeAddress(selectedAccount.address),
 			{
-				value: ethers.utils.parseUnits(amount),
+				value: ethers.utils.parseEther(amount),
 			}
 		);
 
@@ -63,16 +98,17 @@ const Deposit: VFC = () => {
 			GenericERC20TokenAbi,
 			Signer
 		);
+		const amountInWei = await parseERC20Amount(global.ethereum, token, amount);
 
 		let tx: any = await tokenContract.approve(
 			Contracts.peg.address,
-			ethers.utils.parseEther(amount)
+			amountInWei
 		);
 		setModal(defineTxModal("approve", tx.hash, setModalOpen));
 		await tx.wait();
 		tx = await Contracts.peg.deposit(
 			token,
-			ethers.utils.parseUnits(amount),
+			amountInWei,
 			decodeAddress(selectedAccount.address)
 		);
 		setModal(defineTxModal("deposit", tx.hash, setModalOpen));
@@ -90,11 +126,9 @@ const Deposit: VFC = () => {
 			ETHdepositsActive &&
 			CENNZdepositsActive.isTrue
 		) {
-			if (token === ETH) {
-				depositEth();
-			} else {
-				depositERC20();
-			}
+			if (token === ETH) return await depositEth();
+
+			await depositERC20();
 		} else {
 			setModal(defineTxModal("bridgePaused", "", setModalOpen));
 		}
@@ -135,10 +169,8 @@ const Deposit: VFC = () => {
 						width: "80%",
 						m: "30px 0 30px",
 					}}
-					onChange={(e) => setAmount(e.target.value)}
-					helperText={
-						tokenBalance < Number(amount) ? "Account balance too low" : ""
-					}
+					onChange={(e) => setAmount(e.target.value.substring(0, 20))}
+					helperText={helperText}
 				/>
 				{customAddress ? (
 					<>
@@ -209,7 +241,7 @@ const Deposit: VFC = () => {
 						mb: "50px",
 					}}
 					disabled={
-						!(amount && token && selectedAccount && Number(amount) <= tokenBalance)
+						!(amount && token && selectedAccount && !helperText)
 					}
 					size="large"
 					variant="outlined"

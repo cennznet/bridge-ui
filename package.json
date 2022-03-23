@@ -9,8 +9,7 @@
     "prettier-format": "prettier --config .prettierrc.json ./ --write"
   },
   "dependencies": {
-    "@cennznet/api": "^2.1.0-alpha.1",
-    "@cennznet/types": "^2.1.0-alpha.1",
+    "@cennznet/api": "^2.1.0-rc.1",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@mui/material": "^5.5.2",
@@ -21,6 +20,11 @@
     "react-device-detect": "^2.1.2",
     "react-dom": "17.0.2",
     "store": "^2.0.12"
+  },
+  "resolutions": {
+    "@polkadot/util": "^8.4.1",
+    "@polkadot/util-crypto": "^8.4.1",
+    "@polkadot/wasm-crypto": "^4.5.1"
   },
   "devDependencies": {
     "@types/node": "16.11.6",
