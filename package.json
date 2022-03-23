@@ -8,13 +8,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@cennznet/api": "^1.5.0-alpha.4",
-    "@cennznet/types": "^1.5.0-alpha.5",
+    "@cennznet/api": "^2.1.0-alpha.1",
+    "@cennznet/types": "^2.1.0-alpha.1",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@mui/material": "^5.0.6",
-    "@polkadot/extension-dapp": "^0.41.1",
-    "@polkadot/keyring": "5.9.2",
     "axios": "^0.24.0",
     "ethers": "^5.5.1",
     "next": "12.0.2",
