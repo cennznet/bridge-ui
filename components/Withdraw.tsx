@@ -7,6 +7,7 @@ import { defineTxModal } from "../utils/modal";
 import { useBlockchain } from "../context/BlockchainContext";
 import { useWeb3 } from "../context/Web3Context";
 import { Heading, SmallText } from "./StyledComponents";
+import { getMetamaskBalance, ETH } from "../utils/helpers";
 
 const Withdraw: React.FC<{}> = () => {
   const [token, setToken] = useState("");
@@ -24,24 +25,25 @@ const Withdraw: React.FC<{}> = () => {
 
   //Estimate fee
   useEffect(() => {
-    (async () => {
-      let gasPrice = (await Signer.getGasPrice()).toString();
-      gasPrice = ethers.utils.formatUnits(gasPrice);
+    if (selectedAccount)
+      (async () => {
+        let gasPrice = (await Signer.getGasPrice()).toString();
+        gasPrice = ethers.utils.formatUnits(gasPrice);
 
-      const gasEstimate = Number(gasPrice) * 150000;
+        const gasEstimate = Number(gasPrice) * 150000;
 
-      let verificationFee = await Contracts.bridge.verificationFee();
-      verificationFee = ethers.utils.formatUnits(verificationFee);
+        let verificationFee = await Contracts.bridge.verificationFee();
+        verificationFee = ethers.utils.formatUnits(verificationFee);
 
-      const totalFeeEstimate = gasEstimate + Number(verificationFee);
+        const totalFeeEstimate = gasEstimate + Number(verificationFee);
 
-      setEstimatedFee(Number(totalFeeEstimate.toFixed(6)));
-    })();
-  }, []);
+        setEstimatedFee(Number(totalFeeEstimate.toFixed(6)));
+      })();
+  }, [selectedAccount]);
 
   //Check CENNZnet account has enough tokens to withdraw
   useEffect(() => {
-    if (token !== "")
+    if (token !== "" && balances)
       (async () => {
         const tokenExist = await api.query.erc20Peg.erc20ToAssetId(token);
         const tokenId = tokenExist.isSome
@@ -54,7 +56,7 @@ const Withdraw: React.FC<{}> = () => {
           }
         });
       })();
-  }, [token]);
+  }, [token, balances]);
 
   const resetModal = () => {
     setModal({ state: "", text: "", hash: "" });
@@ -63,6 +65,11 @@ const Withdraw: React.FC<{}> = () => {
 
   const withdraw = async () => {
     setModalOpen(false);
+    const ETHBalance = await getMetamaskBalance(global.ethereum, ETH, Account);
+    if (ETHBalance < estimatedFee * 1.05) {
+      return setModal(defineTxModal("error", "balanceTooLow", setModalOpen));
+    }
+
     const bridgePaused = await api.query.ethBridge.bridgePaused();
     const CENNZwithdrawalsActive = await api.query.erc20Peg.withdrawalsActive();
     const ETHwithdrawalsActive = await Contracts.peg.withdrawalsActive();
@@ -128,11 +135,8 @@ const Withdraw: React.FC<{}> = () => {
     await new Promise(async (resolve) => {
       const unsubHeads = await api.rpc.chain.subscribeNewHeads(async () => {
         console.log(`Waiting till event proof is fetched....`);
-        const versionedEventProof = (
-          await api.rpc.ethy.getEventProof(eventProofId)
-        ).toJSON();
-        if (versionedEventProof !== null) {
-          eventProof = versionedEventProof.EventProof;
+        eventProof = await api.derive.ethBridge.eventProof(eventProofId);
+        if (!!eventProof) {
           console.log("Event proof found;::", eventProof);
           unsubHeads();
           resolve(eventProof);
@@ -152,17 +156,21 @@ const Withdraw: React.FC<{}> = () => {
     setModalOpen(false);
 
     let verificationFee = await Contracts.bridge.verificationFee();
-    const signatures = eventProof.signatures;
-    let v: any = [],
-      r: any = [],
-      s: any = []; // signature params
-    signatures.forEach((signature: any) => {
-      const hexifySignature = ethers.utils.hexlify(signature);
-      const sig = ethers.utils.splitSignature(hexifySignature);
-      v.push(sig.v);
-      r.push(sig.r);
-      s.push(sig.s);
-    });
+    const validators = (await api.query.ethBridge.notaryKeys()).map(
+      (validator: ethers.utils.BytesLike) => {
+        // session key is not set
+        if (
+          ethers.utils.hexlify(validator) ===
+          ethers.utils.hexlify(
+            "0x000000000000000000000000000000000000000000000000000000000000000000"
+          )
+        ) {
+          return ethers.constants.AddressZero;
+        } else {
+          return ethers.utils.computeAddress(validator);
+        }
+      }
+    );
 
     let gasEstimate = await Contracts.peg.estimateGas.withdraw(
       tokenAddress,
@@ -171,9 +179,10 @@ const Withdraw: React.FC<{}> = () => {
       {
         eventId: eventProof.eventId,
         validatorSetId: eventProof.validatorSetId,
-        v,
-        r,
-        s,
+        v: eventProof.v,
+        r: eventProof.r,
+        s: eventProof.s,
+        validators,
       },
       {
         value: verificationFee,
@@ -189,9 +198,10 @@ const Withdraw: React.FC<{}> = () => {
       {
         eventId: eventProof.eventId,
         validatorSetId: eventProof.validatorSetId,
-        v,
-        r,
-        s,
+        v: eventProof.v,
+        r: eventProof.r,
+        s: eventProof.s,
+        validators,
       },
       {
         value: verificationFee,

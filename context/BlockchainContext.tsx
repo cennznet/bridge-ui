@@ -55,14 +55,14 @@ const BlockchainProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
         switch (ethereumNetwork) {
           case "Mainnet":
-            BridgeAddress = "0x369e2285CCf43483e76746cebbf3d1d6060913EC";
-            ERC20PegAddress = "0x8F68fe02884b2B05e056aF72E4F2D2313E9900eC";
+            BridgeAddress = "0xf7997B93437d5d2AC226f362EBF0573ce7a53930";
+            ERC20PegAddress = "0x76BAc85e1E82cd677faa2b3f00C4a2626C4c6E32";
             tokenChainId = 1;
             apiUrl = "wss://cennznet.unfrastructure.io/public/ws";
             break;
           case "Kovan":
-            BridgeAddress = "0x9AFe4E42d8ab681d402e8548Ee860635BaA952C5";
-            ERC20PegAddress = "0x5Ff2f9582FcA1e11d47e4e623BEf4594EB12b30d";
+            BridgeAddress = "0x6484A31Df401792c784cD93aAAb3E933B406DdB3";
+            ERC20PegAddress = "0xa39E871e6e24f2d1Dd6AdA830538aBBE7b30F78F";
             tokenChainId = 42;
             apiUrl = "wss://nikau.centrality.me/public/ws";
             break;

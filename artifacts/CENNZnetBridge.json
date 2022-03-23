@@ -46,21 +46,45 @@
   {
     "inputs": [],
     "name": "active",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "activeValidatorSetId",
-    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "eventIds",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -71,7 +95,11 @@
         "name": "_validators",
         "type": "address[]"
       },
-      { "internalType": "uint32", "name": "validatorSetId", "type": "uint32" }
+      {
+        "internalType": "uint32",
+        "name": "validatorSetId",
+        "type": "uint32"
+      }
     ],
     "name": "forceActiveValidatorSet",
     "outputs": [],
@@ -85,7 +113,11 @@
         "name": "_validators",
         "type": "address[]"
       },
-      { "internalType": "uint32", "name": "validatorSetId", "type": "uint32" }
+      {
+        "internalType": "uint32",
+        "name": "validatorSetId",
+        "type": "uint32"
+      }
     ],
     "name": "forceHistoricValidatorSet",
     "outputs": [],
@@ -95,21 +127,39 @@
   {
     "inputs": [],
     "name": "maxRewardPayout",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "proofTTL",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -121,7 +171,13 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "bool", "name": "active_", "type": "bool" }],
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "active_",
+        "type": "bool"
+      }
+    ],
     "name": "setActive",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -142,7 +198,11 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "newTTL", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "newTTL",
+        "type": "uint256"
+      }
     ],
     "name": "setProofTTL",
     "outputs": [],
@@ -176,15 +236,31 @@
       },
       {
         "components": [
-          { "internalType": "uint256", "name": "eventId", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "eventId",
+            "type": "uint256"
+          },
           {
             "internalType": "uint32",
             "name": "validatorSetId",
             "type": "uint32"
           },
-          { "internalType": "uint8[]", "name": "v", "type": "uint8[]" },
-          { "internalType": "bytes32[]", "name": "r", "type": "bytes32[]" },
-          { "internalType": "bytes32[]", "name": "s", "type": "bytes32[]" }
+          {
+            "internalType": "uint8[]",
+            "name": "v",
+            "type": "uint8[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "r",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "s",
+            "type": "bytes32[]"
+          }
         ],
         "internalType": "struct CENNZnetEventProof",
         "name": "proof",
@@ -198,7 +274,11 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "newFee", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "newFee",
+        "type": "uint256"
+      }
     ],
     "name": "setVerificationFee",
     "outputs": [],
@@ -208,13 +288,23 @@
   {
     "inputs": [],
     "name": "thresholdPercent",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -223,35 +313,75 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
     "name": "validators",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "verificationFee",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes", "name": "message", "type": "bytes" },
+      {
+        "internalType": "bytes",
+        "name": "message",
+        "type": "bytes"
+      },
       {
         "components": [
-          { "internalType": "uint256", "name": "eventId", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "eventId",
+            "type": "uint256"
+          },
           {
             "internalType": "uint32",
             "name": "validatorSetId",
             "type": "uint32"
           },
-          { "internalType": "uint8[]", "name": "v", "type": "uint8[]" },
-          { "internalType": "bytes32[]", "name": "r", "type": "bytes32[]" },
-          { "internalType": "bytes32[]", "name": "s", "type": "bytes32[]" }
+          {
+            "internalType": "uint8[]",
+            "name": "v",
+            "type": "uint8[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "r",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "s",
+            "type": "bytes32[]"
+          }
         ],
         "internalType": "struct CENNZnetEventProof",
         "name": "proof",

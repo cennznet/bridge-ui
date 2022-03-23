@@ -25,6 +25,7 @@ const TxModal: React.FC<Props> = ({
 }) => {
   const [open] = useState(true);
   const [etherscanLink, setEtherscanLink] = useState("");
+  const [intervalId, setIntervalId] = useState<NodeJS.Timer>(null);
   const [relayerStatus, updateRelayerStatus] = useState("");
   const [eventConfirmations, setEventConfirmations] = useState(0);
   const [confirms, updateConfirms] = useState(0);
@@ -72,10 +73,11 @@ const TxModal: React.FC<Props> = ({
     if (modalState === "relayer") {
       switch (relayerStatus) {
         default:
-          const intervalId = setInterval(
+          const interval = setInterval(
             () => checkRelayerStatus(relayerLink),
             10000
           );
+          setIntervalId(interval);
           break;
         case "EthereumConfirming":
           updateConfirms(Math.round(0.33 * eventConfirmations));
@@ -127,7 +129,8 @@ const TxModal: React.FC<Props> = ({
           {modalState !== "relayer" &&
             modalState !== "bridgePaused" &&
             modalState !== "error" &&
-            modalState !== "finished" && (
+            modalState !== "finished" &&
+            modalState !== "balanceTooLow" && (
               <Box sx={{ margin: "10px auto 50px" }}>
                 <CircularProgress size="3rem" sx={{ color: "black" }} />
               </Box>
@@ -148,6 +151,7 @@ const TxModal: React.FC<Props> = ({
           )}
           {etherscanHash !== "" &&
             etherscanHash !== "noTokenSelected" &&
+            etherscanHash !== "balanceTooLow" &&
             modalState !== "relayer" && (
               <Button
                 size="large"

@@ -8,13 +8,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@cennznet/api": "^1.5.0-alpha.4",
-    "@cennznet/types": "^1.5.0-alpha.5",
+    "@cennznet/api": "^2.1.0-rc.1",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
     "@mui/material": "^5.0.6",
-    "@polkadot/extension-dapp": "^0.41.1",
-    "@polkadot/keyring": "5.9.2",
     "axios": "^0.24.0",
     "ethers": "^5.5.1",
     "next": "12.0.2",
@@ -22,6 +19,11 @@
     "react-device-detect": "^2.1.2",
     "react-dom": "17.0.2",
     "store": "^2.0.12"
+  },
+  "resolutions": {
+    "@polkadot/util": "^8.4.1",
+    "@polkadot/util-crypto": "^8.4.1",
+    "@polkadot/wasm-crypto": "^4.5.1"
   },
   "devDependencies": {
     "@types/node": "16.11.6",
