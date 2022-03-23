@@ -27,40 +27,48 @@ const Withdraw: VFC = () => {
 	const { Contracts, Account, Signer }: any = useBlockchain();
 	const { signer, selectedAccount, api, balances }: any = useWeb3();
 
-	//Estimate fee
+	const historicalButtonHandler = () => {
+		if (historical) {
+			setHistoricalEventProofId(null);
+			setBlockHash(null);
+		}
+		setHistorical(!historical);
+	};
+
+	// Estimate fee
 	useEffect(() => {
-		if (selectedAccount)
-			(async () => {
-				let gasPrice = (await Signer.getGasPrice()).toString();
-				gasPrice = ethers.utils.formatUnits(gasPrice);
+		if (!selectedAccount || !Contracts || !Signer) return;
+		(async () => {
+			let gasPrice = (await Signer.getGasPrice()).toString();
+			gasPrice = ethers.utils.formatUnits(gasPrice);
 
-				const gasEstimate = Number(gasPrice) * 150000;
+			const gasEstimate = Number(gasPrice) * 150000;
 
-				let verificationFee = await Contracts.bridge.verificationFee();
-				verificationFee = ethers.utils.formatUnits(verificationFee);
+			let verificationFee = await Contracts.bridge.verificationFee();
+			verificationFee = ethers.utils.formatUnits(verificationFee);
 
-				const totalFeeEstimate = gasEstimate + Number(verificationFee);
+			const totalFeeEstimate = gasEstimate + Number(verificationFee);
 
-				setEstimatedFee(Number(totalFeeEstimate.toFixed(6)));
-			})();
-	}, [selectedAccount]);
+			setEstimatedFee(Number(totalFeeEstimate.toFixed(6)));
+		})();
+	}, [selectedAccount, Contracts, Signer]);
 
-	//Check CENNZnet account has enough tokens to withdraw
+	// Check CENNZnet account has enough tokens to withdraw
 	useEffect(() => {
-		if (token !== "" && balances)
-			(async () => {
-				const tokenExist = await api.query.erc20Peg.erc20ToAssetId(token);
-				const tokenId = tokenExist.isSome
-					? tokenExist.unwrap()
-					: await api.query.genericAsset.nextAssetId();
+		if (!api || !token || !balances) return;
+		(async () => {
+			const tokenExist = await api.query.erc20Peg.erc20ToAssetId(token);
+			const tokenId = tokenExist.isSome
+				? tokenExist.unwrap()
+				: await api.query.genericAsset.nextAssetId();
 
-				Object.values(balances).map((token: any) => {
-					if (token.tokenId === tokenId.toString()) {
-						setTokenBalance(token.balance);
-					}
-				});
-			})();
-	}, [token, balances]);
+			Object.values(balances).map((token: any) => {
+				if (token.tokenId === tokenId.toString()) {
+					setTokenBalance(token.balance);
+				}
+			});
+		})();
+	}, [api, token, balances]);
 
 	const resetModal = () => {
 		setModal({ state: "", text: "", hash: "" });
@@ -79,40 +87,43 @@ const Withdraw: VFC = () => {
 		const ETHwithdrawalsActive = await Contracts.peg.withdrawalsActive();
 
 		if (
-			bridgePaused.isFalse &&
-			CENNZwithdrawalsActive.isTrue &&
-			ETHwithdrawalsActive
-		) {
-			if (token !== "") {
-				setModal(defineTxModal("withdrawCENNZside", "", setModalOpen));
-				const withdrawAmount =
-					token === ETH
-						? ethers.utils.parseUnits(amount).toString()
-						: await parseERC20Amount(token, amount);
+			bridgePaused.isTrue ||
+			CENNZwithdrawalsActive.isFalse ||
+			!ETHwithdrawalsActive
+		)
+			return setModal(defineTxModal("bridgePaused", "", setModalOpen));
 
-				let eventProof;
-				if (!!historicalEventProofId && !!blockHash) {
-					eventProof = await api.derive.ethBridge.eventProof(
-						historicalEventProofId
-					);
+		if (!token)
+			return setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
 
-					return await withdrawEthSide(
-						withdrawAmount,
-						eventProof,
-						Account,
-						token,
-						blockHash
-					);
-				}
+		try {
+			setModal(defineTxModal("withdrawCENNZside", "", setModalOpen));
+			const withdrawAmount =
+				token === ETH
+					? ethers.utils.parseUnits(amount).toString()
+					: await parseERC20Amount(token, amount);
 
-				eventProof = await withdrawCENNZside(withdrawAmount, Account, token);
+			let eventProof;
+			if (!!historicalEventProofId && !!blockHash) {
+				eventProof = await api.derive.ethBridge.eventProof(
+					historicalEventProofId
+				);
 
-				await withdrawEthSide(withdrawAmount, eventProof, Account, token);
-			} else {
-				setModal(defineTxModal("error", "noTokenSelected", setModalOpen));
+				return await withdrawEthSide(
+					withdrawAmount,
+					eventProof,
+					Account,
+					token,
+					blockHash
+				);
 			}
-		} else {
-			setModal(defineTxModal("bridgePaused", "", setModalOpen));
+
+			eventProof = await withdrawCENNZside(withdrawAmount, Account, token);
+
+			await withdrawEthSide(withdrawAmount, eventProof, Account, token);
+		} catch (err) {
+			setModal({ state: "error", text: `ERROR: ${err.message}`, hash: "" });
+			setModalOpen(true);
 		}
 	};
 
@@ -127,7 +138,7 @@ const Withdraw: VFC = () => {
 			? tokenExist.unwrap()
 			: await api.query.genericAsset.nextAssetId();
 
-		await new Promise<void>((resolve) => {
+		await new Promise<void>((resolve, reject) => {
 			api.tx.erc20Peg
 				.withdraw(tokenId, amount, ethAddress)
 				.signAndSend(
@@ -147,20 +158,23 @@ const Withdraw: VFC = () => {
 							}
 						}
 					}
-				);
+				)
+				.catch((err) => reject(err));
 		});
 
 		let eventProof: any;
-		await new Promise(async (resolve) => {
-			const unsubHeads = await api.rpc.chain.subscribeNewHeads(async () => {
-				console.log(`Waiting till event proof is fetched....`);
-				eventProof = await api.derive.ethBridge.eventProof(eventProofId);
-				if (!!eventProof) {
-					console.log("Event proof found;::", eventProof);
-					unsubHeads();
-					resolve(eventProof);
-				}
-			});
+		await new Promise(async (resolve, reject) => {
+			const unsubHeads = await api.rpc.chain
+				.subscribeNewHeads(async () => {
+					console.log(`Waiting till event proof is fetched....`);
+					eventProof = await api.derive.ethBridge.eventProof(eventProofId);
+					if (!!eventProof) {
+						console.log("Event proof found;::", eventProof);
+						unsubHeads();
+						resolve(eventProof);
+					}
+				})
+				.catch((err) => reject(err));
 		});
 
 		return eventProof;
@@ -309,7 +323,7 @@ const Withdraw: VFC = () => {
 				<Button
 					size="small"
 					variant="outlined"
-					onClick={() => setHistorical(!historical)}
+					onClick={historicalButtonHandler}
 					sx={{
 						fontFamily: "Teko",
 						fontWeight: "bold",
