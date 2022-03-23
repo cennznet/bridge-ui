@@ -34,6 +34,9 @@ function defineTxModal(state: string, hash: string, setModalOpen: Function) {
       break;
   }
 
+  if (hash === "balanceTooLow") modal.text =
+      "PLEASE ENSURE YOU HAVE ENOUGH ETH IN YOUR METAMASK WALLET TO PAY WITHDRAWAL FEE"
+
   return modal;
 }
 

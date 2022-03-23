@@ -129,7 +129,8 @@ const TxModal: React.FC<Props> = ({
           {modalState !== "relayer" &&
             modalState !== "bridgePaused" &&
             modalState !== "error" &&
-            modalState !== "finished" && (
+            modalState !== "finished" &&
+            modalState !== "balanceTooLow" && (
               <Box sx={{ margin: "10px auto 50px" }}>
                 <CircularProgress size="3rem" sx={{ color: "black" }} />
               </Box>
@@ -150,6 +151,7 @@ const TxModal: React.FC<Props> = ({
           )}
           {etherscanHash !== "" &&
             etherscanHash !== "noTokenSelected" &&
+            etherscanHash !== "balanceTooLow" &&
             modalState !== "relayer" && (
               <Button
                 size="large"
