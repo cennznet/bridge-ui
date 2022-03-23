@@ -2,22 +2,22 @@
 import React, { useContext } from "react";
 
 const Web3Context = React.createContext({
-  hasWeb3injected: false,
-  connectWallet: () => {},
-  updateSelectedAccount: (account) => {},
-  selectedAccount: null,
-  extension: null,
-  balances: null,
-  signer: null,
-  accounts: null,
-  api: null,
-  decodeAddress: (address: string) => {},
-  setBalances: (balances: any) => {},
-  updateApi: (endpoint: string) => {},
+	hasWeb3injected: false,
+	connectWallet: () => {},
+	updateSelectedAccount: (account) => {},
+	selectedAccount: null,
+	extension: null,
+	balances: null,
+	signer: null,
+	accounts: null,
+	api: null,
+	decodeAddress: (address: string) => {},
+	setBalances: (balances: any) => {},
+	updateApi: (endpoint: string) => {},
 });
 
 export function useWeb3() {
-  return useContext(Web3Context);
+	return useContext(Web3Context);
 }
 
 export default Web3Context;
