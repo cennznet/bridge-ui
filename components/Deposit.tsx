@@ -25,8 +25,14 @@ const Deposit: React.FC<{}> = () => {
     hash: "",
   });
   const [tokenBalance, setTokenBalance] = useState<Number>();
+  const [helperText, setHelperText] = useState(null);
   const { Contracts, Signer, Account }: any = useBlockchain();
   const { decodeAddress, api }: any = useWeb3();
+
+  const resetModal = () => {
+    setModal({ state: "", text: "", hash: "" });
+    setModalOpen(false);
+  };
 
   //Check MetaMask account has enough tokens to deposit
   useEffect(() => {
@@ -37,18 +43,48 @@ const Deposit: React.FC<{}> = () => {
       })();
   }, [token]);
 
-  const resetModal = () => {
-    setModal({ state: "", text: "", hash: "" });
-    setModalOpen(false);
-  };
+  //Format helper text
+  useEffect(() => {
+    if (amount !== "") {
+      let decimals, amountInWei;
+      if (token !== "" && token !== ETH) {
+        (async () => {
+          const tokenContract = new ethers.Contract(
+            token,
+            GenericERC20TokenAbi,
+            Signer
+          );
+
+          decimals = await tokenContract.decimals();
+        })();
+        amountInWei = ethers.utils.parseUnits(amount, decimals);
+        if (Number(amountInWei.toString()) < 2) {
+          setHelperText("Deposit amount too low");
+        } else if (tokenBalance < Number(amount)) {
+          setHelperText("Account balance too low");
+        } else {
+          setHelperText(null);
+        }
+      } else if (token === ETH) {
+        amountInWei = ethers.utils.parseEther(amount);
+        if (Number(amountInWei.toString()) < 2) {
+          setHelperText("Deposit amount too low");
+        } else if (tokenBalance <= Number(amount)) {
+          setHelperText("Account balance too low");
+        } else {
+          setHelperText(null);
+        }
+      }
+    }
+  }, [amount]);
 
   const depositEth = async () => {
     let tx: any = await Contracts.peg.deposit(
       ETH,
-      ethers.utils.parseUnits(amount),
+      ethers.utils.parseEther(amount),
       decodeAddress(selectedAccount.address),
       {
-        value: ethers.utils.parseUnits(amount),
+        value: ethers.utils.parseEther(amount),
       }
     );
 
@@ -64,9 +100,11 @@ const Deposit: React.FC<{}> = () => {
       Signer
     );
 
+    const decimals = await tokenContract.decimals();
+
     let tx: any = await tokenContract.approve(
       Contracts.peg.address,
-      ethers.utils.parseEther(amount)
+      ethers.utils.parseUnits(amount, decimals)
     );
     setModal(defineTxModal("approve", tx.hash, setModalOpen));
     await tx.wait();
@@ -135,10 +173,8 @@ const Deposit: React.FC<{}> = () => {
             width: "80%",
             m: "30px 0 30px",
           }}
-          onChange={(e) => setAmount(e.target.value)}
-          helperText={
-            tokenBalance < Number(amount) ? "Account balance too low" : ""
-          }
+          onChange={(e) => setAmount(e.target.value.substring(0, 20))}
+          helperText={helperText}
         />
         {customAddress ? (
           <>
@@ -209,9 +245,7 @@ const Deposit: React.FC<{}> = () => {
             mb: "50px",
           }}
           disabled={
-            amount && token && selectedAccount && Number(amount) <= tokenBalance
-              ? false
-              : true
+            amount && token && selectedAccount && !helperText ? false : true
           }
           size="large"
           variant="outlined"
