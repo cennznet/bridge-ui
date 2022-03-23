@@ -1,13 +1,13 @@
-import React, { VFC, useEffect, useState } from "react";
-import { ethers } from "ethers";
-import { Box, Button, CircularProgress, TextField } from "@mui/material";
+import React, {useEffect, useState, VFC} from "react";
+import {ethers} from "ethers";
+import {Box, Button, CircularProgress, TextField} from "@mui/material";
 import TxModal from "./TxModal";
 import TokenPicker from "./TokenPicker";
-import { defineTxModal } from "@/utils/modal";
-import { useBlockchain } from "@/context/BlockchainContext";
-import { useWeb3 } from "@/context/Web3Context";
-import { Heading, SmallText } from "@/components/StyledComponents";
-import { ETH, getMetamaskBalance } from "@/utils/helpers";
+import {defineTxModal} from "@/utils/modal";
+import {useBlockchain} from "@/context/BlockchainContext";
+import {useWeb3} from "@/context/Web3Context";
+import {Heading, SmallText} from "@/components/StyledComponents";
+import {ETH, getMetamaskBalance, parseERC20Amount} from "@/utils/helpers";
 
 const Withdraw: VFC = () => {
   const [token, setToken] = useState("");
@@ -25,8 +25,8 @@ const Withdraw: VFC = () => {
   const [historicalEventProofId, setHistoricalEventProofId] =
     useState<number>();
   const [blockHash, setBlockHash] = useState<string>();
-  const { Contracts, Account, Signer }: any = useBlockchain();
-  const { signer, selectedAccount, api, balances }: any = useWeb3();
+  const {Contracts, Account, Signer}: any = useBlockchain();
+  const {signer, selectedAccount, api, balances}: any = useWeb3();
 
   //Estimate fee
   useEffect(() => {
@@ -64,7 +64,7 @@ const Withdraw: VFC = () => {
   }, [token, balances]);
 
   const resetModal = () => {
-    setModal({ state: "", text: "", hash: "" });
+    setModal({state: "", text: "", hash: ""});
     setModalOpen(false);
   };
 
@@ -86,7 +86,9 @@ const Withdraw: VFC = () => {
     ) {
       if (token !== "") {
         setModal(defineTxModal("withdrawCENNZside", "", setModalOpen));
-        let withdrawAmount = ethers.utils.parseUnits(amount).toString();
+        const withdrawAmount = token === ETH ?
+          ethers.utils.parseUnits(amount).toString() :
+          await parseERC20Amount(global.ethereum, token, amount);
 
         let eventProof;
         if (!!historicalEventProofId && !!blockHash) {
@@ -134,11 +136,11 @@ const Withdraw: VFC = () => {
         .withdraw(tokenId, amount, ethAddress)
         .signAndSend(
           selectedAccount.address,
-          { signer },
-          async ({ status, events }: any) => {
+          {signer},
+          async ({status, events}: any) => {
             if (status.isInBlock) {
               for (const {
-                event: { method, section, data },
+                event: {method, section, data},
               } of events) {
                 if (section === "erc20Peg" && method == "Erc20Withdraw") {
                   eventProofId = data[0];
@@ -265,7 +267,7 @@ const Withdraw: VFC = () => {
           padding: "0px",
         }}
       >
-        <TokenPicker setToken={setToken} />
+        <TokenPicker setToken={setToken}/>
         <TextField
           label="Amount"
           variant="outlined"
@@ -329,7 +331,7 @@ const Withdraw: VFC = () => {
           {estimatedFee ? (
             <SmallText>{estimatedFee} ETH</SmallText>
           ) : (
-            <CircularProgress size="1.5rem" sx={{ color: "black" }} />
+            <CircularProgress size="1.5rem" sx={{color: "black"}}/>
           )}
         </Box>
         <Button
@@ -342,7 +344,7 @@ const Withdraw: VFC = () => {
             m: "30px auto 50px",
           }}
           disabled={
-            historical ? !(!!historicalEventProofId && !!blockHash): !(token && amount && Number(amount) <= tokenBalance)
+            historical ? !(!!historicalEventProofId && !!blockHash) : !(token && amount && Number(amount) <= tokenBalance)
           }
           size="large"
           variant="outlined"
