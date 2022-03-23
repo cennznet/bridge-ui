@@ -8,8 +8,8 @@ import {
   Link,
   Modal,
 } from "@mui/material";
-import { Heading, SmallText, StyledModal } from "./StyledComponents";
-import { useWeb3 } from "../context/Web3Context";
+import { Heading, SmallText, StyledModal } from "@/components/StyledComponents";
+import { useWeb3 } from "@/context/Web3Context";
 interface Props {
   modalState: string;
   modalText: string;
@@ -129,7 +129,8 @@ const TxModal: React.FC<Props> = ({
           {modalState !== "relayer" &&
             modalState !== "bridgePaused" &&
             modalState !== "error" &&
-            modalState !== "finished" && (
+            modalState !== "finished" &&
+            modalState !== "balanceTooLow" && (
               <Box sx={{ margin: "10px auto 50px" }}>
                 <CircularProgress size="3rem" sx={{ color: "black" }} />
               </Box>
@@ -150,6 +151,7 @@ const TxModal: React.FC<Props> = ({
           )}
           {etherscanHash !== "" &&
             etherscanHash !== "noTokenSelected" &&
+            etherscanHash !== "balanceTooLow" &&
             modalState !== "relayer" && (
               <Button
                 size="large"
@@ -200,7 +202,7 @@ const TxModal: React.FC<Props> = ({
                 updateRelayerStatus("");
                 resetModal();
               }}
-              disabled={relayerStatus === "Successful" ? false : true}
+              disabled={relayerStatus !== "Successful"}
             >
               <Heading sx={{ color: "#FFFFFF", fontSize: "24px" }}>
                 close

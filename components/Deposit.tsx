@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { VFC, useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { useWeb3 } from "../context/Web3Context";
+import { useWeb3 } from "@/context/Web3Context";
 import { Box, Button, TextField } from "@mui/material";
 import TxModal from "./TxModal";
 import TokenPicker from "./TokenPicker";
-import { defineTxModal } from "../utils/modal";
-import { useBlockchain } from "../context/BlockchainContext";
-import GenericERC20TokenAbi from "../artifacts/GenericERC20Token.json";
-import CENNZnetAccountPicker from "./CENNZnetAccountPicker";
-import { getMetamaskBalance, ETH } from "../utils/helpers";
+import { defineTxModal } from "@/utils/modal";
+import { useBlockchain } from "@/context/BlockchainContext";
+import GenericERC20TokenAbi from "@/artifacts/GenericERC20Token.json";
+import CENNZnetAccountPicker from "@/components/CENNZnetAccountPicker";
+import { getMetamaskBalance, ETH } from "@/utils/helpers";
 
-const Deposit: React.FC<{}> = () => {
+const Deposit: VFC = () => {
   const [customAddress, setCustomAddress] = useState(false);
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
@@ -30,10 +30,9 @@ const Deposit: React.FC<{}> = () => {
 
   //Check MetaMask account has enough tokens to deposit
   useEffect(() => {
-    const { ethereum }: any = window;
     if (token !== "")
       (async () => {
-        let balance = await getMetamaskBalance(ethereum, token, Account);
+        let balance = await getMetamaskBalance(global.ethereum, token, Account);
         setTokenBalance(balance);
       })();
   }, [token]);

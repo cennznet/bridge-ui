@@ -7,6 +7,7 @@ import { defineTxModal } from "@/utils/modal";
 import { useBlockchain } from "@/context/BlockchainContext";
 import { useWeb3 } from "@/context/Web3Context";
 import { Heading, SmallText } from "@/components/StyledComponents";
+import { ETH, getMetamaskBalance } from "@/utils/helpers";
 
 const Withdraw: VFC = () => {
   const [token, setToken] = useState("");
@@ -24,8 +25,8 @@ const Withdraw: VFC = () => {
   const [historicalEventProofId, setHistoricalEventProofId] =
     useState<number>();
   const [blockHash, setBlockHash] = useState<string>();
-  const {Contracts, Account, Signer}: any = useBlockchain();
-  const {signer, selectedAccount, api, balances}: any = useWeb3();
+  const { Contracts, Account, Signer }: any = useBlockchain();
+  const { signer, selectedAccount, api, balances }: any = useWeb3();
 
   //Estimate fee
   useEffect(() => {
@@ -63,12 +64,17 @@ const Withdraw: VFC = () => {
   }, [token, balances]);
 
   const resetModal = () => {
-    setModal({state: "", text: "", hash: ""});
+    setModal({ state: "", text: "", hash: "" });
     setModalOpen(false);
   };
 
   const withdraw = async () => {
     setModalOpen(false);
+    const ETHBalance = await getMetamaskBalance(global.ethereum, ETH, Account);
+    if (ETHBalance < estimatedFee * 1.05) {
+      return setModal(defineTxModal("error", "balanceTooLow", setModalOpen));
+    }
+
     const bridgePaused = await api.query.ethBridge.bridgePaused();
     const CENNZwithdrawalsActive = await api.query.erc20Peg.withdrawalsActive();
     const ETHwithdrawalsActive = await Contracts.peg.withdrawalsActive();
@@ -259,14 +265,14 @@ const Withdraw: VFC = () => {
           padding: "0px",
         }}
       >
-        <TokenPicker setToken={setToken}/>
+        <TokenPicker setToken={setToken} />
         <TextField
           label="Amount"
           variant="outlined"
           required
           sx={{
             width: "80%",
-            m: "30px 0 0",
+            mt: "30px",
           }}
           onChange={(e) => setAmount(e.target.value)}
           helperText={
@@ -323,7 +329,7 @@ const Withdraw: VFC = () => {
           {estimatedFee ? (
             <SmallText>{estimatedFee} ETH</SmallText>
           ) : (
-            <CircularProgress size="1.5rem" sx={{color: "black"}}/>
+            <CircularProgress size="1.5rem" sx={{ color: "black" }} />
           )}
         </Box>
         <Button
