@@ -45,32 +45,39 @@ const Deposit: VFC = () => {
 
 	// Format helper text ETH
 	useEffect(() => {
-		if (!amount || !(token === ETH)) return;
-
-		const amountInWei: ethers.BigNumber = ethers.utils.parseEther(amount);
-		if (Number(amountInWei.toString()) < 2) {
-			setHelperText("Deposit amount too low");
-		} else if (tokenBalance <= Number(amount)) {
-			setHelperText("Account balance too low");
-		} else {
-			setHelperText(null);
+		if (!amount || token !== ETH) return;
+		try {
+			const amountInWei: ethers.BigNumber = ethers.utils.parseEther(amount);
+			if (Number(amountInWei.toString()) < 2) {
+				setHelperText("Deposit amount too low");
+			} else if (tokenBalance <= Number(amount)) {
+				setHelperText("Account balance too low");
+			} else {
+				setHelperText(null);
+			}
+		} catch (err) {
+			console.log("Error checking amount:", err.message)
 		}
 	}, [amount, token, tokenBalance]);
 
 	// Format helper text ERC20
 	useEffect(() => {
 		if (!amount || token === ETH) return;
-		(async () => {
-			const amountInWei: string = await parseERC20Amount(token, amount);
+		try {
+			(async () => {
+				const amountInWei: string = await parseERC20Amount(token, amount);
+				if (Number(amountInWei) < 2) {
+					setHelperText("Deposit amount too low");
+				} else if (tokenBalance < Number(amount)) {
+					setHelperText("Account balance too low");
+				} else {
+					setHelperText(null);
+				}
+			})();
+		} catch (err) {
+			console.log("Error checking amount:", err.message)
 
-			if (Number(amountInWei) < 2) {
-				setHelperText("Deposit amount too low");
-			} else if (tokenBalance < Number(amount)) {
-				setHelperText("Account balance too low");
-			} else {
-				setHelperText(null);
-			}
-		})();
+		}
 	}, [amount, token, tokenBalance]);
 
 	const depositEth = async () => {
