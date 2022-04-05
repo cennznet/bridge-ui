@@ -136,11 +136,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cennznet/api@npm:^2.1.0-rc.1":
-  version: 2.1.0-rc.1
-  resolution: "@cennznet/api@npm:2.1.0-rc.1"
+"@cennznet/api@npm:^2.1.0-rc.2":
+  version: 2.1.0-rc.3
+  resolution: "@cennznet/api@npm:2.1.0-rc.3"
   dependencies:
-    "@cennznet/types": ^2.1.0-rc.1
+    "@cennznet/types": ^2.1.0-rc.3
     "@ethersproject/keccak256": ^5.5.0
     "@ethersproject/signing-key": ^5.5.0
     "@polkadot/api": ^7.7.1
@@ -150,19 +150,19 @@ __metadata:
     "@polkadot/types": ^7.7.1
     "@polkadot/x-rxjs": ^6.11.2-6
     eventemitter3: ^4.0.0
-  checksum: 2c4a46399cf8d4a8bc3b6ccf9ff0e4eb681d7dfe68ff9048c0d7be439d1de71e330818034ca52348e95855e507e2c4890a4952910513712c840b0202e3599c89
+  checksum: b8b7636d156c63bbd84126d62d057231a4bd97df11a8ad185ede9f851f6b3f8611cef628eb1a80e05aed5a1202dea678dcf06740f3c303afe61fa1bea052feb2
   languageName: node
   linkType: hard
 
-"@cennznet/types@npm:^2.1.0-rc.1":
-  version: 2.1.0-rc.1
-  resolution: "@cennznet/types@npm:2.1.0-rc.1"
+"@cennznet/types@npm:^2.1.0-rc.3":
+  version: 2.1.0-rc.3
+  resolution: "@cennznet/types@npm:2.1.0-rc.3"
   dependencies:
     "@polkadot/keyring": ^8.3.3
     "@polkadot/types": ^7.7.1
     "@polkadot/util": ^8.3.3
     "@polkadot/util-crypto": ^8.3.3
-  checksum: 35fd93e1a9e625f3dea3962b244de32845186e597b189919e015374cc62de116fa79e02715defaef9f8ef4cd0d6b165e657484f1eaaa685867dee73b0699b509
+  checksum: 416d1a1464df60fbf0e8484579e122708fa7be68959628124ad920090a2a9ff072b64ed842e420db30d40cb95c0b4b7aea7945eb1332f952e5ca72c6e3a2b5aa
   languageName: node
   linkType: hard
 
@@ -2209,7 +2209,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "bridge-ui@workspace:."
   dependencies:
-    "@cennznet/api": ^2.1.0-rc.1
+    "@cennznet/api": ^2.1.0-rc.2
     "@emotion/react": ^11.5.0
     "@emotion/styled": ^11.3.0
     "@mui/material": ^5.5.2
