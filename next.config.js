@@ -12,12 +12,12 @@ module.exports = {
 		return [
 			{
 				source: "/",
-				destination: "https://app.cennz.net",
+				destination: "https://app.cennz.net/bridge",
 				permanent: true
 			},
 			{
 				source: "/:path",
-				destination: "https://app.cennz.net",
+				destination: "https://app.cennz.net/bridge",
 				permanent: true
 			}
 		];
